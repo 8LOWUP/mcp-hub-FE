@@ -1,0 +1,82 @@
+@layer components {
+  /* Display */
+  .text-display1 {
+    @apply text-[22px] font-bold leading-[150%];
+  }
+
+  /* Title */
+  .text-title1 {
+    @apply text-[22px] font-semibold leading-[150%];
+  }
+
+  .text-title2 {
+    @apply text-[20px] font-semibold leading-[150%];
+  }
+
+  .text-title3 {
+    @apply text-[18px] font-semibold leading-[150%];
+  }
+
+  .text-title4 {
+    @apply text-[16px] font-semibold leading-[150%];
+  }
+ 
+  /* 카카오로그인부분 */
+  .text-title5 {
+    @apply text-[14px] font-medium;
+     font-family: 'Roboto';
+    }
+  .text-title6 {
+    @apply text-[10px] font-medium;
+     font-family: 'Roboto';
+    }
+
+  .text-title7 {
+    @apply text-[14px] font-bold leading-[36px] align-middle;
+    font-family: 'Roboto';
+}
+  .text-title8 {
+    @apply text-[10px] font-medium leading-[16px] align-middle;
+    font-family: 'Roboto';
+  }
+  .text-title9 {
+    @apply text-[10px] font-medium leading-[36px] align-middle;
+    font-family: 'Roboto';
+  }
+.text-title10 {
+  @apply text-[13px] font-normal leading-[100%];
+}
+  
+
+  /* Body */
+  .text-body1 {
+    @apply text-[18px] font-normal leading-[150%];
+  }
+
+  .text-body2 {
+    @apply text-[16px] font-normal leading-[150%];
+  }
+
+  .text-body3 {
+    @apply text-[14px] font-normal leading-[150%];
+  }
+
+  .text-body4 {
+    @apply text-[12px] font-normal leading-[150%];
+  }
+
+  /* Caption */
+  .text-caption1 {
+    @apply text-[12px] font-light leading-[150%];
+  }
+
+  .text-caption2 {
+    @apply text-[10px] font-light leading-[150%];
+  }
+
+  .text-logo {
+  @apply text-[24px] font-extrabold leading-[150%] tracking-[0.02em] text-center align-middle;
+  font-family: 'Noto Serif KR';
+}
+
+}

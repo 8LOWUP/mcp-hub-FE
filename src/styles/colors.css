@@ -1,0 +1,69 @@
+:root {
+  --bg-color-1: #1A1A1A;
+  --bg-color-2: #2C2C2C;
+  --bg-color-3: #404248;
+  --bg-color-4: #4B5563;
+  --accent-color-1: #F6E577;
+  --accent-color-2: #E4D46E;
+  --text-color-1: #E0E0E0;
+  --text-color-2: #A0A0A0;
+  --text-color-3: #9CA3AF;
+  --text-color-4: #6B7280;
+}
+
+/* Dark mode (next-themes가 <html class="dark"> 붙여줌) */
+.dark {
+  --bg-color-1: #1A1A1A;
+  --bg-color-2: #2C2C2C;
+  --bg-color-3: #404248;
+  --bg-color-4: #4B5563;
+
+  --accent-color-1: #F6E577;
+  --accent-color-2: #E4D46E;
+
+  --text-color-1: #6B7280;
+  --text-color-2: #9CA3AF;
+  --text-color-3: #A0A0A0;
+  --text-color-4: #E0E0E0;
+}
+
+@layer utilities {
+  /* Text colors */
+  .text-primary    { color: var(--text-color-1); } /* 기본 본문/헤더 텍스트 */
+  .text-secondary  { color: var(--text-color-2); } /* 보조 텍스트 */
+  .text-muted      { color: var(--text-color-3); } /* 더 옅은 설명 */
+  .text-disabled   { color: var(--text-color-4); } /* 비활성, placeholder 유사 */
+
+  .text-accent     { color: var(--accent-color-1); }
+
+  /* Background (surface 층위) */
+  .bg-surface-1    { background-color: var(--bg-color-1); } /* 페이지 전체/루트 */
+  .bg-surface-2    { background-color: var(--bg-color-2); } /* 컨테이너 배경 */
+  .bg-surface-3    { background-color: var(--bg-color-3); } /* 섹션/패널 */
+  .bg-surface-4    { background-color: var(--bg-color-4); } /* 카드/비활성 영역 */
+
+  .bg-accent       { background-color: var(--accent-color-1) !important; }
+  .bg-accent-hover { background-color: var(--accent-color-2) !important; }
+
+  /* Borders */
+  .border-input    { border-color: var(--text-color-4); } /* 인풋/구분선 */
+  .border-muted    { border-color: var(--text-color-3); } /* 옅은 구분선 */
+  .border-contrast { border-color: var(--bg-color-3); }   /* 진한 구분선 */
+  .border-accent   { border-color: var(--accent-color-1); }
+
+  /* Placeholders */
+  .placeholder-muted::placeholder { color: var(--text-color-3); }
+  .placeholder-disabled::placeholder { color: var(--text-color-4); }
+
+  /* Hover helpers (Tailwind와 함께 사용) */
+  .hover\:bg-accent:hover        { background-color: var(--accent-color-1); }
+  .hover\:bg-accent-hover:hover  { background-color: var(--accent-color-2); }
+
+  /* Buttons / states (선택) */
+  .btn-disabled {
+    background-color: var(--bg-color-4);
+    color: var(--text-color-3);
+    cursor: not-allowed;
+    opacity: .7;
+  }
+}
