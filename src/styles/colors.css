@@ -42,8 +42,8 @@
   .bg-surface-3    { background-color: var(--bg-color-3); } /* 섹션/패널 */
   .bg-surface-4    { background-color: var(--bg-color-4); } /* 카드/비활성 영역 */
 
-  .bg-accent       { background-color: var(--accent-color-1) !important; }
-  .bg-accent-hover { background-color: var(--accent-color-2) !important; }
+  .bg-accent       { background-color: var(--accent-color-1) }
+  .bg-accent-hover { background-color: var(--accent-color-2) }
 
   /* Borders */
   .border-input    { border-color: var(--text-color-4); } /* 인풋/구분선 */
