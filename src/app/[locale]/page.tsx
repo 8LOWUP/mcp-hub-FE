@@ -4,6 +4,7 @@ import ThemeToggle from '@/components/ui/theme-toggle';
 import PrimaryButton from '@/components/ui/PrimaryButton';
 import "../globals.css"
 import LocaleSwitcher from '@/components/ui/LocaleSwitcher';
+import SecondaryButton from '@/components/ui/SecondaryButton';
 
 export default function LandingPage() {
   const t = useTranslations('LandingPage');
@@ -19,6 +20,11 @@ export default function LandingPage() {
         >
           + New Chat
         </PrimaryButton>
+        <SecondaryButton
+          variant='secondary'
+        >
+          Upload
+        </SecondaryButton>
       </div>
       <div className='text-primary'>Primary 텍스트</div>
       <div className='text-secondary'>Secondary 텍스트</div>
