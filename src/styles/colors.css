@@ -1,14 +1,16 @@
 :root {
-  --bg-color-1: #1A1A1A;
-  --bg-color-2: #2C2C2C;
-  --bg-color-3: #404248;
-  --bg-color-4: #4B5563;
+  --bg-color-1: red;
+  --bg-color-2: red;
+  --bg-color-3: red;
+  --bg-color-4: red;
+
   --accent-color-1: #F6E577;
   --accent-color-2: #E4D46E;
-  --text-color-1: #E0E0E0;
-  --text-color-2: #A0A0A0;
-  --text-color-3: #9CA3AF;
-  --text-color-4: #6B7280;
+
+  --text-color-1: #6B7280;
+  --text-color-2: #9CA3AF;
+  --text-color-3: #A0A0A0;
+  --text-color-4: #E0E0E0;
 }
 
 /* Dark mode (next-themes가 <html class="dark"> 붙여줌) */
@@ -20,11 +22,11 @@
 
   --accent-color-1: #F6E577;
   --accent-color-2: #E4D46E;
-
-  --text-color-1: #6B7280;
-  --text-color-2: #9CA3AF;
-  --text-color-3: #A0A0A0;
-  --text-color-4: #E0E0E0;
+  
+  --text-color-1: #E0E0E0;
+  --text-color-2: #A0A0A0;
+  --text-color-3: #9CA3AF;
+  --text-color-4: #6B7280;
 }
 
 @layer utilities {
@@ -42,8 +44,15 @@
   .bg-surface-3    { background-color: var(--bg-color-3); } /* 섹션/패널 */
   .bg-surface-4    { background-color: var(--bg-color-4); } /* 카드/비활성 영역 */
 
+  
+  
   .bg-accent       { background-color: var(--accent-color-1) }
   .bg-accent-hover { background-color: var(--accent-color-2) }
+  
+  /* Hover helpers (Tailwind와 함께 사용) */
+  .hover\:bg-accent:hover        { background-color: var(--accent-color-1); }
+  .hover\:bg-accent-hover:hover  { background-color: var(--accent-color-2); }
+
 
   /* Borders */
   .border-input    { border-color: var(--text-color-4); } /* 인풋/구분선 */
@@ -54,10 +63,6 @@
   /* Placeholders */
   .placeholder-muted::placeholder { color: var(--text-color-3); }
   .placeholder-disabled::placeholder { color: var(--text-color-4); }
-
-  /* Hover helpers (Tailwind와 함께 사용) */
-  .hover\:bg-accent:hover        { background-color: var(--accent-color-1); }
-  .hover\:bg-accent-hover:hover  { background-color: var(--accent-color-2); }
 
   /* Buttons / states (선택) */
   .btn-disabled {
