@@ -1,30 +1,32 @@
 :root {
-  --bg-color-1: #1A1A1A;
-  --bg-color-2: #2C2C2C;
-  --bg-color-3: #404248;
-  --bg-color-4: #4B5563;
-  --accent-color-1: #F6E577;
-  --accent-color-2: #E4D46E;
-  --text-color-1: #E0E0E0;
-  --text-color-2: #A0A0A0;
-  --text-color-3: #9CA3AF;
-  --text-color-4: #6B7280;
+    --bg-color-1: #4B5563;
+    --bg-color-2: #404248;
+    --bg-color-3: #2C2C2C;
+    --bg-color-4: #1A1A1A;
+
+    --accent-color-1: #F6E577;
+    --accent-color-2: #E4D46E;
+
+    --text-color-1: #6B7280;
+    --text-color-2: #9CA3AF;
+    --text-color-3: #A0A0A0;
+    --text-color-4: #E0E0E0;
 }
 
 /* Dark mode (next-themes가 <html class="dark"> 붙여줌) */
 .dark {
-  --bg-color-1: #1A1A1A;
-  --bg-color-2: #2C2C2C;
-  --bg-color-3: #404248;
-  --bg-color-4: #4B5563;
+    --bg-color-1: #1A1A1A;
+    --bg-color-2: #2C2C2C;
+    --bg-color-3: #404248;
+    --bg-color-4: #4B5563;
 
-  --accent-color-1: #F6E577;
-  --accent-color-2: #E4D46E;
+    --accent-color-1: #F6E577;
+    --accent-color-2: #E4D46E;
 
-  --text-color-1: #6B7280;
-  --text-color-2: #9CA3AF;
-  --text-color-3: #A0A0A0;
-  --text-color-4: #E0E0E0;
+    --text-color-1: #E0E0E0;
+    --text-color-2: #A0A0A0;
+    --text-color-3: #9CA3AF;
+    --text-color-4: #6B7280;
 }
 
 @layer utilities {
