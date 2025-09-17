@@ -18,11 +18,13 @@ export default async function RootLayout({
   return (
       <html lang={locale} className="dark" suppressHydrationWarning>
       <body>
-      <ThemeProvider>
-        <NextIntlClientProvider messages={messages}>
-          {children}
-        </NextIntlClientProvider>
-      </ThemeProvider>
+        <ThemeProvider>
+          <NextIntlClientProvider messages={messages}>
+            {children}
+            {/* 포탈 위치 지정 */}
+            <div id="portal-root" ></div>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
       </html>
   );

@@ -5,6 +5,7 @@ import PrimaryButton from '@/components/ui/PrimaryButton';
 import "../globals.css"
 import LocaleSwitcher from '@/components/ui/LocaleSwitcher';
 import SecondaryButton from '@/components/ui/SecondaryButton';
+import Example from '@/components/modal/Example';
 import MCPCard from "@/components/container/McpCard";
 import TextContainer from '@/components/container/TextContainer'
 
@@ -27,6 +28,7 @@ export default function LandingPage() {
         >
           Upload
         </SecondaryButton>
+        <Example/>
       </div>
       <div className='flex flex-col'>
         <TextContainer className='max-h-80 w-120'>
