@@ -1,10 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import {useLocale} from "next-intl";
 import {usePathname, useRouter} from "@/i18n/routing";
 import {useSearchParams} from "next/navigation";
 
-export function LocaleToggle() {
+const LocaleSwitcher = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -20,11 +21,16 @@ export function LocaleToggle() {
   return (
     <button
       onClick={switchLocale}
-      className="px-3 py-2 rounded-md border text-sm hover:bg-black/5 dark:hover:bg-white/10"
+      className="
+        rounded-md text-sm p-2 hover:cursor-pointer
+        bg-surface-3 hover:bg-surface-3/10
+      "
       aria-label="Toggle locale"
       title={`Switch to ${next.toUpperCase()}`}
     >
-      {next.toUpperCase()}
+      <Image src="/locale.svg" alt="Locale icon" width={20} height={20} />
     </button>
   );
 }
+
+export default LocaleSwitcher
