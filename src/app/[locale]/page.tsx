@@ -5,6 +5,7 @@ import PrimaryButton from '@/components/ui/PrimaryButton';
 import "../globals.css"
 import LocaleSwitcher from '@/components/ui/LocaleSwitcher';
 import SecondaryButton from '@/components/ui/SecondaryButton';
+import MCPCard from "@/components/container/McpCard";
 
 export default function LandingPage() {
   const t = useTranslations('LandingPage');
@@ -30,6 +31,17 @@ export default function LandingPage() {
       <div className='text-secondary'>Secondary 텍스트</div>
       <div className='text-muted'>Muted 텍스트</div>
       <div className='text-disabled'>Disabled 텍스트</div>
+        <div className="mt-6 flex justify-center">
+
+            <MCPCard
+                id="notionmcp"
+                title="Notion MCP"
+                description="노션의 다양한 기능을 데이터 베이스를 활용하여 만든 시스템입니다."
+                saved = {true}
+                usersCount={2048}
+            />
+        </div>
     </div>
   );
 }
+
