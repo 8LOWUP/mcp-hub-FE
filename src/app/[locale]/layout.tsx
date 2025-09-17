@@ -1,24 +1,22 @@
-import {NextIntlClientProvider} from 'next-intl';
-import {getMessages} from 'next-intl/server';
-import {notFound} from 'next/navigation';
-import {routing} from '@/i18n/routing';
-import { ThemeProvider } from '@/contexts/theme-provider';
- 
+import "../globals.css"; // ★ 전역 스타일 추가
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
+import { ThemeProvider } from "@/contexts/theme-provider";
+
 export default async function RootLayout({
-  children,
-  params
-}: {
+                                           children,
+                                           params,
+                                         }: {
   children: React.ReactNode;
-  params: Promise<{locale: string}>;
+  params: Promise<{ locale: string }>;
 }) {
-  const {locale} = await params;
- 
-  // 클라이언트에게 모든 메시지를 제공합니다.
-  // side is the easiest way to get started
+  const { locale } = await params;
+
+  // 메시지 불러오기
   const messages = await getMessages();
- 
+
   return (
-    <html lang={locale} suppressHydrationWarning>
+      <html lang={locale} className="dark" suppressHydrationWarning>
       <body>
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
@@ -28,6 +26,6 @@ export default async function RootLayout({
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>
-    </html>
+      </html>
   );
 }
