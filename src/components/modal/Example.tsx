@@ -1,22 +1,50 @@
-// pages or components
-"use client"
+"use client";
 
-import { useState } from "react";
-import Modal from "./ModalExample";
+import React from "react";
+import BaseModal from "@/components/ui/modal/BaseModal";
+import PrimaryButton from "@/components/ui/PrimaryButton";
+import SecondaryButton from "@/components/ui/SecondaryButton";
 
-export default function Example() {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="p-6">
-      <button
-        onClick={() => setOpen(true)}
-        className="rounded-lg bg-blue-600 text-white px-4 py-2"
-      >
-        Open modal
-      </button>
-      <Modal open={open} onClose={() => setOpen(false)} title="설정">
-        내용이 여기에 들어갑니다.
-      </Modal>
-    </div>
-  );
-}
+const Example: React.FC = () => {
+    const [isOpen, setIsOpen] = React.useState(false);
+
+    const handleOpen = () => setIsOpen(true);
+    const handleClose = () => setIsOpen(false);
+    const handleDelete = () => alert("삭제");
+    const handleSave = () => alert("수정");
+
+    return (
+        <div className="p-6">
+            <PrimaryButton onClick={handleOpen}>
+                Open modal
+            </PrimaryButton>
+
+            <BaseModal
+                isOpen={isOpen}
+                onClose={handleClose}
+                title="API Key Management"
+                size="lg"
+                footer={
+                    <>
+                        {/* 텍스트 버튼 느낌: 보조 톤 */}
+                        <SecondaryButton onClick={handleDelete}>
+                            삭제
+                        </SecondaryButton>
+
+                        {/* 강조 버튼: 포인트 색상 */}
+                        <PrimaryButton onClick={handleSave} className="bg-accent text-black hover:bg-accent-hover">
+                            수정
+                        </PrimaryButton>
+                    </>
+                }
+            >
+                {/* 본문은 샘플: 공용 톤 적용 */}
+                <div className="text-secondary">
+                    이 영역에 내용을 넣으세요. (공용 스타일 적용 상태 확인용)
+                </div>
+            </BaseModal>
+        </div>
+    );
+};
+
+export default Example;
