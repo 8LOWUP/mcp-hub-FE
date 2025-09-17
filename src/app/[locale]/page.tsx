@@ -6,6 +6,7 @@ import "../globals.css"
 import LocaleSwitcher from '@/components/ui/LocaleSwitcher';
 import SecondaryButton from '@/components/ui/SecondaryButton';
 import TextContainer from '@/components/container/TextContainer';
+import Example from '@/components/modal/Example';
 
 export default function LandingPage() {
   const t = useTranslations('LandingPage');
@@ -26,6 +27,7 @@ export default function LandingPage() {
         >
           Upload
         </SecondaryButton>
+        <Example/>
       </div>
       <div className='flex flex-col'>
         <TextContainer className='max-h-80 w-120'>

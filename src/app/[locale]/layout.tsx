@@ -23,6 +23,8 @@ export default async function RootLayout({
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
             {children}
+            {/* 포탈 위치 지정 */}
+            <div id="portal-root" ></div>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>
