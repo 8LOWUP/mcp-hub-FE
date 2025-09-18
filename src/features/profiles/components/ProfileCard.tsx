@@ -22,7 +22,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
         <article
             className={[
                 PROFILES_STYLES.CARD_BASE,
-                PROFILES_STYLES.CARD_BORDER_HIGHLIGHT, // ✅ 강조 테두리 고정
+                PROFILES_STYLES.CARD_BORDER_HIGHLIGHT,
                 "hover:border-transparent hover:bg-surface-2 active:bg-surface-2 cursor-pointer transition-colors"
             ].join(" ")}
             aria-label={`${item.title} 카드`}
