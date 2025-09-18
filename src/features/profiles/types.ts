@@ -4,5 +4,6 @@ export type McpItemType = {
     title: string;
     description: string;
     iconUrl?: string;
-    isHighlighted?: boolean; // 강조 테두리
+    isHighlighted?: boolean;
+    apiKey?: string;
 };

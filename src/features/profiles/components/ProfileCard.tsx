@@ -6,16 +6,26 @@ import { McpItemType } from "../types";
 import { PROFILES_STYLES } from "../constants";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 
-const publicPrefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
-
 type ProfileCardProps = {
     item: McpItemType;
     onClickApiKey?: (id: string) => void;
     onClose?: (id: string) => void;
+    disableHover?: boolean; // ✅
 };
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose }) => {
-    const handleClickApiKey = () => onClickApiKey?.(item.id);
+const ProfileCard: React.FC<ProfileCardProps> = ({
+                                                     item,
+                                                     onClickApiKey,
+                                                     onClose,
+                                                     disableHover = false,
+                                                 }) => {
+    const handleClickApiKey = () => {
+        // 안전하게 포커스 제거
+        const active = document.activeElement;
+        if (active instanceof HTMLElement) active.blur();
+        onClickApiKey?.(item.id);
+    };
+
     const handleClose = () => onClose?.(item.id);
 
     return (
@@ -23,17 +33,16 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
             className={[
                 PROFILES_STYLES.CARD_BASE,
                 PROFILES_STYLES.CARD_BORDER_HIGHLIGHT,
-                "hover:border-transparent hover:bg-surface-2 active:bg-surface-2 cursor-pointer transition-colors"
+                "hover:border-transparent hover:bg-surface-2 active:bg-surface-2 cursor-pointer transition-colors",
             ].join(" ")}
             aria-label={`${item.title} 카드`}
         >
-
-        <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between">
                 <h2 className={PROFILES_STYLES.CARD_TITLE}>{item.title}</h2>
 
                 <button
                     aria-label="카드 닫기"
-                    onClick={handleClose} // onClose 없으면 undefined → noop
+                    onClick={handleClose}
                     className="ml-2 hover:opacity-80 transition-opacity shrink-0"
                 >
                     <svg
@@ -52,7 +61,12 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
             <p className={PROFILES_STYLES.CARD_DESC}>{item.description}</p>
 
             <div className={PROFILES_STYLES.CARD_ACTIONS}>
-                <SecondaryButton variant="secondary" size="sm" onClick={handleClickApiKey}>
+                <SecondaryButton
+                    variant="secondary"
+                    size="sm"
+                    hoverOnly
+                    onClick={handleClickApiKey}
+                >
                     API Key
                 </SecondaryButton>
             </div>
