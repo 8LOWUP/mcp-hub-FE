@@ -39,7 +39,7 @@ export const PROFILES_STYLES = {
 
     // 카드
     CARD_BASE: `rounded-[20px] p-6 border ${THEME_CLASSES.CONTAINER_BG}`,
-    CARD_BORDER_DEFAULT: `${THEME_CLASSES.BORDER_DEFAULT}`,
+    CARD_BORDER_DEFAULT: `${THEME_CLASSES.BORDER_ACCENT}`,
     CARD_BORDER_HIGHLIGHT: `${THEME_CLASSES.BORDER_ACCENT}`,
     CARD_TITLE: `text-lg font-semibold ${THEME_CLASSES.TEXT_PRIMARY}`,
     CARD_DESC: `mt-3 text-sm ${THEME_CLASSES.TEXT_SECONDARY}`,
@@ -57,7 +57,6 @@ export const DUMMY_MCP_LIST: McpItemType[] = [
         id: "notion-1",
         title: "Notion’s MCP",
         description: "mcp에 대한 상세 설명이 이곳에 들어옵니다!!!",
-        isHighlighted: true, // 강조 테두리(액센트)
     },
     {
         id: "notion-2",

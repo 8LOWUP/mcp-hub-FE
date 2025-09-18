@@ -22,14 +22,13 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
         <article
             className={[
                 PROFILES_STYLES.CARD_BASE,
-                item.isHighlighted
-                    ? PROFILES_STYLES.CARD_BORDER_HIGHLIGHT
-                    : PROFILES_STYLES.CARD_BORDER_DEFAULT,
+                PROFILES_STYLES.CARD_BORDER_HIGHLIGHT, // ✅ 강조 테두리 고정
                 "hover:border-transparent hover:bg-surface-2 active:bg-surface-2 cursor-pointer transition-colors"
             ].join(" ")}
             aria-label={`${item.title} 카드`}
         >
-            <div className="flex items-start justify-between">
+
+        <div className="flex items-start justify-between">
                 <h2 className={PROFILES_STYLES.CARD_TITLE}>{item.title}</h2>
 
                 <button
