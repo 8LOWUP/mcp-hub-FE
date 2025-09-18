@@ -2,6 +2,8 @@ import "../globals.css"; // ★ 전역 스타일 추가
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/contexts/theme-provider";
+import Header from "@/components/layout/Header";
+
 
 export default async function RootLayout({
                                            children,
@@ -20,7 +22,10 @@ export default async function RootLayout({
       <body>
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
-            {children}
+              {/* 공용 헤어*/}
+              <Header/>
+              { /* 페이지 컨텐츠 */ }
+                  {children}
             {/* 포탈 위치 지정 */}
             <div id="portal-root" ></div>
           </NextIntlClientProvider>

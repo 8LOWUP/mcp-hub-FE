@@ -155,6 +155,14 @@ export default function LandingPage() {
                 saved = {true}
                 usersCount={2048}
             />
+            <MCPCard
+                id="notionmcp"
+                title="Notion MCP"
+                description="노션의 다양한 기능을 데이터 베이스를 활용하여 만든 시스템입니다."
+                saved = {true}
+                usersCount={2048}
+            />
+
         </div>
     </div>
   );
