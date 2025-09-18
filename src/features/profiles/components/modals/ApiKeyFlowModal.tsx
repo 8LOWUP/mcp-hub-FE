@@ -1,18 +1,18 @@
+// src/features/profiles/components/modals/ApiKeyFlowModal.tsx
 "use client";
 
 import React from "react";
 import BaseModal from "@/components/ui/modal/BaseModal";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 
-
 type Step = "manage" | "confirmDelete" | "doneDelete";
 
 export type ApiKeyFlowModalProps = {
     isOpen: boolean;
     onClose: () => void;
-    apiKey?: string; // 현재 저장된 키(마스킹/원문 모두 가능)
-    onEdit?: (nextKey: string) => Promise<void> | void;    // Edit 저장(성공 시 모달 닫힘)
-    onDelete?: () => Promise<void> | void;                 // Delete 확정(완료 스텝으로 이동)
+    apiKey?: string;
+    onEdit?: (nextKey: string) => Promise<void> | void;
+    onDelete?: () => Promise<void> | void;
 };
 
 const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({
@@ -27,7 +27,6 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
 
-    // 입력값이 원본과 달라졌는지(수정됨 여부)
     const isDirty = React.useMemo(() => value.trim() !== apiKey.trim(), [value, apiKey]);
 
     React.useEffect(() => {
@@ -38,7 +37,35 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({
         setError(null);
     }, [isOpen, apiKey]);
 
-    /* ========== 핸들러 ========== */
+    /* 공통 헤더: 타이틀 + 닫기 버튼(X) */
+    const ModalHeader = (
+        <div className="flex items-center justify-between mb-4">
+            <h2 className="text-title1 font-bold">API Key Management</h2>
+            <button
+                aria-label="모달 닫기"
+                onClick={onClose}
+                className="ml-2 hover:opacity-80 transition-opacity shrink-0"
+            >
+                <svg
+                    width="18"
+                    height="20"
+                    viewBox="0 0 18 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5 block"
+                >
+                    <path
+                        d="M1 19L17 1M17 19L1 1"
+                        stroke="#F6E577"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                    />
+                </svg>
+            </button>
+        </div>
+    );
+
+    /* ---------- 핸들러 ---------- */
     const toConfirmDelete = () => {
         setError(null);
         setStep("confirmDelete");
@@ -49,7 +76,7 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({
         try {
             setLoading(true);
             await onEdit?.(value.trim());
-            onClose(); // 성공 시 닫기
+            onClose();
         } catch {
             setError("저장 중 오류가 발생했습니다. 다시 시도해 주세요.");
         } finally {
@@ -70,17 +97,16 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({
         }
     };
 
-    /* ========== 스텝 뷰 ========== */
+    /* ---------- 스텝 뷰 ---------- */
     const ManageStep = (
         <div className="flex flex-col gap-6">
-            <h2 className="text-title1 font-bold">API Key Management</h2>
+            {ModalHeader}
 
             <div>
                 <label className="text-body3 text-secondary mb-2 block">
                     API key for confirm
                 </label>
 
-                {/* 입력 래퍼: hover/포커스 애니메이션 + 공통 토큰 사용 */}
                 <div
                     className={[
                         "group rounded-[12px] bg-surface-2 px-4 py-3",
@@ -97,7 +123,6 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({
                         placeholder="Enter your API key"
                     />
 
-                    {/* 체크 아이콘: 수정되면 공통 포인트 컬러로 전환 */}
                     <svg
                         width="18"
                         height="18"
@@ -108,7 +133,6 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({
                         ].join(" ")}
                         aria-hidden
                     >
-                        {/* currentColor 로 컬러 제어 */}
                         <path
                             d="M16 6L8.5 14L4 10"
                             stroke="currentColor"
@@ -134,14 +158,14 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({
     );
 
     const ConfirmDeleteStep = (
-        <div className="flex flex-col gap-6 items-center text-center">
-            <h2 className="text-title1 font-bold self-start">API Key Management</h2>
+        <div className="flex flex-col gap-6">
+            {ModalHeader}
 
             <div className="w-full rounded-[20px] bg-surface-2 px-6 py-4">
-                <p className="text-title2 font-semibold">정말 삭제 하시겠습니까?</p>
+                <p className="text-title2 font-semibold text-center">정말 삭제 하시겠습니까?</p>
             </div>
 
-            {error && <p className="text-body3 text-danger w-full text-left">{error}</p>}
+            {error && <p className="text-body3 text-danger">{error}</p>}
 
             <div className="w-full flex justify-end">
                 <PrimaryButton onClick={handleDelete} disabled={loading}>
@@ -152,11 +176,11 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({
     );
 
     const DoneDeleteStep = (
-        <div className="flex flex-col gap-6 items-center text-center">
-            <h2 className="text-title1 font-bold self-start">API Key Management</h2>
+        <div className="flex flex-col gap-6">
+            {ModalHeader}
 
             <div className="w-full rounded-[20px] bg-surface-2 px-6 py-4">
-                <p className="text-title2 font-semibold">API 키가 삭제되었습니다.</p>
+                <p className="text-title2 font-semibold text-center">API 키가 삭제되었습니다.</p>
             </div>
 
             <div className="w-full flex justify-end">
