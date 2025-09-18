@@ -15,7 +15,7 @@ export const PROFILE_GRID_COLS = "grid grid-cols-1 sm:grid-cols-2 gap-6";
 export const THEME_CLASSES = {
     // 배경(surface 계층)
     PAGE_BG: "bg-surface-1",
-    CONTAINER_BG: "bg-surface-2", // 카드/패널 기본 배경
+    CONTAINER_BG: "bg-surface-1", // 카드/패널 기본 배경
     // 텍스트
     TEXT_PRIMARY: "text-primary",
     TEXT_SECONDARY: "text-secondary",

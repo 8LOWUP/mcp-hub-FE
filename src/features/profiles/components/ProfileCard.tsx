@@ -1,4 +1,3 @@
-// src/features/profiles/components/ProfileCard.tsx
 "use client";
 
 import React from "react";
@@ -23,13 +22,14 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
                 item.isHighlighted
                     ? PROFILES_STYLES.CARD_BORDER_HIGHLIGHT
                     : PROFILES_STYLES.CARD_BORDER_DEFAULT,
+                // ✅ 마우스 호버 시: 보더 제거 + bg-surface-2로
+                "hover:border-transparent hover:bg-surface-2 cursor-pointer transition-colors"
             ].join(" ")}
             aria-label={`${item.title} 카드`}
         >
             <div className="flex items-start justify-between">
                 <h2 className={PROFILES_STYLES.CARD_TITLE}>{item.title}</h2>
 
-                {/* 닫기 아이콘 (옵션) */}
                 {onClose && (
                     <button
                         aria-label="카드 닫기"
@@ -44,11 +44,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
             <p className={PROFILES_STYLES.CARD_DESC}>{item.description}</p>
 
             <div className={PROFILES_STYLES.CARD_ACTIONS}>
-                <SecondaryButton
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleClickApiKey}
-                >
+                <SecondaryButton variant="secondary" size="sm" onClick={handleClickApiKey}>
                     API Key
                 </SecondaryButton>
             </div>
