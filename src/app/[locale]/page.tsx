@@ -12,7 +12,7 @@ import TextContainer from '@/components/container/TextContainer'
 export default function LandingPage() {
   const t = useTranslations('LandingPage');
   return (
-    <div className='bg-surface-1'>
+    <div className='bg-surface-1 pt-20'>
       <h1>{t('title')}</h1>
       <Link href="/about">{t('about')}</Link>
       <div className='flex justify-center items-center'>
@@ -62,6 +62,7 @@ export default function LandingPage() {
             />
 
         </div>
+
     </div>
   );
 }
