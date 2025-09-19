@@ -22,7 +22,7 @@ const LocaleSwitcher = () => {
     <button
       onClick={switchLocale}
       className="
-        rounded-md text-sm p-2 hover:cursor-pointer
+        hidden md:flex rounded-md text-sm p-2 hover:cursor-pointer
         bg-surface-3 hover:bg-surface-3/10
       "
       aria-label="Toggle locale"
