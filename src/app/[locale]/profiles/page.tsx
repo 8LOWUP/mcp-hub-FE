@@ -1,9 +1,5 @@
-// src/app/[locale]/profiles/page.tsx
-"use client";
-
-import React from "react";
-import ProfilePage from "@/features/profiles/components/ProfilePage";
+import ProfilePage from "@/features/profiles/components/page/ProfilePage";
 
 export default function ProfilesPage() {
-    return <ProfilePage />;
+    return <ProfilePage />; // 메인 콘텐츠만
 }
