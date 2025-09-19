@@ -14,14 +14,7 @@ const DeployedCard: React.FC<DeployedCardProps> = ({ item, onDelete }) => {
     const handleDelete = () => onDelete?.(item.id);
 
     return (
-        <article
-            className={[
-                PROFILES_STYLES.CARD_BASE,
-                PROFILES_STYLES.CARD_BORDER_HIGHLIGHT,
-                "hover:bg-surface-2 transition-colors",
-            ].join(" ")}
-            aria-label={`${item.title} 배포 카드`}
-        >
+        <article className={[PROFILES_STYLES.CARD_BASE, PROFILES_STYLES.CARD_FILL_BG_3, "transition-colors"].join(" ")}>
             <div className="flex items-start justify-between">
                 <h3 className={PROFILES_STYLES.CARD_TITLE}>{item.title}</h3>
 
@@ -29,7 +22,7 @@ const DeployedCard: React.FC<DeployedCardProps> = ({ item, onDelete }) => {
                 <PrimaryButton
                     size="sm"
                     onClick={handleDelete}
-                    className="!bg-[#B3261E] text-white hover:opacity-90"
+                    className="!bg-[#FF1212] opacity-60 text-white hover:opacity-90"
                 >
                     Delete
                 </PrimaryButton>

@@ -33,6 +33,7 @@ export const PROFILES_STYLES = {
     CARD_TITLE: `text-lg font-semibold ${THEME_CLASSES.TEXT_PRIMARY}`,
     CARD_DESC: `mt-3 text-sm ${THEME_CLASSES.TEXT_SECONDARY}`,
     CARD_ACTIONS: "mt-5 flex justify-end",
+    CARD_FILL_BG_3: "border-0 !bg-[var(--bg-color-2)]",
 
     API_BUTTON: `rounded-full px-4 py-2 text-sm font-medium text-black ${THEME_CLASSES.BG_ACCENT} ${THEME_CLASSES.BG_ACCENT_HOVER}`,
 } as const;

@@ -14,14 +14,7 @@ const DraftCard: React.FC<DraftCardProps> = ({ item, onEdit }) => {
     const handleEdit = () => onEdit?.(item.id);
 
     return (
-        <article
-            className={[
-                PROFILES_STYLES.CARD_BASE,
-                PROFILES_STYLES.CARD_BORDER_HIGHLIGHT,
-                "hover:bg-surface-2 transition-colors",
-            ].join(" ")}
-            aria-label={`${item.title} 임시저장 카드`}
-        >
+        <article className={[PROFILES_STYLES.CARD_BASE, PROFILES_STYLES.CARD_FILL_BG_3, "transition-colors"].join(" ")}>
             <div className="flex items-start justify-between">
                 <h3 className={PROFILES_STYLES.CARD_TITLE}>{item.title}</h3>
 
