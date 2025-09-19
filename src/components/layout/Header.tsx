@@ -1,32 +1,98 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { useRouter, usePathname } from "next/navigation"; // usePathname 추가
+import LocaleSwitcher from "@/components/ui/LocaleSwitcher";
+import ThemeToggle from "@/components/ui/theme-toggle";
+import PrimaryButton from "@/components/ui/PrimaryButton";
+import SearchBar from "@/components/ui/searchBar";
 
-const Header = () => {
-  const [scrolled, setScrolled] = useState(false);
+export default function LandingHeader() {
+    const router = useRouter();
+    const pathname = usePathname(); // 현재 경로
+    const [scrolled, setScrolled] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 0);
-    };
+    // 현재 locale 추출 (URL의 첫 번째 경로 조각)
+    const locale = pathname.split("/")[1] || "en"; // 기본 locale = en
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    // 스크롤 감지
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 0);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
-  return (
-    <header
-      className="sticky top-0 z-40 shadow-md"
-    >
-      <div className={`absolute top-0 left-0 right-0 z-20 h-20 bg-blue-400 border-b-4 border-blue-400 transition-colors duration-200 ${
-        scrolled ? "border-b-4 border-orange-400" : ""
-      }`}>
-          <div className="mx-auto max-w-screen-2xl px-4 py-3">
-            <h1 className="text-lg font-semibold">해더입니다</h1>
-          </div>
-      </div>
-    </header>
-  );
-};
+    return (
+        <header className="sticky top-0 z-40 shadow-md">
+            {/* 배경 + border */}
+            <div
+                className={`absolute top-0 left-0 right-0 z-20 h-20 px-10 bg-surface-1 transition-colors duration-200 ${
+                    scrolled
+                        ? "border-b-2 border-accent"
+                        : "border-b border-transparent"
+                }`}
+            >
+                <div className="max-w-screen-2xl h-full flex items-center justify-between px-6">
+                    {/* 로고 + MCP Market */}
+                    <div className="flex items-center gap-2">
+                        <Image
+                            src="/logo.svg"
+                            alt="MCP Hub logo"
+                            width={24}
+                            height={24}
+                            priority
+                        />
+                        <div
+                            className="flex flex-col cursor-pointer "
+                            onClick={() => router.push(`/${locale}`)} // locale 기반으로 이동
+                        >
+                            <span className="text-primary font-bold hover:decoration-accent hover:underline decoration-yellow-200 underline-offset-10 ">
+                                MCP Hub
+                            </span>
+                        </div>
 
-export default Header;
+                        <div
+                            className="cursor-pointer px-4 py-2 rounded-md flex items-center justify-center relative"
+                            onClick={() => router.push(`/${locale}/market`)} // locale 기반으로 이동
+                        >
+                            <span className="hidden md:flex text-primary font-semibold hover:decoration-accent hover:underline decoration-yellow-200 underline-offset-10">
+                                MCP Market
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* 검색바 */}
+                    <div className="flex-1 max-w-xl">
+                        <SearchBar />
+                    </div>
+
+                    {/* 오른쪽 액션 */}
+                    <div className="flex items-center gap-x-3">
+                        <PrimaryButton
+                            onClick={() => router.push(`/${locale}/upload`)} // locale 기반으로 이동
+                            variant="primary"
+                            size="md"
+                            additionalClassName="hidden md:flex h-9 px-15"
+                        >
+                            <span className="text-title5">Upload</span>
+                        </PrimaryButton>
+                        <ThemeToggle />
+                        <LocaleSwitcher />
+                        <div className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden">
+                            <Image
+                                src="/catprofile.svg"
+                                alt="Profile"
+                                width={32}
+                                height={32}
+                                className="object-cover w-full h-full"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+    );
+}
