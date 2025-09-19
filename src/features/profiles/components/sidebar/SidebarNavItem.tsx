@@ -2,22 +2,24 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import PrimaryButton from "@/components/ui/PrimaryButton";
-import { SidebarItemType } from "./constants";
+import { SidebarItem } from "./constants";
 
 type SidebarNavItemProps = {
-    item: SidebarItemType;
+    item: SidebarItem;   // ⬅️ 이름 통일
     isActive?: boolean;
 };
 
 const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ item, isActive }) => {
-    const { icon: Icon, label } = item;
+    const router = useRouter();
+    const { icon: Icon, label, href } = item;
 
     return (
         <div aria-current={isActive ? "page" : undefined}>
             <PrimaryButton
                 size="sm"
-                // ⬇︎ 네브 영역에서만 정의된 변수로 색상을 강제 오버라이드
+                onClick={() => router.push(href)}
                 className={[
                     "w-full justify-start gap-3 rounded-2xl px-4 py-3 text-sm transition-colors",
                     isActive
