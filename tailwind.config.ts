@@ -1,14 +1,27 @@
-// tailwind.config.js
-export default {
-  darkMode: 'class', // 다크 모드를 클래스 기반으로 설정
-  content: [
-    './app/**/*.{js,ts,jsx,tsx}',
-    './components/**/*.{js,ts,jsx,tsx}',
-  ],
-  theme: {
-    extend: {
-      
+import plugin from 'tailwindcss/plugin';
+
+const tailwindConfig = {
+    darkMode: 'class',
+    content: [
+        './app/**/*.{js,ts,jsx,tsx}',
+        './components/**/*.{js,ts,jsx,tsx}',
+    ],
+    theme: {
+        extend: {},
     },
-  },
-  plugins: [],
+    plugins: [
+        plugin(function({ addUtilities }) {
+            const newUtilities = {
+                '.decoration-accent': {
+                    'text-decoration-color': 'var(--accent-color-1)',
+                },
+                '.hover\\:decoration-accent:hover': {
+                    'text-decoration-color': 'var(--accent-color-1)',
+                },
+            };
+            addUtilities(newUtilities, ['responsive']);
+        }),
+    ],
 };
+
+export default tailwindConfig;
