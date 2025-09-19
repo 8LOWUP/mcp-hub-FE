@@ -10,19 +10,14 @@ type ProfileCardProps = {
     item: McpItemType;
     onClickApiKey?: (id: string) => void;
     onClose?: (id: string) => void;
-    disableHover?: boolean; // ✅
 };
 
 const ProfileCard: React.FC<ProfileCardProps> = ({
                                                      item,
                                                      onClickApiKey,
                                                      onClose,
-                                                     disableHover = false,
                                                  }) => {
     const handleClickApiKey = () => {
-        // 안전하게 포커스 제거
-        const active = document.activeElement;
-        if (active instanceof HTMLElement) active.blur();
         onClickApiKey?.(item.id);
     };
 
