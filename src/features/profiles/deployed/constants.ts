@@ -41,4 +41,34 @@ export const DUMMY_DRAFT_LIST: McpItemType[] = [
         description: "임시저장된 MCP입니다.",
         apiKey: "",
     },
+    {
+        id: "draft-2",
+        title: "Notion’s MCP",
+        description: "임시저장된 MCP입니다.",
+        apiKey: "",
+    },
+    {
+        id: "draft-3",
+        title: "Notion’s MCP",
+        description: "임시저장된 MCP입니다.",
+        apiKey: "",
+    },
+    {
+        id: "draft-4",
+        title: "Notion’s MCP",
+        description: "임시저장된 MCP입니다.",
+        apiKey: "",
+    },
+    {
+        id: "draft-5",
+        title: "Notion’s MCP",
+        description: "임시저장된 MCP입니다.",
+        apiKey: "",
+    },
+    {
+        id: "draft-6",
+        title: "Notion’s MCP",
+        description: "임시저장된 MCP입니다.",
+        apiKey: "",
+    },
 ];
