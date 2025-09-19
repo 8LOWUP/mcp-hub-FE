@@ -8,6 +8,30 @@ export const DUMMY_DEPLOYED_LIST: McpItemType[] = [
         description: "mcp에 대한 상세 설명이 이곳에 들어옵니다!!!",
         apiKey: "sk-****",
     },
+    {
+        id: "dep-2",
+        title: "Notion’s MCP",
+        description: "mcp에 대한 상세 설명이 이곳에 들어옵니다!!!",
+        apiKey: "sk-****",
+    },
+    {
+        id: "dep-3",
+        title: "Notion’s MCP",
+        description: "mcp에 대한 상세 설명이 이곳에 들어옵니다!!!",
+        apiKey: "sk-****",
+    },
+    {
+        id: "dep-4",
+        title: "Notion’s MCP",
+        description: "mcp에 대한 상세 설명이 이곳에 들어옵니다!!!",
+        apiKey: "sk-****",
+    },
+    {
+        id: "dep-5",
+        title: "Notion’s MCP",
+        description: "mcp에 대한 상세 설명이 이곳에 들어옵니다!!!",
+        apiKey: "sk-****",
+    },
 ];
 
 export const DUMMY_DRAFT_LIST: McpItemType[] = [

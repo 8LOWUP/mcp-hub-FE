@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import ProfileHeader from "@/features/profiles/components/header/ProfileHeader";
 import { PROFILES_STYLES, PROFILE_GRID_COLS } from "@/features/profiles/constants";
 import { McpItemType } from "@/features/profiles/types";
 import { DUMMY_DEPLOYED_LIST, DUMMY_DRAFT_LIST } from "./constants";
@@ -34,10 +33,7 @@ const DeployedPage: React.FC = () => {
 
     return (
         <section className={PROFILES_STYLES.PAGE_PADDING}>
-            <ProfileHeader
-                title="배포한 MCP"
-                subtitle="자신이 올린 MCP를 관리하는 페이지"
-            />
+
 
             {/* 배포한 MCP 섹션 */}
             <div className="mt-6">
