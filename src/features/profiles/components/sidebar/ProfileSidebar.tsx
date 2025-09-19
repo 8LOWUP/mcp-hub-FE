@@ -1,9 +1,11 @@
+// src/features/profiles/components/sidebar/ProfileSidebar.tsx
 "use client";
 
 import React from "react";
 import SidebarHeader from "./SidebarHeader";
 import SidebarNav from "./SidebarNav";
 import { SidebarKeyType } from "./constants";
+import PrimaryButton from "@/components/ui/PrimaryButton";
 
 type ProfileSidebarProps = {
     activeKey: SidebarKeyType;
@@ -19,26 +21,26 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                                            onClickDelete,
                                                        }) => {
     return (
-        <aside className="w-full max-w-[280px] space-y-8 px-6 py-8">
+        <aside className="w-full max-w-[280px] px-6 py-8 flex h-full flex-col">
             <SidebarHeader username={username} />
-
             <SidebarNav activeKey={activeKey} />
 
-            <div className="mt-10 space-y-3">
-                <button
-                    type="button"
+            <div className="mt-auto pt-6 space-y-3">
+                <PrimaryButton
+                    size="md"
+                    className="w-full justify-center"
                     onClick={onClickLogout}
-                    className="w-full rounded-xl bg-[#FFE970] px-5 py-3 text-lg font-semibold text-black"
                 >
                     Log Out
-                </button>
-                <button
-                    type="button"
+                </PrimaryButton>
+
+                <PrimaryButton
+                    size="md"
+                    className="w-full justify-center"
                     onClick={onClickDelete}
-                    className="w-full rounded-xl bg-[#FFE970] px-5 py-3 text-lg font-semibold text-black"
                 >
                     Delete Account
-                </button>
+                </PrimaryButton>
             </div>
         </aside>
     );
