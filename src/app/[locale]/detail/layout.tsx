@@ -2,7 +2,6 @@
 
 // (선택) 이 라우트 전용 메타데이터 임시
 import {Metadata} from "next";
-import { ReactNode } from "react";
 
 export const metadata : Metadata = {
     title: "Chat | MCP HUB",

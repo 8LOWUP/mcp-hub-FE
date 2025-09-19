@@ -7,9 +7,6 @@ export default {
   ],
   theme: {
       extend: {
-          fontFamily: {
-              sans: ["var(--font-geist-sans)", "sans-serif"],
-          },
       },
   },
   plugins: [],
