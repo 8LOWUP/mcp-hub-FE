@@ -31,29 +31,11 @@ const ProfilePage: React.FC = () => {
     const [apiFlowId, setApiFlowId] = React.useState<string | null>(null);
     const apiTarget = list.find(i => i.id === apiFlowId) ?? null;
 
-    // 🔥 모달 닫힌 직후 노란 hover가 고정되는 걸 막기 위한 플래그
-    const [suppressHoverId, setSuppressHoverId] = React.useState<string | null>(null);
 
     const openApiFlow = (id: string) => setApiFlowId(id);
+    const closeApiFlow = () => setApiFlowId(null);
 
-    const closeApiFlow = () => {
-        if (apiFlowId) {
-            const justClosed = apiFlowId;
-            setApiFlowId(null);
 
-            // 닫자마자 해당 버튼 hover 비활성화
-            setSuppressHoverId(justClosed);
-
-            // ✅ 다음 번 실제 마우스 움직임이 감지되면 hover 재활성화
-            const clearOnMove = () => {
-                setSuppressHoverId(null);
-                window.removeEventListener("mousemove", clearOnMove, { capture: true });
-            };
-            window.addEventListener("mousemove", clearOnMove, { capture: true, once: true });
-        } else {
-            setApiFlowId(null);
-        }
-    };
 
     const handleEditApiKey = async (nextKey: string) => {
         // TODO: 서버 저장
@@ -83,8 +65,6 @@ const ProfilePage: React.FC = () => {
                         item={item}
                         onClose={() => openDelete(item.id)}
                         onClickApiKey={() => openApiFlow(item.id)}
-                        // ✅ 모달이 열려있거나 방금 닫혀서 suppress 중이면 hover를 막는다
-                        disableHover={apiFlowId === item.id || suppressHoverId === item.id}
                     />
                 ))}
             </div>
