@@ -4,9 +4,8 @@ import { getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/contexts/theme-provider";
 
 export default async function RootLayout({
-                                           children,
-                                           params,
-                                         }: {
+  children,
+  params, }: {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
