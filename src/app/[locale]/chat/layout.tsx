@@ -1,11 +1,10 @@
 // app/[locale]/chat/layout.tsx
 import type { ReactNode } from "react";
-import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import { ThemeProvider } from "@/contexts/theme-provider";
+import {Metadata} from "next";
 
 // (선택) 이 라우트 전용 메타데이터
-export const metadata = {
+export const metadata : Metadata = {
     title: "Chat | MCP HUB",
     description: "MCP를 위한 LLM 채팅 페이지",
 };

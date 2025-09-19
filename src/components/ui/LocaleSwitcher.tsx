@@ -19,17 +19,17 @@ const LocaleSwitcher = () => {
   };
 
   return (
-    <button
-      onClick={switchLocale}
-      className="
-        rounded-md text-sm p-2 hover:cursor-pointer
+      <button
+          onClick={switchLocale}
+          className="
+        hidden md:flex rounded-md text-sm p-2 hover:cursor-pointer
         bg-surface-3 hover:bg-surface-3/10
       "
-      aria-label="Toggle locale"
-      title={`Switch to ${next.toUpperCase()}`}
-    >
-      <Image src="/locale.svg" alt="Locale icon" width={20} height={20} />
-    </button>
+          aria-label="Toggle locale"
+          title={`Switch to ${next.toUpperCase()}`}
+      >
+        <Image src="/locale.svg" alt="Locale icon" width={20} height={20} />
+      </button>
   );
 }
 
