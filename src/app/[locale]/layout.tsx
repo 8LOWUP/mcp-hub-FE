@@ -1,44 +1,41 @@
-// src/app/[locale]/layout.tsx
-import "../globals.css";
+import "../globals.css"; // ★ 전역 스타일 추가
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/contexts/theme-provider";
-import Header from "@/components/layout/Header"; // ✅ 전역 헤더
+import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
 export default async function RootLayout({
-                                             children,
-                                             params,
+                                           children,
+                                           params,
                                          }: {
-    children: React.ReactNode;
-    params: Promise<{ locale: string }>;
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
-    const { locale } = await params;
-    const messages = await getMessages();
+  const { locale } = await params;
 
-    return (
-        <html lang={locale} className="dark" suppressHydrationWarning>
-        <body>
+  // 메시지 불러오기
+  const messages = await getMessages();
+
+  return (
+      <html lang={locale} className="dark" suppressHydrationWarning>
+      <body>
         <ThemeProvider>
-            <NextIntlClientProvider messages={messages}>
-                {/* 페이지 공통 래퍼 */}
-                <div className="min-w-[375px] bg-background text-foreground min-h-screen">
-                    {/* ✅ 전역 헤더 */}
-                    <Header />
+          <NextIntlClientProvider messages={messages}>
+              {/* 공용 헤어*/}
+              <Header/>
+              <main className={"flex flex-col min-h-screen"}>
+              { /* 페이지 컨텐츠 */ }
+                  {children}
+              </main>
+              {/* 공용 푸터*/}
+              <Footer/>
 
-                    {/* ✅ 헤더 높이만큼 상단 패딩 (Header가 sticky/h-20일 때) */}
-                    <main>
-                        {children}
-                    </main>
-                    {/* 공용 푸터*/}
-                    <Footer/>
-                </div>
-
-                {/* 포탈 루트 */}
-                <div id="portal-root" />
-            </NextIntlClientProvider>
+            {/* 포탈 위치 지정 */}
+            <div id="portal-root" ></div>
+          </NextIntlClientProvider>
         </ThemeProvider>
-        </body>
-        </html>
-    );
+      </body>
+      </html>
+  );
 }

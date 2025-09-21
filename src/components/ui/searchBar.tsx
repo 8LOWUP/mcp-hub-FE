@@ -1,36 +1,55 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import {useLocale} from "next-intl";
-import {usePathname, useRouter} from "@/i18n/routing";
-import {useSearchParams} from "next/navigation";
 
-const LocaleSwitcher = () => {
+interface SearchBarProps {
+    placeholder?: string;
+}
+
+export default function SearchBar({ placeholder = "Search MCP..." }: SearchBarProps) {
+    const [query, setQuery] = useState("");
     const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
-    const locale = useLocale();
-    const next = locale === "ko" ? "en" : "ko";
 
-    const switchLocale = () => {
-        const qs = searchParams?.toString();
-        const href = qs ? `${pathname}?${qs}` : pathname;
-        router.replace(href, { locale: next });
+    // 검색 실행
+    const handleSearch = () => {
+        if (!query) return;
+        // 나중에 검색 결과 페이지 또는 리스트로 이동
+        router.push(`/mcp/search?query=${encodeURIComponent(query)}`);
+    };
+
+    // Enter 키 눌러도 검색 가능!
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            handleSearch();
+        }
     };
 
     return (
-        <button
-            onClick={switchLocale}
-            className="
-        hidden md:flex rounded-md text-sm p-2 hover:cursor-pointer
-        bg-surface-3 hover:bg-surface-3/10
-      "
-            aria-label="Toggle locale"
-            title={`Switch to ${next.toUpperCase()}`}
-        >
-            <Image src="/locale.svg" alt="Locale icon" width={20} height={20} />
-        </button>
+        <div className="relative w-full max-w-md">
+            <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleKeyPress}
+                placeholder={placeholder}
+                className="w-full rounded-full bg-surface-3 py-2 pl-4 pr-10
+                   text-sm text-foreground placeholder:text-muted-foreground
+                   focus:ring-primary"
+            />
+            <button
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 flex items-center justify-center"
+                aria-label="Search"
+                onClick={handleSearch}
+            >
+                <Image
+                    src="/search.svg"
+                    alt="Search"
+                    width={18}
+                    height={18}
+                />
+            </button>
+        </div>
     );
 }
-
-export default LocaleSwitcher
