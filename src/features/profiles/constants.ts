@@ -2,6 +2,9 @@
  * 레이아웃/그리드
  * ================================ */
 export const PROFILE_GRID_COLS = "grid grid-cols-1 sm:grid-cols-2 gap-6";
+export const LAYOUT_TOKENS = {
+    HEADER_HEIGHT_PX: 80 as const, // 헤더 높이(픽셀)
+};
 
 /* ================================
  * 테마 토큰 (클래스 기반)
@@ -18,6 +21,8 @@ export const THEME_CLASSES = {
     BG_ACCENT: "bg-accent",
     BG_ACCENT_HOVER: "hover:bg-accent-hover",
 } as const;
+
+
 
 /* ================================
  * 공통 스타일 (Tailwind Class 집합)
