@@ -4,7 +4,7 @@ import Image from "next/image";
 
 
 export default function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+    const { theme, setTheme } = useTheme();
 
     return (
         <button

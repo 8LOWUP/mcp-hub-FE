@@ -44,27 +44,35 @@
   .bg-surface-3    { background-color: var(--bg-color-3); } /* 섹션/패널 */
   .bg-surface-4    { background-color: var(--bg-color-4); } /* 카드/비활성 영역 */
 
-
-
   .bg-accent       { background-color: var(--accent-color-1) }
   .bg-accent-hover { background-color: var(--accent-color-2) }
 
-  /* Hover helpers (Tailwind와 함께 사용) */
+  /* Hover helpers */
   .hover\:bg-accent:hover        { background-color: var(--accent-color-1); }
   .hover\:bg-accent-hover:hover  { background-color: var(--accent-color-2); }
 
+  /* Surface hover/active helpers (추가) */
+  .hover\:bg-surface-1:hover { background-color: var(--bg-color-1); }
+  .hover\:bg-surface-2:hover { background-color: var(--bg-color-2); }
+  .hover\:bg-surface-3:hover { background-color: var(--bg-color-3); }
+  .hover\:bg-surface-4:hover { background-color: var(--bg-color-4); }
+
+  .active\:bg-surface-1:active { background-color: var(--bg-color-1); }
+  .active\:bg-surface-2:active { background-color: var(--bg-color-2); }
+  .active\:bg-surface-3:active { background-color: var(--bg-color-3); }
+  .active\:bg-surface-4:active { background-color: var(--bg-color-4); }
 
   /* Borders */
-  .border-input    { border-color: var(--text-color-4); } /* 인풋/구분선 */
-  .border-muted    { border-color: var(--text-color-3); } /* 옅은 구분선 */
-  .border-contrast { border-color: var(--bg-color-3); }   /* 진한 구분선 */
+  .border-input    { border-color: var(--text-color-4); }
+  .border-muted    { border-color: var(--text-color-3); }
+  .border-contrast { border-color: var(--bg-color-3); }
   .border-accent   { border-color: var(--accent-color-1); }
 
   /* Placeholders */
   .placeholder-muted::placeholder { color: var(--text-color-3); }
   .placeholder-disabled::placeholder { color: var(--text-color-4); }
 
-  /* Buttons / states (선택) */
+  /* Buttons / states */
   .btn-disabled {
     background-color: var(--bg-color-4);
     color: var(--text-color-3);

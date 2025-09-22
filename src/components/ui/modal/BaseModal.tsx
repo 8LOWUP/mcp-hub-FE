@@ -87,7 +87,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
             >
                 {/* 헤더 */}
                 {title && (
-                    <header className="px-6 pt-6 pb-4 border-b border-muted">
+                    <header className="px-6 pt-6 pb-4 ">
                         <h2 id={titleId} className="text-title2">
                             {title}
                         </h2>

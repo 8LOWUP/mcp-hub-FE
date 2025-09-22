@@ -1,4 +1,4 @@
-import "../globals.css"; // ★ 전역 스타일 추가
+import "../globals.css";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/contexts/theme-provider";
@@ -6,36 +6,32 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
 export default async function RootLayout({
-                                           children,
-                                           params,
+                                             children,
+                                             params,
                                          }: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
+    children: React.ReactNode;
+    params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
+    const { locale } = await params;
+    const messages = await getMessages();
 
-  // 메시지 불러오기
-  const messages = await getMessages();
-
-  return (
-      <html lang={locale} className="dark" suppressHydrationWarning>
-      <body>
+    return (
+        <html lang={locale} className="dark" suppressHydrationWarning>
+        <body className="min-h-screen flex flex-col">       {/* ✅ 전체 높이 책임 */}
         <ThemeProvider>
-          <NextIntlClientProvider messages={messages}>
-              {/* 공용 헤어*/}
-              <Header/>
-              <main className={"flex flex-col min-h-screen"}>
-              { /* 페이지 컨텐츠 */ }
-                  {children}
-              </main>
-              {/* 공용 푸터*/}
-              <Footer/>
-
-            {/* 포탈 위치 지정 */}
-            <div id="portal-root" ></div>
-          </NextIntlClientProvider>
+            <NextIntlClientProvider messages={messages}>
+                <Header />
+                <main className="flex-1 min-h-0 flex flex-col"> {/* ✅ 남은 공간 채움 */}
+                    {/* ✅ 페이지 공통 래퍼 */}
+                    <div className="min-w-[375px] bg-background text-foreground min-h-full">
+                        {children}
+                    </div>
+                </main>
+                <Footer />
+                <div id="portal-root" />
+            </NextIntlClientProvider>
         </ThemeProvider>
-      </body>
-      </html>
-  );
+        </body>
+        </html>
+    );
 }
