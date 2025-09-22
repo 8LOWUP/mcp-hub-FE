@@ -1,3 +1,15 @@
+// app/[locale]/market/page.tsx
+import MarketGrid, { MCPCardData } from "@/features/market/components/grid/MarketGrid";
+
+const mockItems: MCPCardData[] = Array.from({ length: 9 }).map((_, i) => ({
+    id: `mcp-${i + 1}`,
+    title: `Creative Text Generator ${i + 1}`,
+    description: "seolimyoung blahblahblah",
+    saved: i % 2 === 0,
+    usersCount: 1000,
+    iconSrc: "/mcpLogo.svg",
+}));
+
 export default function MarketPage() {
-    return <h1>MCP Market 페이지입니다.</h1>;
+    return <MarketGrid items={mockItems} />;
 }
