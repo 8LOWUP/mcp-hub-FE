@@ -1,15 +1,16 @@
 // app/[locale]/market/page.tsx
-import MarketGrid, { MCPCardData } from "@/features/market/components/grid/MarketGrid";
+"use client";
 
-const mockItems: MCPCardData[] = Array.from({ length: 9 }).map((_, i) => ({
-    id: `mcp-${i + 1}`,
-    title: `Creative Text Generator ${i + 1}`,
-    description: "seolimyoung blahblahblah",
-    saved: i % 2 === 0,
-    usersCount: 1000,
-    iconSrc: "/mcpLogo.svg",
-}));
+import { useSearchParams } from "next/navigation";
+import MarketGrid from "@/features/market/components/grid/MarketGrid";
+import { DUMMY_MCP_LIST } from "@/features/market/data";
+import type { CategoryId } from "@/features/market/constants";
 
 export default function MarketPage() {
-    return <MarketGrid items={mockItems} />;
+    const sp = useSearchParams();
+    const cat = (sp.get("cat") ?? "all") as CategoryId;
+
+    const items = cat === "all" ? DUMMY_MCP_LIST : DUMMY_MCP_LIST.filter(i => i.category === cat);
+
+    return <MarketGrid items={items} />;
 }
