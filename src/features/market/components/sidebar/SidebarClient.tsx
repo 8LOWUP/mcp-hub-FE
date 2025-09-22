@@ -16,7 +16,7 @@ const SidebarClient: React.FC<{ onItemClick?: () => void }> = ({ onItemClick }) 
     const locale = React.useMemo(() => pathname.split("/")[1] || "en", [pathname]);
 
     return (
-        <nav aria-label="Market sidebar" className="px-4 py-6 space-y-6">
+        <nav aria-label="Market sidebar" className="px-4 py-15 space-y-10">
             <div className="flex items-center gap-3">
                 <FaLayerGroup size={22} className="opacity-80 text-secondary" />
                 <h3 className="text-[20px] font-semibold text-primary">Categories</h3>

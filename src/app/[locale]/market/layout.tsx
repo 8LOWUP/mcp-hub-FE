@@ -28,7 +28,6 @@ export default function MarketLayout({ children }: { children: React.ReactNode }
                 className="h-[var(--header-h)] px-4 border-b border-contrast flex items-center justify-between md:hidden"
             >
                 <SidebarToggleButton isOpen={isSidebarOpen} onClick={handleOpen} />
-                <span className="text-title3">Market</span> {/* 필요시 페이지 타이틀 */}
             </header>
 
             {/* ====== 본문 영역 ====== */}
