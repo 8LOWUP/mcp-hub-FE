@@ -1,3 +1,4 @@
+//src/features/detail/hooks/constants.ts
 import { McpDetail } from "./types";
 
 export const MOCK_MARKET_DATA: McpDetail = {
