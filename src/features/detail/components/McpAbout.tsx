@@ -8,8 +8,8 @@ interface Props {
 export default function McpAbout({ about }: Props) {
     return (
         <>
-            <div className="text-secondary">About</div>
-            <TextContainer className="w-full">{about}</TextContainer>
+            <div className="text-secondary font-semibold text-lg">About</div>
+            <TextContainer className="w-full border border-contrast text-left tracking-wide leading-relaxed text-white">{about}</TextContainer>
         </>
     );
 }

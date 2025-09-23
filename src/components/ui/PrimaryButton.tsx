@@ -7,6 +7,7 @@ interface PrimaryButtonProps {
     size?: "sm" | "md" | "lg";
     className?: string;
     disabled?: boolean;
+    type?: "button" | "submit" | "reset";
 }
 
 const PrimaryButton: React.FC<PrimaryButtonProps> = ({

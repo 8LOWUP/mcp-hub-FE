@@ -13,9 +13,9 @@ export default function McpUrlCopy({ url }: Props) {
 
     return (
         <div className="info-block relative">
-            <div className="text-secondary">URL</div>
+            <div className="text-secondary font-semibold text-lg mb-4">URL</div>
             <TextContainer className="w-full flex items-center justify-between gap-2">
-                <span className="truncate">{url}</span>
+                <span className="truncate text-white">{url}</span>
                 <button
                     onClick={() => {
                         navigator.clipboard.writeText(url);
