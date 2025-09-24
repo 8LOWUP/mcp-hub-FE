@@ -1,5 +1,7 @@
 // types/chat/chat-type.ts
 
+import { CommonResponse } from "../common";
+
 export type Role = "user" | "assistant";
 
 export type MessageState = "normal" | "loading" | "error";
@@ -9,8 +11,10 @@ export type Message = {
   role: Role;
   text: string;
   createdAt: number;
-  state?: MessageState; // ← optional (기본 normal)
+  state?: MessageState; 
 };
+
+export type WorkSpaceHistory = CommonResponse<WorkspaceSummary[]>
 
 export type WorkspaceSummary = {
   title: string;
@@ -37,29 +41,46 @@ export type WorkspaceDetail = {
   }>;
 };
 
-export type ChatState = {
-  currentWorkspaceId: string | null;
 
-  // 전체 히스토리 목록 (좌측 사이드바)
-  workspaces: WorkspaceSummary[];
+//워크 스페이스 생성
+export type mcpInfo = {
+  id : string,
+  active : boolean
+}
 
-  // 상세 캐시
-  workspaceCache: Record<string, WorkspaceDetail>;
+export type WorkspaceCreateRequestBody = {
+	llmId: string,
+	mcps : mcpInfo[],
+	chatRequest: string
+}
 
-  // 변환된 메시지
-  messagesByWorkspace: Record<string, Message[]>;
+// 워크 스페이스 조회
+export type chatDetail = {
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  id: string;
+  workspaceId: string;
+  chat: string;
+  new: boolean;
+  request: boolean; // true=user, false=assistant
+  deleted: boolean;
+}
 
-  // 상태 플래그
-  loadingList: boolean;
-  loadingDetail: boolean;
+export type getWorkspaceResponse = CommonResponse<{
+  workspaceId : string,
+	llmId : string,
+	userId : string,
+	title : string,
+	mcps : mcpInfo[],	  
+	chats : chatDetail[]
+}>
 
-  // 액션
-  loadWorkspaceList: () => Promise<void>;
-  openWorkspace: (workspaceId: string) => Promise<void>;
-  startNewChat: () => string;
-  sendMessage: (text: string) => Promise<void>;
+// 워크 스페이스 제목 수정
+export type fetchWorkspaceTitleEditRequestBody = {
+  title : string
+}
 
-  // 파생 상태
-  isCurrentNew: boolean;
-  isCurrentEmpty: boolean;
-};
+export type fetchWorkspaceTitleEditResponse = {
+  title : string
+}
