@@ -26,9 +26,14 @@ const MCPCard: React.FC<MCPCardProps> = ({
         <Link
             href={`/mcp/${id}`}
             className={clsx(
-                "flex flex-col p-6 justify-items-center items-center w-full max-w-sm bg-surface-1 rounded-md",
+                "flex flex-col p-6 justify-items-center items-center w-full max-w-sm rounded-md",
+                "border border-white/20 bg-surface-1",
+                "transition-transform duration-300 ease-in-out",
+                "hover:scale-[1.03] hover:bg-[var(--bg-color-2)] hover:border-transparent",
+                "active:scale-[0.98] active:bg-[var(--bg-color-2)]",
                 className
             )}
+
         >
             {/* 상단 라벨 */}
             <div className="flex w-full justify-between items-center mb-3">

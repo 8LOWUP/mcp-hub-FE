@@ -1,3 +1,6 @@
-export default function MarketPage() {
-    return <h1>MCP Market 페이지입니다.</h1>;
+// app/[locale]/market/page.tsx
+import MarketPage from "@/features/market/components/page/MarketPage";
+
+export default function Page() {
+    return <MarketPage />;
 }

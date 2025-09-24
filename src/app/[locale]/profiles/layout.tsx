@@ -4,8 +4,8 @@
 import React from "react";
 import { THEME_CLASSES, LAYOUT_TOKENS } from "@/features/profiles/constants";
 import SidebarClient from "@/features/profiles/components/sidebar/SidebarClient";
-import SidebarDrawer from "@/features/profiles/components/sidebar/SidebarDrawer";
-import SidebarToggleButton from "@/features/profiles/components/sidebar/SidebarToggleButton";
+import SidebarDrawer from "@/features/_shared/components/sidebar/SidebarDrawer";
+import SidebarToggleButton from "@/features/_shared/components/sidebar/SidebarToggleButton";
 
 export default function ProfilesLayout({ children }: { children: React.ReactNode }) {
 

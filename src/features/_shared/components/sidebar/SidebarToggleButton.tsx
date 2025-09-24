@@ -1,4 +1,3 @@
-// src/features/profiles/components/sidebar/SidebarToggleButton.tsx
 "use client";
 
 import React from "react";
