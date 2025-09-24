@@ -5,6 +5,7 @@ import { getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/contexts/theme-provider";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import ChattingHeader from "@/features/chat/components/ChattingHeader";
 
 // (선택) 이 라우트 전용 메타데이터
 export const metadata = {
@@ -37,7 +38,7 @@ export default async function ChatLayout({
         <div id="chat-portal-root" />
         {/* 페이지 공통 래퍼 */}
         <div className="min-w-[375px] h-dvh w-full bg-background text-foreground">
-            <Header/>
+            <ChattingHeader />
             {children}
         </div>
     </>

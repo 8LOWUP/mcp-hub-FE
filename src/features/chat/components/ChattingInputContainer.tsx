@@ -31,13 +31,9 @@ export default function ChattingInputContainer({
     <div
       className={[
         // 컨테이너 배경/테두리/라운드
-        "w-full rounded-3xl border border-white/15 bg-background",
-        // 패딩: 디바이스별
-        "p-3 px-2 sm:p-3 lg:p-3",
+        "w-full rounded-3xl border border-white/15 bg-background p-3",
         // 내부 레이아웃
         "flex flex-col",
-        // 바깥 여백도 디바이스별로
-        "",
       ].join(" ")}
     >
       <textarea
@@ -56,12 +52,11 @@ export default function ChattingInputContainer({
           // 크기/텍스트/모양
           "w-full bg-transparent outline-none text-secondary break-all resize-none",
           // 텍스트 사이즈 & 내부 패딩: 반응형
-          "text-sm sm:text-base lg:text-base",
-          "px-3 sm:px-4 py-1.5",
+          "text-base px-4 py-1",
           // 자동 리사이즈 + 최대높이 도달 시 내부 스크롤
           "resize-none overflow-y-auto",
           // 최대 높이: 디바이스별
-          "max-h-[140px] sm:max-h-[200px] lg:max-h-[300px]",
+          "max-h-[140px] ",
           // 색상 토큰
           "placeholder:text-foreground/40",
         ].join(" ")}
@@ -72,12 +67,12 @@ export default function ChattingInputContainer({
         <button
           type="button"
           aria-label="모델 선택 열기"
-          className="flex items-center cursor-pointer gap-1 rounded-xl sm:ml-1 px-3 pr-2 py-1 hover:bg-surface-4 transition"
+          className="flex items-center cursor-pointer gap-1 rounded-xl ml-1 px-3 pr-2 py-1 hover:bg-surface-4 transition"
         >
-          <div className="text-sm sm:text-base">GPT-4</div>
+          <div className="text-base">GPT-4</div>
           <svg
             viewBox="0 0 24 24"
-            className="size-6 sm:size-7"
+            className="size-6"
             fill="none"
             stroke="currentColor"
             strokeWidth={1.8}
@@ -98,9 +93,9 @@ export default function ChattingInputContainer({
           className={[
             "grid place-items-center rounded-full transition",
             // 크기: 반응형
-            "size-7 sm:size-9",
+            "size-9",
             // 여백: 반응형
-            "mx-2 sm:mx-3 lg:mx-4",
+            "mx-2",
             // 활성/비활성 스타일
             hasText
               ? "bg-yellow-400 hover:bg-yellow-300 active:scale-[0.98] text-black"

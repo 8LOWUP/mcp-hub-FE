@@ -1,7 +1,7 @@
 // app/[locale]/chat/page.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import ActiveMCPContainer from "@/features/chat/components/ActiveMCPContainer";
 import ChattingWindowContainer from "@/features/chat/components/ChattingWindowContainer";
 import HistoryContainer from "@/features/chat/components/HistoryContainer";
@@ -10,12 +10,33 @@ import { useTranslations } from "next-intl";
 export default function ChatPage() {
   const t = useTranslations("ChatPage");
 
-  // sm ~ md 드로어 상태
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
   const anyOpen = leftOpen || rightOpen;
 
-  // ESC 닫기
+  // ✅ lg 브레이크포인트에 맞춰 open 상태 자동 동기화
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+
+    const sync = () => {
+      if (mq.matches) {
+        // lg 이상: 기본 열림
+        setLeftOpen(true);
+        setRightOpen(true);
+      } else {
+        // lg 미만: 기본 닫힘
+        setLeftOpen(false);
+        setRightOpen(false);
+      }
+    };
+
+    // 최초 1회 및 변경 시 동기화
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  // ESC + 헤더 토글 이벤트
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -23,179 +44,91 @@ export default function ChatPage() {
         setRightOpen(false);
       }
     };
+    const onToggleLeft = () => {
+      setLeftOpen((v) => !v);
+      setRightOpen(false);
+    };
+    const onToggleRight = () => {
+      setRightOpen((v) => !v);
+      setLeftOpen(false);
+    };
+    const onCloseDrawers = () => {
+      setLeftOpen(false);
+      setRightOpen(false);
+    };
+
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("chat:toggle-left", onToggleLeft as EventListener);
+    window.addEventListener("chat:toggle-right", onToggleRight as EventListener);
+    window.addEventListener("chat:close-drawers", onCloseDrawers as EventListener);
+
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("chat:toggle-left", onToggleLeft as EventListener);
+      window.removeEventListener("chat:toggle-right", onToggleRight as EventListener);
+      window.removeEventListener("chat:close-drawers", onCloseDrawers as EventListener);
+    };
   }, []);
 
-  // 푸시 거리: CSS 변수로 통일 (sm~md에서만 의미 있음)
-  const styleVars = useMemo(
-    () =>
-      ({
-        // 드로어 공통 폭: 85vw, 최대 360px
-        ["--drawer-w" as any]: "min(85vw, 360px)",
-        // 컨텐츠 푸시 변환
-        transform:
-          leftOpen
-            ? "translateX(var(--drawer-w))"
-            : rightOpen
-            ? "translateX(calc(-1 * var(--drawer-w)))"
-            : "none",
-      } as React.CSSProperties),
-    [leftOpen, rightOpen]
-  );
-
   return (
-    <>
-      <main
-        className={[
-          "pt-20 w-full h-dvh min-h-0 bg-surface-1",
-          // 오버레이 뜰 때 배경 스크롤 잠금 (sm~md)
-          anyOpen ? "sm:overflow-hidden lg:overflow-visible" : "",
-        ].join(" ")}
-      >
-        {/* 레이아웃 루트 (lg: 3컬럼, sm~md: 중앙 + 오프캔버스) */}
-        <div className="relative h-[calc(100dvh-80px)] max-w-screen min-h-0 overflow-x-hidden">
-          {/* ============ lg 이상: 좌/우 고정 컬럼 ============ */}
-          <div className="hidden lg:grid lg:grid-cols-[280px_minmax(0,1fr)_300px] lg:h-full">
-            <aside className="min-h-0 overflow-y-auto border-r border-white/10">
-              <HistoryContainer />
-            </aside>
-            <section className="min-h-0 overflow-y-auto p-4">
-              <ChattingWindowContainer />
-            </section>
-            <aside className="min-h-0 overflow-y-auto border-l border-white/10">
-              <ActiveMCPContainer />
-            </aside>
+    <main className={["w-full min-h-0 bg-surface-1", anyOpen ? "sm:overflow-hidden lg:overflow-visible" : ""].join(" ")}>
+      <div className="relative h-[calc(100dvh-80px)] max-w-screen min-h-0 overflow-hidden lg:flex">
+        {/* 좌 패널 */}
+        <aside
+          className={[
+            "absolute inset-y-0 left-0 z-40 bg-surface-1 overflow-hidden",
+            "transition-[width,opacity] duration-500 ease-in-out",
+            leftOpen ? "w-[280px] opacity-100 pointer-events-auto" : "w-0 opacity-0 pointer-events-none",
+            // ✅ lg 에서는 항상 보이도록 보장 (상태 적용 전 첫 렌더 안전장치)
+            "lg:relative lg:inset-auto lg:left-auto lg:right-auto lg:opacity-100 lg:pointer-events-auto",
+          ].join(" ")}
+        >
+          <div className="w-[280px] h-full overflow-y-auto">
+            <HistoryContainer />
           </div>
+        </aside>
 
-          {/* ============ sm~md: 푸시 드로어 레이아웃 ============ */}
-          <div className="sm:block lg:hidden h-full">
-            {/* 좌 드로어 */}
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-hidden={!leftOpen}
-              className={[
-                "fixed inset-y-0 left-0 z-50 sm:block lg:hidden",
-                "w-[var(--drawer-w)] bg-surface-2 border-r border-white/10",
-                "shadow-xl transition-transform duration-300 will-change-transform",
-                leftOpen ? "translate-x-0" : "translate-x-[-100%]",
-              ].join(" ")}
-              style={styleVars}
-            >
-              <div className="h-12 flex items-center justify-between px-3 border-b border-white/10">
-                <span className="text-sm font-medium">히스토리</span>
-                <button
-                  onClick={() => setLeftOpen(false)}
-                  className="rounded-md p-2 hover:bg-white/10"
-                  aria-label="히스토리 닫기"
-                >
-                  <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={1.8}>
-                    <path d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div className="h-[calc(100%-48px)] overflow-y-auto">
-                <HistoryContainer />
-              </div>
-            </div>
+        {/* 중앙 */}
+        <section
+          className={[
+            "relative z-30 h-full overflow-y-auto",
+            "transition-transform duration-500 ease-in-out",
+            leftOpen ? "translate-x-[280px]" : "translate-x-0",
+            rightOpen ? "translate-x-[-280px]" : "translate-x-0",
+            "lg:flex-1",
+            // ✅ lg 에선 밀림 유지 원하면 아래 줄 주석 해제 X (현재 유지됨)
+            "lg:translate-x-0", // ← 만약 lg에서 안 밀리게 하려면 이 줄 추가
+          ].join(" ")}
+        >
+          <ChattingWindowContainer />
+        </section>
 
-            {/* 우 드로어 */}
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-hidden={!rightOpen}
-              className={[
-                "fixed inset-y-0 right-0 z-50 sm:block lg:hidden",
-                "w-[var(--drawer-w)] bg-surface-2 border-l border-white/10",
-                "shadow-xl transition-transform duration-300 will-change-transform",
-                rightOpen ? "translate-x-0" : "translate-x-[100%]",
-              ].join(" ")}
-              style={styleVars}
-            >
-              <div className="h-12 flex items-center justify-between px-3 border-b border-white/10">
-                <span className="text-sm font-medium">MCP</span>
-                <button
-                  onClick={() => setRightOpen(false)}
-                  className="rounded-md p-2 hover:bg-white/10"
-                  aria-label="MCP 닫기"
-                >
-                  <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={1.8}>
-                    <path d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div className="h-[calc(100%-48px)] overflow-y-auto">
-                <ActiveMCPContainer />
-              </div>
-            </div>
-
-            {/* 컨텐츠 래퍼: 드로어 열리면 푸시 이동 */}
-            <div
-              className={[
-                "relative z-30 h-full min-h-0",
-                "transition-transform duration-300 will-change-transform",
-              ].join(" ")}
-              style={styleVars}
-            >
-              {/* 상단 토글 버튼들 */}
-              <div className="hidden sm:flex items-center justify-between gap-3 px-4 pt-3 pb-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRightOpen(false);
-                    setLeftOpen(true);
-                  }}
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm bg-foreground/10 hover:bg-foreground/15 transition"
-                  aria-haspopup="dialog"
-                  aria-expanded={leftOpen}
-                  aria-controls="history-drawer"
-                >
-                  <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={1.8}>
-                    <path d="M15 18l-6-6 6-6" />
-                  </svg>
-                  히스토리
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLeftOpen(false);
-                    setRightOpen(true);
-                  }}
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm bg-foreground/10 hover:bg-foreground/15 transition"
-                  aria-haspopup="dialog"
-                  aria-expanded={rightOpen}
-                  aria-controls="mcp-drawer"
-                >
-                  MCP
-                  <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={1.8}>
-                    <path d="M9 6l6 6-6 6" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* 중앙 채팅 */}
-              <div className="h-[calc(100%-52px)] min-h-0 overflow-y-auto px-4 pb-4">
-                <ChattingWindowContainer />
-              </div>
-            </div>
-
-            {/* 오버레이 (푸시 방식이지만 배경 클릭으로 닫기) */}
-            {anyOpen && (
-              <button
-                type="button"
-                onClick={() => {
-                  setLeftOpen(false);
-                  setRightOpen(false);
-                }}
-                aria-label="닫기"
-                className="fixed inset-0 z-20 sm:block lg:hidden bg-black/30"
-              />
-            )}
+        {/* 우 패널 */}
+        <aside
+          className={[
+            "absolute inset-y-0 right-0 z-40 bg-surface-1 overflow-hidden",
+            "transition-[width,opacity] duration-500 ease-in-out",
+            rightOpen ? "w-[280px] opacity-100 pointer-events-auto" : "w-0 opacity-0 pointer-events-none",
+            "lg:relative lg:inset-auto lg:left-auto lg:right-auto lg:opacity-100 lg:pointer-events-auto",
+          ].join(" ")}
+        >
+          <div className="w-[280px] h-full overflow-y-auto">
+            <ActiveMCPContainer />
           </div>
-        </div>
-      </main>
-    </>
+        </aside>
+
+        {/* 오버레이 (모바일/태블릿 전용) */}
+        {(leftOpen || rightOpen) && (
+          <button
+            onClick={() => {
+              setLeftOpen(false);
+              setRightOpen(false);
+            }}
+            aria-label="닫기"
+            className="fixed inset-0 z-30 block lg:hidden bg-black/30"
+          />
+        )}
+      </div>
+    </main>
   );
 }

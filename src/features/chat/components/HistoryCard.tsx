@@ -1,50 +1,81 @@
 "use client";
 
+import { useChatStore } from "@/store/chat/chat-store";
+import clsx from "clsx";
+
 type HistoryCardProps = {
   title: string;
   description?: string;
-  selected?: boolean;
-  onClick?: () => void;
+  workspaceId: string;
   onMenuClick?: () => void;
 };
 
 export default function HistoryCard({
   title,
   description,
-  selected = false,
-  onClick,
+  workspaceId,
   onMenuClick,
 }: HistoryCardProps) {
+  const currentWorkspaceId = useChatStore((s) => s.currentWorkspaceId);
+  const openWorkspace = useChatStore((s) => s.openWorkspace);
+  const startNewChat = useChatStore((s) => s.startNewChat);
+  const selected = currentWorkspaceId === workspaceId;
+
+  const emit = (name: string) =>
+    typeof window !== "undefined" &&
+    window.dispatchEvent(new CustomEvent(name));
+
+  const handleClick = () => {
+    openWorkspace(workspaceId);
+
+    // 모바일/태블릿이면 드로어 닫기
+    if (window.innerWidth < 1024) {
+      emit("chat:close-drawers");
+    }
+  };
+
   return (
     <div className="relative w-full my-2">
       <button
         type="button"
-        onClick={onClick}
+        onClick={handleClick}
         aria-pressed={selected}
-        className={[
-          "block w-full text-left transition-colors",
-          selected
-            ? "bg-surface-2"
-            : "bg-surface-1 hover:bg-surface-2",
-          "border border-white/[0.12]",
-          "rounded-lg p-5",
+        className={clsx(
+          "group w-full text-left rounded-lg p-5 transition-all duration-300 ease-in-out",
           "text-foreground",
-        ].join(" ")}
+          "bg-surface-2 hover:bg-surface-2",
+          selected && "ring-1 ring-inset ring-accent bg-surface-3"
+        )}
       >
-        <h3 className="text-sm font-bold">{title}</h3>
+        {/* 왼쪽 강조 바 */}
+        <span
+          aria-hidden
+          className={clsx(
+            "absolute left-0 top-0 h-full bg-accent rounded-l-lg",
+            "transition-[width,opacity] duration-300 ease-in-out",
+            selected ? "w-1 opacity-100" : "w-0 opacity-0"
+          )}
+        />
+
+        <h3 className="text-sm font-bold truncate">{title}</h3>
         {description && (
-          <p className="mt-2 text-xs text-foreground/60 truncate">
+          <p
+            className={clsx(
+              "mt-2 text-xs truncate transition-colors duration-300",
+              selected ? "text-foreground/80" : "text-foreground/60"
+            )}
+          >
             {description}
           </p>
         )}
       </button>
 
-      {/* 옵션 버튼 (세로 점 3개) */}
+      {/* 옵션 버튼 */}
       <button
         type="button"
         onClick={onMenuClick}
         aria-label="히스토리 카드 메뉴 열기"
-        className="absolute cursor-pointer right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded-full"
+        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-white/10 transition-colors"
       >
         <span className="flex flex-col gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
