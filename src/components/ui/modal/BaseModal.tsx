@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 type BaseModalProps = {
     isOpen: boolean;
     onClose: () => void;
-    title?: string;
+    title?: React.ReactNode;
     children: React.ReactNode;
     className?: string;
     footer?: React.ReactNode;           // 푸터 슬롯(버튼 세트 등)
