@@ -14,9 +14,9 @@ type BaseModalProps = {
 };
 
 const WIDTH_BY_SIZE: Record<NonNullable<BaseModalProps["size"]>, string> = {
-    sm: "w-[480px]",
-    md: "w-[600px]",
-    lg: "w-[720px]",
+    sm: "w-full max-w-[360px]", // 작은 모달: 모바일에선 꽉 차고, 최대 360px
+    md: "w-full max-w-[500px]", // 중간 모달: 최대 500px
+    lg: "w-full max-w-[720px]", // 큰 모달: 최대 720px
 };
 
 const BaseModal: React.FC<BaseModalProps> = ({

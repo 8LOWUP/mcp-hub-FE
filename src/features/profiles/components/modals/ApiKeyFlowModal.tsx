@@ -190,7 +190,7 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({
     );
 
     return (
-        <BaseModal isOpen={isOpen} onClose={onClose} size="lg">
+        <BaseModal isOpen={isOpen} onClose={onClose} size="md">
             {step === "manage" && ManageStep}
             {step === "confirmDelete" && ConfirmDeleteStep}
             {step === "doneDelete" && DoneDeleteStep}

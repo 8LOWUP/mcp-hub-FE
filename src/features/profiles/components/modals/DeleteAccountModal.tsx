@@ -1,4 +1,3 @@
-// src/features/profiles/components/DeleteAccountModal.tsx
 "use client";
 
 import React from "react";
@@ -33,13 +32,11 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
     }, [isOpen]);
 
     const handleNextFromConfirm = async () => {
-        // 1) 탈퇴 API 호출 → 2) 성공 시 완료 단계로 전환
         try {
             setIsLoading(true);
             await onRequestDelete();
             setStep(DeleteStep.done);
         } catch (e) {
-            // 실패 처리(UI 토스트/문구 추가 가능)
             console.error(e);
         } finally {
             setIsLoading(false);
@@ -47,7 +44,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
     };
 
     const handleFinish = () => {
-        onClose();          // 모달 닫기
+        onClose();
         router.push("/ko"); // 완료 후 이동
     };
 
@@ -58,8 +55,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
             isOpen={isOpen}
             onClose={onClose}
             title="Delete Account"
-            className="w-[600px] max-w-[90%] rounded-[20px]"
-
+            size="md"
         >
             {/* 본문 */}
             <div className="space-y-6">
@@ -73,11 +69,9 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
                         </p>
                     </>
                 ) : (
-                    <>
-                        <div className="rounded-2xl bg-surface-2 px-6 py-5 text-center">
-                            <p className="text-title3">회원탈퇴가 완료되었습니다.</p>
-                        </div>
-                    </>
+                    <div className="rounded-2xl bg-surface-2 px-6 py-5 text-center">
+                        <p className="text-title3">회원탈퇴가 완료되었습니다.</p>
+                    </div>
                 )}
             </div>
 
@@ -86,10 +80,10 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
                 {isConfirm ? (
                     <>
                         <PrimaryButton
-                            variant="secondary" // 👉 Secondary 스타일 적용(회색 계열)
+                            variant="secondary"
                             size="md"
                             className="min-w-[96px] justify-center"
-                            onClick={onClose} // 👉 모달 닫기
+                            onClick={onClose}
                         >
                             Cancel
                         </PrimaryButton>
@@ -113,7 +107,6 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
                     </PrimaryButton>
                 )}
             </div>
-
         </BaseModal>
     );
 };
