@@ -6,7 +6,7 @@ import SocialSignInButton from "./SocialSignInButton";
 import { ProviderId } from "@/features/auth/constants";
 import { signIn } from "next-auth/react";
 
-type Props = { isOpen: boolean; onClose: () => void; };
+type Props = { isOpen: boolean; onClose: () => void };
 
 const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
     const pathname = usePathname();
@@ -22,13 +22,39 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
         <BaseModal
             isOpen={isOpen}
             onClose={onClose}
-            title="Sign In"
-            size="md"     // ✅ md 프리셋 사용
+            title={
+                <div className="flex items-center justify-between w-full">
+                    <span>Sign In</span>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Close login modal"
+                        className="ml-2 hover:opacity-80 transition-opacity"
+                    >
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 18 18"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-5 h-5 block"
+                        >
+                            <path
+                                d="M1 17L17 1M17 17L1 1"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                            />
+                        </svg>
+                    </button>
+                </div>
+            }
+            size="md"
         >
             <div className="space-y-4">
                 <SocialSignInButton provider="google" onClick={handleSignIn} />
                 <SocialSignInButton provider="github" onClick={handleSignIn} />
-                <SocialSignInButton provider="kakao"  onClick={handleSignIn} />
+                <SocialSignInButton provider="kakao" onClick={handleSignIn} />
             </div>
             <p className="mt-5 text-center text-muted text-caption">
                 로그인 시 약관 및 개인정보처리방침에 동의합니다.
