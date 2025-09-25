@@ -3,8 +3,7 @@
 import React from "react";
 import ProfileHeader from "../header/ProfileHeader";
 import { ProfileCard, DUMMY_MCP_LIST } from "../card";
-import DeleteMcpModal from "../modals/DeleteMcpModal";
-import DeleteMcpSuccessModal from "../modals/DeleteMcpSuccessModal";
+import DeleteMcpFlowModal from "../modals/DeleteMcpFlowModal";
 import ApiKeyFlowModal from "../modals/ApiKeyFlowModal";
 import { PROFILE_GRID_COLS, PROFILES_STYLES } from "../../constants";
 import { McpItemType } from "../../types";
@@ -14,16 +13,15 @@ const ProfilePage: React.FC = () => {
 
     /** ── 카드 삭제(X) 플로우 ───────────────────────────────────────── */
     const [targetId, setTargetId] = React.useState<string | null>(null);
-    const [isDeleted, setIsDeleted] = React.useState(false);
 
     const openDelete = (id: string) => setTargetId(id);
     const closeDelete = () => setTargetId(null);
-    const confirmDelete = () => {
+
+    const confirmDelete = async () => {
         if (!targetId) return;
         // TODO: 서버 삭제 API 호출
         setList(prev => prev.filter(item => item.id !== targetId));
-        setTargetId(null);
-        setIsDeleted(true);
+        //  모달 안에서 step="done" 화면으로 바뀌기 때문에 targetId 유지
     };
 
     /** ── API Key 관리 플로우 ───────────────────────────────────────── */
@@ -38,16 +36,19 @@ const ProfilePage: React.FC = () => {
 
     const handleEditApiKey = async (nextKey: string) => {
         // TODO: 서버 저장
-        setList(prev => prev.map(i => (i.id === apiFlowId ? { ...i, apiKey: nextKey } : i)));
+        setList(prev =>
+            prev.map(i => (i.id === apiFlowId ? { ...i, apiKey: nextKey } : i)),
+        );
     };
 
     const handleDeleteApiKey = async () => {
         // TODO: 서버에서 키 삭제
-        setList(prev => prev.map(i => (i.id === apiFlowId ? { ...i, apiKey: "" } : i)));
+        setList(prev =>
+            prev.map(i => (i.id === apiFlowId ? { ...i, apiKey: "" } : i)),
+        );
     };
 
     return (
-        // ✅ 메인 콘텐츠만 렌더 (사이드바는 layout.tsx가 렌더)
         <section className={PROFILES_STYLES.PAGE_PADDING}>
             <ProfileHeader
                 title="내가 저장한 MCP"
@@ -57,7 +58,9 @@ const ProfilePage: React.FC = () => {
             {list.length === 0 ? (
                 <div className="rounded-2xl bg-surface-2 px-6 py-10 text-center">
                     <p className="text-title2 font-semibold">저장된 MCP가 없습니다.</p>
-                    <p className="mt-2 text-body3 text-secondary">우측 상단에서 새 MCP를 추가해보세요.</p>
+                    <p className="mt-2 text-body3 text-secondary">
+                        우측 상단에서 새 MCP를 추가해보세요.
+                    </p>
                 </div>
             ) : (
                 <section className={PROFILE_GRID_COLS}>
@@ -72,9 +75,14 @@ const ProfilePage: React.FC = () => {
                 </section>
             )}
 
-            {/* 모달들 */}
-            <DeleteMcpModal isOpen={!!targetId} onClose={closeDelete} onConfirm={confirmDelete} />
-            <DeleteMcpSuccessModal isOpen={isDeleted} onClose={() => setIsDeleted(false)} />
+            {/*  MCP 삭제 모달 (단일 플로우 confirm→done) */}
+            <DeleteMcpFlowModal
+                isOpen={!!targetId}
+                onClose={closeDelete}
+                onConfirm={confirmDelete}
+            />
+
+            {/*  API Key 관리 모달 */}
             <ApiKeyFlowModal
                 isOpen={!!apiFlowId}
                 onClose={closeApiFlow}
