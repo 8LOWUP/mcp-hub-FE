@@ -15,10 +15,12 @@ export default function ChattingWindowContainer() {
   const currentWorkspaceId  = useChatStore((s) => s.currentWorkspaceId);
   const messagesByWorkspace = useChatStore((s) => s.messagesByWorkspace);
   const sendingByWorkspace  = useChatStore((s) => s.sendingByWorkspace);
+  const loadingDetailByWorkspace = useChatStore((s) => s.loadingDetailByWorkspace);
   const sendMessage         = useChatStore((s) => s.sendMessage);
 
   const messages  = (currentWorkspaceId ? messagesByWorkspace[currentWorkspaceId] : undefined) ?? [];
   const isSending = currentWorkspaceId ? !!sendingByWorkspace[currentWorkspaceId] : false;
+  const isLoading = currentWorkspaceId ? !!loadingDetailByWorkspace[currentWorkspaceId] : false;
 
   const isEmpty = messages.length === 0;
   const isNew   = currentWorkspaceId?.startsWith("new-") ?? false;
@@ -26,31 +28,32 @@ export default function ChattingWindowContainer() {
   // 새 메시지/로딩 변화 시 하단 스크롤
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length, isSending]);
+  }, [isLoading,isSending]);
 
   return (
-    <div className="flex-1 flex flex-col w-full h-full bg-surface-2 p-4 min-w-[350px]">
+    <div className="flex-1 flex flex-col w-full h-full bg-surface-5 p-4 min-w-[350px]">
       <div className="relative mx-auto flex-1 w-full lg:max-w-3xl h-full">
 
         {/* ✅ 스크롤 영역: 입력창 높이만큼 패딩으로 공간 확보 */}
         <div
           className={clsx(
-            "flex flex-col h-full w-full overflow-y-auto transition-all duration-300 px-2",
-            // 비어있을 때는 살짝 페이드/상단 여백
-            isEmpty ? "opacity-0 pointer-events-none translate-y-2" : "opacity-100 translate-y-0"
+            "flex flex-col h-full w-full overflow-y-scroll transition-all duration-300 px-2",
+            // 입력창 공간 확보 (하단 패딩: 입력 박스 높이)
+            "pb-28 scrollbar-gutter-stable scrollbar-gutter-both-edges"
           )}
-          // 입력창 공간 확보 (하단 패딩: 입력 박스 높이)
-          style={{ paddingBottom: isEmpty ? 0 : "7.5rem" }} // 약 h-28 정도
         >
-          <div className="max-w-2xl mx-auto w-full px-2 py-1">
-            {messages.map((m) => (
-              <MessageBubble key={m.id} role={m.role} text={m.text} />
-            ))}
-
-            {/* ✅ 로딩 중이면 보조 스켈레톤 버블 */}
-            {isSending && <AssistantSkeletonBubble />}
-
-            <div ref={endRef} />
+          <div className="max-w-2xl mx-auto w-full px-2 py-1 overflow-y-scroll">
+            {isLoading && !isNew ? (
+              <LoadingSkeleton />
+            ) : (
+              <>
+                {messages.map((m) => (
+                  <MessageBubble key={m.id} role={m.role} text={m.text} />
+                ))}
+                {isSending && <AssistantSkeletonBubble />}
+                <div ref={endRef} />
+              </>
+            )}
           </div>
         </div>
 
@@ -87,8 +90,7 @@ export default function ChattingWindowContainer() {
         {/* ✅ 입력창: 같은 DOM 유지, 위치만 transform으로 이동 */}
         <div
           className={clsx(
-            "absolute left-1/2 -translate-x-1/2 w-full max-w-2xl bottom-0 transition-transform duration-300",
-            isEmpty ? "translate-y-[-20vh]" : "translate-y-0"
+            "absolute left-1/2 -translate-x-1/2 w-full max-w-2xl bottom-0 transition-transform duration-300"
           )}
         >
           <ChattingInputContainer onSend={sendMessage} />
@@ -124,6 +126,22 @@ function AssistantSkeletonBubble() {
           <div className="h-4 w-56 bg-white/10 rounded mb-2" />
           <div className="h-4 w-24 bg-white/10 rounded" />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="flex flex-col gap-3 animate-pulse">
+      <div className="flex justify-start">
+        <div className="h-14 w-64 bg-white/10 rounded-2xl" />
+      </div>
+      <div className="flex justify-end">
+        <div className="h-10 w-52 bg-white/10 rounded-2xl" />
+      </div>
+      <div className="flex justify-start">
+        <div className="h-16 w-72 bg-white/10 rounded-2xl" />
       </div>
     </div>
   );

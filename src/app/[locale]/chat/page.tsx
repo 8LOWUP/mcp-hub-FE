@@ -77,7 +77,7 @@ export default function ChatPage() {
         <aside
           className={[
             "absolute inset-y-0 left-0 z-40 bg-surface-1 overflow-hidden",
-            "transition-[width,opacity] duration-500 ease-in-out",
+            "transition-[width,opacity] duration-300 ease-in-out",
             leftOpen ? "w-[280px] opacity-100 pointer-events-auto" : "w-0 opacity-0 pointer-events-none",
             // ✅ lg 에서는 항상 보이도록 보장 (상태 적용 전 첫 렌더 안전장치)
             "lg:relative lg:inset-auto lg:left-auto lg:right-auto lg:opacity-100 lg:pointer-events-auto",
@@ -92,7 +92,7 @@ export default function ChatPage() {
         <section
           className={[
             "relative z-30 h-full overflow-y-auto",
-            "transition-transform duration-500 ease-in-out",
+            "transition-transform duration-300 ease-in-out",
             leftOpen ? "translate-x-[280px]" : "translate-x-0",
             rightOpen ? "translate-x-[-280px]" : "translate-x-0",
             "lg:flex-1",
@@ -107,7 +107,7 @@ export default function ChatPage() {
         <aside
           className={[
             "absolute inset-y-0 right-0 z-40 bg-surface-1 overflow-hidden",
-            "transition-[width,opacity] duration-500 ease-in-out",
+            "transition-[width,opacity] duration-300 ease-in-out",
             rightOpen ? "w-[280px] opacity-100 pointer-events-auto" : "w-0 opacity-0 pointer-events-none",
             "lg:relative lg:inset-auto lg:left-auto lg:right-auto lg:opacity-100 lg:pointer-events-auto",
           ].join(" ")}

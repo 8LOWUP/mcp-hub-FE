@@ -1,7 +1,10 @@
 "use client";
 
 import { useChatStore } from "@/store/chat/chat-store";
+import { useModalStore } from "@/features/chat/modal/modal-store";
+import HistoryMenuModal from "@/features/chat/modal/HistoryMenuModal";
 import clsx from "clsx";
+import { useEffect, useRef, useState } from "react";
 
 type HistoryCardProps = {
   title: string;
@@ -20,6 +23,12 @@ export default function HistoryCard({
   const openWorkspace = useChatStore((s) => s.openWorkspace);
   const startNewChat = useChatStore((s) => s.startNewChat);
   const selected = currentWorkspaceId === workspaceId;
+  
+  const { openHistoryMenuModal, historyMenuModal, closeHistoryMenuModal, editTargetWorkspaceId, clearEditTitle } = useModalStore();
+  const menuBtnRef = useRef<HTMLButtonElement | null>(null);
+  const renameWorkspace = useChatStore((s) => s.renameWorkspace);
+  const [editing, setEditing] = useState(false);
+  const [titleInput, setTitleInput] = useState(title);
 
   const emit = (name: string) =>
     typeof window !== "undefined" &&
@@ -34,17 +43,28 @@ export default function HistoryCard({
     }
   };
 
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const rect = {
+      top: e.clientY,
+      left: e.clientX,
+      width: 0,
+      height: 0,
+    } as DOMRect as any;
+    openHistoryMenuModal(workspaceId, title, rect);
+  };
+
   return (
-    <div className="relative w-full my-2">
+    <div className="relative w-full my-2" onContextMenu={handleContextMenu}>
       <button
         type="button"
         onClick={handleClick}
         aria-pressed={selected}
         className={clsx(
-          "group w-full text-left rounded-lg p-5 transition-all duration-300 ease-in-out",
+          "group w-full text-left rounded-lg px-5 py-5 flex flex-col gap-3 transition-all duration-300 ease-in-out",
           "text-foreground",
-          "bg-surface-2 hover:bg-surface-2",
-          selected && "ring-1 ring-inset ring-accent bg-surface-3"
+          selected ? "bg-surface-3" : "bg-surface-2",
+          selected && "ring-1 ring-inset ring-accent"
         )}
       >
         {/* 왼쪽 강조 바 */}
@@ -56,12 +76,43 @@ export default function HistoryCard({
             selected ? "w-1 opacity-100" : "w-0 opacity-0"
           )}
         />
-
-        <h3 className="text-sm font-bold truncate">{title}</h3>
+        {editing || editTargetWorkspaceId === workspaceId ? (
+          <input
+            value={titleInput}
+            onChange={(e) => setTitleInput(e.target.value)}
+            onBlur={() => {
+              const v = titleInput.trim();
+              if (v && v !== title) renameWorkspace(workspaceId, v);
+              setEditing(false);
+              clearEditTitle();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                (e.target as HTMLInputElement).blur();
+              } else if (e.key === "Escape") {
+                setTitleInput(title);
+                setEditing(false);
+                clearEditTitle();
+              }
+            }}
+            autoFocus
+            className="text-sm font-bold truncate w-[190px] bg-transparent outline-none border-b border-accent/40"
+          />
+        ) : (
+          <h3
+            className="text-sm font-bold truncate w-[190px]"
+            onDoubleClick={() => {
+              setTitleInput(title);
+              setEditing(true);
+            }}
+          >
+            {title}
+          </h3>
+        )}
         {description && (
           <p
             className={clsx(
-              "mt-2 text-xs truncate transition-colors duration-300",
+              "text-sm truncate transition-colors duration-300",
               selected ? "text-foreground/80" : "text-foreground/60"
             )}
           >
@@ -73,16 +124,29 @@ export default function HistoryCard({
       {/* 옵션 버튼 */}
       <button
         type="button"
-        onClick={onMenuClick}
+        ref={menuBtnRef}
+        onClick={() => {
+          const rect = menuBtnRef.current?.getBoundingClientRect();
+          if (rect) openHistoryMenuModal(workspaceId, title, rect);
+        }}
         aria-label="히스토리 카드 메뉴 열기"
-        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-white/10 transition-colors"
+        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 mb-6 rounded-full hover:bg-white/10 transition-colors"
       >
-        <span className="flex flex-col gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
-          <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
-          <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+        <span className="flex gap-1">
+          <span className="w-1 h-1 rounded-full bg-yellow-400"></span>
+          <span className="w-1 h-1 rounded-full bg-yellow-400"></span>
+          <span className="w-1 h-1 rounded-full bg-yellow-400"></span>
         </span>
       </button>
+
+      {/* 히스토리 메뉴 모달 */}
+      <HistoryMenuModal
+        isOpen={historyMenuModal.isOpen && historyMenuModal.workspaceId === workspaceId}
+        onClose={closeHistoryMenuModal}
+        workspaceId={workspaceId}
+        title={title}
+        anchorRect={historyMenuModal.anchorRect as DOMRect | null}
+      />
     </div>
   );
 }

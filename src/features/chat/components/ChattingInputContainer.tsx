@@ -2,6 +2,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useModalStore } from "@/features/chat/modal/modal-store";
+import ModelSelectorModal from "@/features/chat/modal/ModelSelectorModal";
 
 export default function ChattingInputContainer({
   onSend,
@@ -9,8 +11,12 @@ export default function ChattingInputContainer({
   onSend?: (text: string) => void;
 }) {
   const [value, setValue] = useState("");
+  const [currentModel, setCurrentModel] = useState("GPT-4");
   const hasText = value.trim().length > 0;
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  
+  const { openModelSelectorModal, modelSelectorModal, closeModelSelectorModal } = useModalStore();
+  const modelBtnRef = useRef<HTMLButtonElement | null>(null);
 
   // 자동 높이 조절
   useEffect(() => {
@@ -25,6 +31,17 @@ export default function ChattingInputContainer({
     if (!v) return;
     onSend?.(v);
     setValue("");
+  };
+
+  const handleModelSelect = (modelId: string) => {
+    const modelNames: Record<string, string> = {
+      "gpt-4": "GPT-4",
+      "gpt-4-turbo": "GPT-4 Turbo", 
+      "gpt-3.5-turbo": "GPT-3.5 Turbo",
+      "claude-3-opus": "Claude 3 Opus",
+    };
+    setCurrentModel(modelNames[modelId] || "GPT-4");
+    closeModelSelectorModal();
   };
 
   return (
@@ -66,13 +83,21 @@ export default function ChattingInputContainer({
         {/* 좌측: 모달(모델 선택) 버튼 — 화살표 아이콘 */}
         <button
           type="button"
+          ref={modelBtnRef}
+          onClick={() => {
+            const rect = modelBtnRef.current?.getBoundingClientRect();
+            if (rect) openModelSelectorModal(currentModel.toLowerCase().replace(/\s+/g, '-'), rect);
+          }}
           aria-label="모델 선택 열기"
-          className="flex items-center cursor-pointer gap-1 rounded-xl ml-1 px-3 pr-2 py-1 hover:bg-surface-4 transition"
+          className="flex items-center cursor-pointer gap-1 rounded-xl ml-1 px-3 pr-2 py-1 hover:bg-surface-4 transition text-accent"
         >
-          <div className="text-base">GPT-4</div>
+          <div className="text-base text-white">{currentModel}</div>
           <svg
             viewBox="0 0 24 24"
-            className="size-6"
+            className={[
+              "size-6 transition-transform",
+              modelSelectorModal.isOpen ? "rotate-180" : "rotate-0",
+            ].join(" ")}
             fill="none"
             stroke="currentColor"
             strokeWidth={1.8}
@@ -116,6 +141,15 @@ export default function ChattingInputContainer({
           </svg>
         </button>
       </div>
+
+      {/* 모델 선택 모달 */}
+      <ModelSelectorModal
+        isOpen={modelSelectorModal.isOpen}
+        onClose={closeModelSelectorModal}
+        currentModel={modelSelectorModal.currentModel}
+        onModelSelect={handleModelSelect}
+        anchorRect={modelSelectorModal.anchorRect as DOMRect | null}
+      />
     </div>
   );
 }
