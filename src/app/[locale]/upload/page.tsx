@@ -28,11 +28,11 @@ export default function MCPUploadPage() {
                     <DescriptionInput ref={refs.descriptionRef} onEnter={() => refs.serverURLRef.current?.focus()} />
                     <TagsInput />
                     <ServerURLInput ref={refs.serverURLRef} onEnter={() => refs.connectionPlatformRef.current?.focus()} />
+                    <ToolsDescriptionInput />
                     <ConnectionPlatformInput ref={refs.connectionPlatformRef} onEnter={() => refs.developerNameRef.current?.focus()} />
                     <DeveloperNameInput ref={refs.developerNameRef} onEnter={() => refs.sourceCodeURLRef.current?.focus()} />
                     <SourceCodeURLInput ref={refs.sourceCodeURLRef} onEnter={() => refs.licenseRef.current?.focus()} />
                     <LicenseInput ref={refs.licenseRef} onEnter={() => {}} />
-                    <ToolsDescriptionInput />
                     <UploadIcon />
 
                     <div className="flex justify-end mb-2">
