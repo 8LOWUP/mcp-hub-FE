@@ -5,24 +5,23 @@ import { PROFILES_STYLES, PROFILE_GRID_COLS } from "@/features/profiles/constant
 import { McpItemType } from "@/features/profiles/types";
 import { DUMMY_DEPLOYED_LIST, DUMMY_DRAFT_LIST } from "./constants";
 import { DeployedCard, DraftCard } from "./components/cards";
-import DeleteMcpModal from "@/features/profiles/components/modals/DeleteMcpModal";
-import DeleteMcpSuccessModal from "@/features/profiles/components/modals/DeleteMcpSuccessModal";
+import DeleteMcpFlowModal from "@/features/profiles/components/modals/DeleteMcpFlowModal";
 
 const DeployedPage: React.FC = () => {
     const [deployed, setDeployed] = React.useState<McpItemType[]>(DUMMY_DEPLOYED_LIST);
     const [drafts, setDrafts] = React.useState<McpItemType[]>(DUMMY_DRAFT_LIST);
 
-    // 삭제 플로우
+    // 삭제 플로우 (단일 모달)
     const [targetId, setTargetId] = React.useState<string | null>(null);
-    const [isDeleted, setIsDeleted] = React.useState(false);
 
     const openDelete = (id: string) => setTargetId(id);
     const closeDelete = () => setTargetId(null);
-    const confirmDelete = () => {
+
+    const confirmDelete = async () => {
         if (!targetId) return;
+        // TODO: 서버 삭제 API 호출
         setDeployed(prev => prev.filter(i => i.id !== targetId));
-        setTargetId(null);
-        setIsDeleted(true);
+        // 통합 모달 내부에서 confirm → done 화면으로 바뀌므로 여기서 모달을 닫지 않음
     };
 
     // Draft 편집 (임시)
@@ -33,8 +32,6 @@ const DeployedPage: React.FC = () => {
 
     return (
         <section className={PROFILES_STYLES.PAGE_PADDING}>
-
-
             {/* 배포한 MCP 섹션 */}
             <div className="mt-6">
                 <div className="mb-3">
@@ -75,9 +72,12 @@ const DeployedPage: React.FC = () => {
                 )}
             </div>
 
-            {/* 삭제 모달 */}
-            <DeleteMcpModal isOpen={!!targetId} onClose={closeDelete} onConfirm={confirmDelete} />
-            <DeleteMcpSuccessModal isOpen={isDeleted} onClose={() => setIsDeleted(false)} />
+            {/*  단일 플로우 삭제 모달 (confirm → done) */}
+            <DeleteMcpFlowModal
+                isOpen={!!targetId}
+                onClose={closeDelete}
+                onConfirm={confirmDelete}
+            />
         </section>
     );
 };
