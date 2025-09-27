@@ -31,9 +31,11 @@ export default function ConfirmModal({
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
-      <div className="p-6">
-        <h3 className="text-lg font-semibold mb-2">{title}</h3>
-        <p className="text-sm text-foreground/70 mb-6">{message}</p>
+      <div className="p-6 bg-black rounded-3xl">
+        <div className="p-2 pt-0 mb-3">
+          <h3 className="text-lg font-semibold mb-2">{title}</h3>
+          <p className="text-sm text-foreground/70 whitespace-pre-line">{message}</p>
+        </div>
         
         <div className="flex gap-3">
           <button

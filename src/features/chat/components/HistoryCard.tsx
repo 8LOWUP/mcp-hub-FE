@@ -54,14 +54,16 @@ export default function HistoryCard({
     openHistoryMenuModal(workspaceId, title, rect);
   };
 
+
   return (
     <div className="relative w-full my-2" onContextMenu={handleContextMenu}>
-      <button
-        type="button"
+      <div
         onClick={handleClick}
+        tabIndex={0}
+        role="button"
         aria-pressed={selected}
         className={clsx(
-          "group w-full text-left rounded-lg px-5 py-5 flex flex-col gap-3 transition-all duration-300 ease-in-out",
+          "group w-full text-left rounded-lg px-5 py-5 flex flex-col gap-3 transition-all duration-300 ease-in-out cursor-pointer",
           "text-foreground",
           selected ? "bg-surface-3" : "bg-surface-2",
           selected && "ring-1 ring-inset ring-accent"
@@ -96,7 +98,7 @@ export default function HistoryCard({
               }
             }}
             autoFocus
-            className="text-sm font-bold truncate w-[190px] bg-transparent outline-none border-b border-accent/40"
+            className="text-sm font-bold truncate w-[170px] bg-transparent outline-none border-b border-accent/40"
           />
         ) : (
           <h3
@@ -119,7 +121,7 @@ export default function HistoryCard({
             {description}
           </p>
         )}
-      </button>
+      </div>
 
       {/* 옵션 버튼 */}
       <button

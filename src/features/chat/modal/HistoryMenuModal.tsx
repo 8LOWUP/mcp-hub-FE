@@ -23,7 +23,6 @@ export default function HistoryMenuModal({
   anchorRect,
 }: HistoryMenuModalProps) {
   const deleteWorkspace = useChatStore((s) => s.deleteWorkspace);
-  const renameWorkspace = useChatStore((s) => s.renameWorkspace);
   const startEditTitle = useModalStore((s) => s.startEditTitle);
   const { openConfirmModal, confirmModal, closeConfirmModal } = useModalStore();
   const [isSmallScreen, setIsSmallScreen] = useState(false);
@@ -40,7 +39,7 @@ export default function HistoryMenuModal({
   const handleDelete = () => {
     openConfirmModal({
       title: "대화 삭제",
-      message: `"${title}" 대화를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`,
+      message: `"${title}" 대화를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`,
       confirmText: "삭제",
       cancelText: "취소",
       isDestructive: true,
@@ -57,7 +56,7 @@ export default function HistoryMenuModal({
   };
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} anchorRect={anchorRect ?? null} overlayClassName="top-7 -left-34" placement="bottom">
+    <BaseModal isOpen={isOpen} onClose={onClose} anchorRect={anchorRect ?? null} overlayClassName="" placement="bottom">
       <div className={clsx(
         "h-full rounded-sm bg-surface-3 shadow-2xs border border-zinc-400",
         isSmallScreen ? "w-full px-6 py-4" : "w-fit"
