@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef, useState } from "react";
 import { ERROR_MESSAGES } from "./constants";
 import { MCPFormData } from "./types";
@@ -12,6 +14,7 @@ export function useUploadForm() {
     const licenseRef = useRef<HTMLInputElement>(null);
 
     const [error, setError] = useState<string>("");
+    const [message, setMessage] = useState<string>(""); // 임시 저장 메시지
 
     const validate = (): boolean => {
         if (!mcpNameRef.current?.value.trim()) {
@@ -64,13 +67,20 @@ export function useUploadForm() {
         license: licenseRef.current?.value ?? "",
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleDeploy = (e: React.FormEvent) => {
         e.preventDefault();
         if (!validate()) return;
-
         const formData = getFormData();
-        console.log("폼 제출 성공!", formData);
-        // 백엔드 API 호출 로직 추가 예정
+        console.log("Deploy 제출 성공!", formData);
+        // 나중에 API 호출 or 페이지 이동 추가 가능
+    };
+
+    const handleSave = (e: React.FormEvent) => {
+        e.preventDefault();
+        const formData = getFormData();
+        console.log("임시 저장 성공!", formData);
+        setMessage("임시 저장되었습니다."); // 메시지 설정
+        setTimeout(() => setMessage(""), 3000); // 3초 후 메시지 제거
     };
 
     return {
@@ -84,6 +94,8 @@ export function useUploadForm() {
             licenseRef,
         },
         error,
-        handleSubmit,
+        message,
+        handleDeploy,
+        handleSave,
     };
 }

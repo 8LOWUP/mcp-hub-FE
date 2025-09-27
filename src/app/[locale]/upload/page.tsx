@@ -14,7 +14,7 @@ import UploadIcon from "@/features/upload/components/UploadIcon";
 import { useUploadForm } from "@/features/upload/hooks/uploadForm";
 
 export default function MCPUploadPage() {
-    const { refs, error, handleSubmit } = useUploadForm();
+    const { refs, error, message, handleDeploy, handleSave } = useUploadForm();
 
     return (
         <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
@@ -23,7 +23,7 @@ export default function MCPUploadPage() {
                 <p className="pb-10 text-muted">
                     Provide the necessary information to share your MCP with the community.
                 </p>
-                <form className="space-y-4" onSubmit={handleSubmit}>
+                <form className="space-y-4">
                     <MCPNameInput ref={refs.mcpNameRef} onEnter={() => refs.descriptionRef.current?.focus()} />
                     <DescriptionInput ref={refs.descriptionRef} onEnter={() => refs.serverURLRef.current?.focus()} />
                     <TagsInput />
@@ -37,21 +37,24 @@ export default function MCPUploadPage() {
 
                     <div className="flex justify-end mb-2">
                         {error && (
-                            <p className="text-red-500 font-semibold text-right">
-                                {error}
-                            </p>
+                            <p className="text-red-500 font-semibold text-right">{error}</p>
+                        )}
+                        {message && (
+                            <p className="text-green-500 font-semibold text-right">{message}</p>
                         )}
                     </div>
 
                     <div className="flex justify-end gap-2 mb-2">
                         <button
-                            type="submit"
+                            type="button"
+                            onClick={handleSave}
                             className="px-4 py-2 rounded text-white w-full decoration-yellow-200 hover:decoration-accent hover:underline underline-offset-10 sm:w-auto"
                         >
                             Storage
                         </button>
                         <button
-                            type="submit"
+                            type="button"
+                            onClick={handleDeploy}
                             className="px-4 py-2 bg-accent rounded text-black hover:bg-accent-hover w-full sm:w-auto"
                         >
                             Deploy
