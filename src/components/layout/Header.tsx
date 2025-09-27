@@ -97,11 +97,10 @@ const Header: React.FC = () => {
                         </button>
                     </div>
 
-                    {/* 검색바 */}
-                    <div className="flex-1 max-w-xl">
-                        <SearchBar />
-                    </div>
-
+          {/* 검색바 */}
+          <div className="flex-1 max-w-xl px-4">
+            <SearchBar />
+          </div>
                     {/* 우측 액션 */}
                     <div className="flex items-center gap-x-3">
                         <PrimaryButton

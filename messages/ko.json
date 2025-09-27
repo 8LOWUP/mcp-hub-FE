@@ -2,5 +2,9 @@
   "LandingPage": {
     "title": "메인페이지에 어서오세요",
     "about": "하이"
+  },
+  "ChatPage": {
+    "title": "메인페이지에 어서오세요",
+    "about": "하이"
   }
 }
