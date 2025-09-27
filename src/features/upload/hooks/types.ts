@@ -1,17 +1,12 @@
-export interface Tool {
-    id: string;
-    description: string;
-}
-
-export interface UploadFormData {
+export interface MCPFormData {
     mcpName: string;
     description: string;
-    tags: string;
-    serverUrl: string;
-    connectionPlatforms: string;
-    tools: Tool[];
+    tags?: string[];
+    serverURL: string;
+    connectionPlatform: string;
     developerName: string;
-    sourceCodeUrl: string;
+    sourceCodeURL: string;
     license: string;
-    icon: File | null;
+    toolsDescription?: string;
 }
+

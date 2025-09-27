@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef, useState } from "react";
 import MCPNameInput from "@/features/upload/components/McpNameInput";
 import DescriptionInput from "@/features/upload/components/DescriptionInput";
 import TagsInput from "@/features/upload/components/TagsInput";
@@ -12,62 +11,10 @@ import SourceCodeURLInput from "@/features/upload/components/SourceCodeURLInput"
 import LicenseInput from "@/features/upload/components/LicenseInput";
 import UploadIcon from "@/features/upload/components/UploadIcon";
 
+import { useUploadForm } from "@/features/upload/hooks/uploadForm";
+
 export default function MCPUploadPage() {
-    const mcpNameRef = useRef<HTMLInputElement>(null);
-    const descriptionRef = useRef<HTMLTextAreaElement>(null);
-    const serverURLRef = useRef<HTMLInputElement>(null);
-    const connectionPlatformRef = useRef<HTMLInputElement>(null);
-    const developerNameRef = useRef<HTMLInputElement>(null);
-    const sourceCodeURLRef = useRef<HTMLInputElement>(null);
-    const licenseRef = useRef<HTMLInputElement>(null);
-
-    const [error, setError] = useState<string>("");
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // 모든 필드 체크
-        if (!mcpNameRef.current?.value.trim()) {
-            setError("MCP 이름을 입력해주세요.");
-            mcpNameRef.current?.focus();
-            return;
-        }
-        if (!descriptionRef.current?.value.trim()) {
-            setError("설명을 입력해주세요.");
-            descriptionRef.current?.focus();
-            return;
-        }
-        if (!serverURLRef.current?.value.trim()) {
-            setError("서버 URL을 입력해주세요.");
-            serverURLRef.current?.focus();
-            return;
-        }
-        if (!connectionPlatformRef.current?.value.trim()) {
-            setError("연결 플랫폼을 입력해주세요.");
-            connectionPlatformRef.current?.focus();
-            return;
-        }
-        if (!developerNameRef.current?.value.trim()) {
-            setError("개발자 이름을 입력해주세요.");
-            developerNameRef.current?.focus();
-            return;
-        }
-        if (!sourceCodeURLRef.current?.value.trim()) {
-            setError("소스 코드 URL을 입력해주세요.");
-            sourceCodeURLRef.current?.focus();
-            return;
-        }
-        if (!licenseRef.current?.value.trim()) {
-            setError("라이센스를 입력해주세요.");
-            licenseRef.current?.focus();
-            return;
-        }
-
-        // 모든 입력이 정상일 경우
-        setError("");
-        console.log("폼 제출 성공!");
-        // 실제 제출 로직 실행
-    };
+    const { refs, error, handleSubmit } = useUploadForm();
 
     return (
         <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
@@ -77,18 +24,17 @@ export default function MCPUploadPage() {
                     Provide the necessary information to share your MCP with the community.
                 </p>
                 <form className="space-y-4" onSubmit={handleSubmit}>
-                    <MCPNameInput ref={mcpNameRef} onEnter={() => descriptionRef.current?.focus()} />
-                    <DescriptionInput ref={descriptionRef} onEnter={() => serverURLRef.current?.focus()} />
+                    <MCPNameInput ref={refs.mcpNameRef} onEnter={() => refs.descriptionRef.current?.focus()} />
+                    <DescriptionInput ref={refs.descriptionRef} onEnter={() => refs.serverURLRef.current?.focus()} />
                     <TagsInput />
-                    <ServerURLInput ref={serverURLRef} onEnter={() => connectionPlatformRef.current?.focus()} />
-                    <ConnectionPlatformInput ref={connectionPlatformRef} onEnter={() => developerNameRef.current?.focus()} />
-                    <DeveloperNameInput ref={developerNameRef} onEnter={() => sourceCodeURLRef.current?.focus()} />
-                    <SourceCodeURLInput ref={sourceCodeURLRef} onEnter={() => licenseRef.current?.focus()} />
-                    <LicenseInput ref={licenseRef} onEnter={() => {}} />
+                    <ServerURLInput ref={refs.serverURLRef} onEnter={() => refs.connectionPlatformRef.current?.focus()} />
+                    <ConnectionPlatformInput ref={refs.connectionPlatformRef} onEnter={() => refs.developerNameRef.current?.focus()} />
+                    <DeveloperNameInput ref={refs.developerNameRef} onEnter={() => refs.sourceCodeURLRef.current?.focus()} />
+                    <SourceCodeURLInput ref={refs.sourceCodeURLRef} onEnter={() => refs.licenseRef.current?.focus()} />
+                    <LicenseInput ref={refs.licenseRef} onEnter={() => {}} />
                     <ToolsDescriptionInput />
                     <UploadIcon />
 
-                    {/* Deploy 버튼 바로 위 경고 메시지 (오른쪽 정렬) */}
                     <div className="flex justify-end mb-2">
                         {error && (
                             <p className="text-red-500 font-semibold text-right">
