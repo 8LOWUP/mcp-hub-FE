@@ -1,107 +1,153 @@
+// src/components/layout/Header.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import React from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+
 import LocaleSwitcher from "@/components/ui/LocaleSwitcher";
 import ThemeToggle from "@/components/ui/theme-toggle";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SearchBar from "@/components/ui/searchBar";
-import clsx from "clsx";
+import LoginModal from "@/features/auth/components/LoginModal";
 
-type LandingHeaderProps = {
-  additionalClassName?: string;
-};
+/* 경로 끝 슬래시 정규화 */
+const trimSlash = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
 
-export default function LandingHeader({ additionalClassName }: LandingHeaderProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
+const Header: React.FC = () => {
+    const router = useRouter();
+    const pathnameRaw = usePathname() || "/";
+    const pathname = trimSlash(pathnameRaw);
 
-  // 현재 locale 추출 (URL의 첫 번째 경로 조각)
-  const locale = pathname.split("/")[1] || "en";
+    // 세션 (로그인 여부)
+    const { status } = useSession();
+    const isAuthed = status === "authenticated";
 
-  // 스크롤 감지
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 0);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    // locale 추출 (URL의 첫 세그먼트)
+    const locale = React.useMemo(() => pathname.split("/")[1] || "en", [pathname]);
 
-  return (
-    // sm 이상에서만 보이도록 hidden / sm:block 추가
-    <header
-      className={clsx(
-        "sticky top-0 z-40",
-        additionalClassName
-      )}
-    >
-      <div
-        className={clsx(
-          "h-20 w-full px-10 bg-surface-1 transition-colors duration-200",
-          scrolled
-            ? "border-b-2 border-accent shadow-md"
-            : "border-b border-transparent"
-        )}
-      >
-        <div className="w-full h-full flex items-center justify-between px-6">
-          {/* 로고 + MCP Market */}
-          <div className="flex items-center gap-2">
-            <Image
-              src="/logo.svg"
-              alt="MCP Hub logo"
-              width={24}
-              height={24}
-              priority
-            />
+    // 현재 페이지가 locale 루트인지 (예: /ko)
+    const isLocaleHome = React.useMemo(() => pathname === `/${locale}`, [pathname, locale]);
+
+    // 헤더 스크롤 스타일
+    const [scrolled, setScrolled] = React.useState(false);
+    React.useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 0);
+        window.addEventListener("scroll", onScroll);
+        return () => window.removeEventListener("scroll", onScroll);
+    }, []);
+
+    // 로그인 모달 상태
+    const [isLoginOpen, setIsLoginOpen] = React.useState(false);
+    const openLogin = () => setIsLoginOpen(true);
+    const closeLogin = () => setIsLoginOpen(false);
+
+    // 공통 이동
+    const go = (to: string) => router.push(to);
+
+    /* ================================
+     * 프로필/로그인 버튼 클릭 동작
+     * - 랜딩(/[locale])에서는 로그인 모달 오픈 (비로그인 시)
+     * - 그 외 페이지에서는 profiles로 이동
+     * - 이미 로그인된 상태라면 언제나 profiles로 이동
+     * ================================ */
+    const handleProfileOrLoginClick = () => {
+        if (isAuthed) {
+            go(`/${locale}/profiles`);
+            return;
+        }
+        if (isLocaleHome) {
+            openLogin();
+        } else {
+            go(`/${locale}/profiles`);
+        }
+    };
+
+    return (
+        <header className="sticky top-0 z-40 shadow-md">
             <div
-              className="flex flex-col cursor-pointer"
-              onClick={() => router.push(`/${locale}`)}
+                className={[
+                    "absolute top-0 left-0 right-0 z-20 h-20 px-10 bg-surface-1 transition-colors duration-200",
+                    scrolled ? "border-b-2 border-accent" : "border-b border-transparent",
+                ].join(" ")}
             >
-              <span className="text-primary font-bold hover:underline hover:decoration-accent underline-offset-4">
+                <div className="max-w-screen-2xl h-full flex items-center justify-between px-6">
+                    {/* 로고 + Market */}
+                    <div className="flex items-center gap-2">
+                        <Image src="/logo.svg" alt="MCP Hub logo" width={24} height={24} priority />
+                        <button
+                            type="button"
+                            className="flex flex-col cursor-pointer"
+                            onClick={() => go(`/${locale}`)}
+                        >
+              <span className="text-primary font-bold hover:decoration-accent hover:underline decoration-yellow-200 underline-offset-10">
                 MCP Hub
               </span>
-            </div>
+                        </button>
 
-            <div
-              className="cursor-pointer px-4 py-2 rounded-md flex items-center justify-center"
-              onClick={() => router.push(`/${locale}/market`)}
-            >
-              <span className="hidden md:flex text-primary font-semibold hover:underline hover:decoration-accent underline-offset-4">
+                        <button
+                            type="button"
+                            className="cursor-pointer px-4 py-2 rounded-md flex items-center justify-center relative"
+                            onClick={() => go(`/${locale}/market`)}
+                        >
+              <span className="hidden md:flex text-primary font-semibold hover:decoration-accent hover:underline decoration-yellow-200 underline-offset-10">
                 MCP Market
               </span>
-            </div>
-          </div>
+                        </button>
+                    </div>
 
           {/* 검색바 */}
           <div className="flex-1 max-w-xl px-4">
             <SearchBar />
           </div>
+                    {/* 우측 액션 */}
+                    <div className="flex items-center gap-x-3">
+                        <PrimaryButton
+                            onClick={() => go(`/${locale}/upload`)}
+                            variant="primary"
+                            size="md"
+                            className="hidden md:flex h-9 px-15"
+                        >
+                            <span className="text-title5">Upload</span>
+                        </PrimaryButton>
+                        <ThemeToggle />
+                        <LocaleSwitcher />
 
-          {/* 오른쪽 액션 */}
-          <div className="flex items-center gap-x-3">
-            <PrimaryButton
-              onClick={() => router.push(`/${locale}/upload`)}
-              variant="primary"
-              size="md"
-              additionalClassName="hidden md:flex h-9 px-6"
-            >
-              <span className="text-title5">Upload</span>
-            </PrimaryButton>
-            <ThemeToggle />
-            <LocaleSwitcher />
-            <div className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden">
-              <Image
-                src="/catprofile.svg"
-                alt="Profile"
-                width={32}
-                height={32}
-                className="object-cover w-full h-full"
-              />
+                        {/* 로그인 전: Log In / 로그인 후: 아바타 */}
+                        {isAuthed ? (
+                            <button
+                                type="button"
+                                onClick={handleProfileOrLoginClick}
+                                aria-label="Open profile"
+                                className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                            >
+                                <Image
+                                    src="/catprofile.svg"
+                                    alt=""
+                                    width={32}
+                                    height={32}
+                                    className="object-cover w-full h-full"
+                                />
+                            </button>
+                        ) : (
+                            <PrimaryButton
+                                onClick={handleProfileOrLoginClick}
+                                variant="secondary"
+                                size="sm"
+                                className="h-9 px-4"
+                            >
+                                Log In
+                            </PrimaryButton>
+                        )}
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-}
+
+            {/* 랜딩에서만 열리는 로그인 모달 (isLocaleHome인 경우에만 실제로 트리거됨) */}
+            <LoginModal isOpen={isLoginOpen} onClose={closeLogin} />
+        </header>
+    );
+};
+
+export default Header;

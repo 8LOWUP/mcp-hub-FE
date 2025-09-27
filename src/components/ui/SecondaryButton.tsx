@@ -1,6 +1,6 @@
-"use client"
+// src/components/ui/SecondaryButton.tsx
+"use client";
 
-import { useState } from "react";
 import clsx from "clsx";
 
 interface SecondaryButtonProps {
@@ -10,24 +10,25 @@ interface SecondaryButtonProps {
   size?: "sm" | "md" | "lg";
   className?: string;
   disabled?: boolean;
+  /** ✅ 클릭/포커스 시 색 변경 없이, hover에만 반응 */
+  hoverOnly?: boolean;
 }
 
 const SecondaryButton: React.FC<SecondaryButtonProps> = ({
-  children,
-  onClick,
-  variant = "primary",
-  size = "md",
-  className,
-  disabled = false,
-}) => {
-  const [selected, setSelected] = useState(false);
-
+                                                           children,
+                                                           onClick,
+                                                           variant = "primary",
+                                                           size = "md",
+                                                           className,
+                                                           disabled = false,
+                                                           hoverOnly = false,
+                                                         }) => {
   const variants = {
-    primary: "bg-accent hover:bg-accent-hover text-black", // ✅ primary는 항상 유지
-    secondary: {
-      default: "bg-surface-2 hover:bg-accent hover:text-black text-white",
-      selected: "bg-accent text-black hover:bg-accent/10",
-    },
+    primary: "bg-accent hover:bg-accent-hover text-black",
+    // 공통 토큰만 사용. 상태 색상은 hover에서만 바뀌도록.
+    secondary: hoverOnly
+        ? "bg-surface-2 text-primary hover:bg-accent hover:text-black focus:outline-none focus:ring-0 active:bg-surface-2"
+        : "bg-surface-2 text-primary hover:bg-accent hover:text-black",
   };
 
   const sizes = {
@@ -36,31 +37,19 @@ const SecondaryButton: React.FC<SecondaryButtonProps> = ({
     lg: "px-6 py-3 text-lg",
   };
 
-  const getVariantClass = () => {
-    if (variant === "primary") return variants.primary;
-    if (variant === "secondary") {
-      return selected ? variants.secondary.selected : variants.secondary.default;
-    }
-  };
-
   return (
-    <button
-      onClick={() => {
-        if (variant === "secondary") {
-          setSelected(!selected); // ✅ secondary일 때만 토글
-        }
-        onClick?.();
-      }}
-      disabled={disabled}
-      className={clsx(
-        "flex items-center justify-center rounded-3xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-        getVariantClass(),
-        sizes[size],
-        className
-      )}
-    >
-      {children}
-    </button>
+      <button
+          onClick={onClick}
+          disabled={disabled}
+          className={clsx(
+              "flex items-center justify-center rounded-3xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+              variant === "primary" ? variants.primary : variants.secondary,
+              sizes[size],
+              className
+          )}
+      >
+        {children}
+      </button>
   );
 };
 

@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 type BaseModalProps = {
     isOpen: boolean;
     onClose: () => void;
-    title?: string;
+    title?: React.ReactNode;
     children: React.ReactNode;
     className?: string;
     footer?: React.ReactNode;           // 푸터 슬롯(버튼 세트 등)
@@ -14,9 +14,9 @@ type BaseModalProps = {
 };
 
 const WIDTH_BY_SIZE: Record<NonNullable<BaseModalProps["size"]>, string> = {
-    sm: "w-[480px]",
-    md: "w-[600px]",
-    lg: "w-[720px]",
+    sm: "w-full max-w-[360px]", // 작은 모달: 모바일에선 꽉 차고, 최대 360px
+    md: "w-full max-w-[500px]", // 중간 모달: 최대 500px
+    lg: "w-full max-w-[720px]", // 큰 모달: 최대 720px
 };
 
 const BaseModal: React.FC<BaseModalProps> = ({
@@ -87,7 +87,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
             >
                 {/* 헤더 */}
                 {title && (
-                    <header className="px-6 pt-6 pb-4 border-b border-muted">
+                    <header className="px-6 pt-6 pb-4 ">
                         <h2 id={titleId} className="text-title2">
                             {title}
                         </h2>

@@ -3,7 +3,7 @@
 import React from "react";
 import BaseModal from "@/components/ui/modal/BaseModal";
 import PrimaryButton from "@/components/ui/PrimaryButton";
-import SecondaryButton from "@/components/ui/SecondaryButton";
+
 
 const Example: React.FC = () => {
     const [isOpen, setIsOpen] = React.useState(false);
@@ -27,9 +27,9 @@ const Example: React.FC = () => {
                 footer={
                     <>
                         {/* 텍스트 버튼 느낌: 보조 톤 */}
-                        <SecondaryButton onClick={handleDelete}>
+                        <PrimaryButton onClick={handleDelete}>
                             삭제
-                        </SecondaryButton>
+                        </PrimaryButton>
 
                         {/* 강조 버튼: 포인트 색상 */}
                         <PrimaryButton onClick={handleSave} className="bg-accent text-black hover:bg-accent-hover">
