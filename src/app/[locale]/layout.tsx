@@ -8,10 +8,8 @@ import Footer from "@/components/layout/Footer";
 import AuthProvider from "@/providers/AuthProvider";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 
-export default async function RootLayout({
-                                             children,
-                                             params,
-                                         }: {
+export default async function RootLayout(
+    { children, params,}: {
     children: React.ReactNode;
     params: Promise<{ locale: string }>;
 }) {
@@ -26,13 +24,11 @@ export default async function RootLayout({
                 {/* ✅ 세션 컨텍스트로 감싸서 Header 등에서 useSession() 사용 가능 */}
                 <AuthProvider>
                   <ConditionalLayout>
-                    <Header />
                     <main className="flex-1 min-h-0 flex flex-col"> {/* ✅ 남은 공간 채움 */}
                         <div className="min-w-[375px] bg-background text-foreground min-h-full">
                             {children}
                         </div>
                     </main>
-                    <Footer />
                     {/* ✅ 모달 포털 루트 (BaseModal이 여기로 포털 렌더링) */}
                     <div id="portal-root" />
                   </ConditionalLayout>
