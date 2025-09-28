@@ -1,6 +1,11 @@
 {
   "LandingPage": {
     "title": "Welcome to the Main Page",
+    "about": "Welcome!",
+    "chatStartPlaceholder": "Start a new chat..."
+  },
+  "ChatPage": {
+    "title": "Welcome to the Chat Page",
     "about": "Welcome!"
   }
 }

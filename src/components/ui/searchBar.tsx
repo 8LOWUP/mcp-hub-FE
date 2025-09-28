@@ -27,14 +27,14 @@ export default function SearchBar({ placeholder = "Search MCP..." }: SearchBarPr
     };
 
     return (
-        <div className="relative w-full max-w-md">
+        <div className="relative w-full">
             <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyPress}
                 placeholder={placeholder}
-                className="w-full rounded-full bg-surface-3 py-2 pl-4 pr-10
+                className="w-full rounded-md bg-surface-3 py-2 pl-4 pr-10
                    text-sm text-foreground placeholder:text-muted-foreground
                    focus:ring-primary"
             />

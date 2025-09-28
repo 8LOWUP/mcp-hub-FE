@@ -1,37 +1,44 @@
 import {useTranslations} from 'next-intl';
 import "../globals.css"
-import MarketGrid from '@/features/market/components/grid/MarketGrid';
 import LandingChatStartButton from '@/features/landing/components/LandingChatStartButton';
+import LandingMarketGrid from '@/features/landing/components/LandingMarketGrid';
+import { DUMMY_MCP_LIST } from '@/constants/mcp-data';
+import { CATEGORY_PRESET, CategoryId } from '@/features/market/constants';
 
 export default function LandingPage() {
   const t = useTranslations('LandingPage');
-  const mcpDate = [
-    {
-      id : "notionmcp",
-      title : "Notion MCP",
-      description : "노션의 다양한 기능을 데이터 베이스를 활용하여 만든 시스템입니다.",
-      saved : true,
-      usersCount:2048,
-    },
-    {
-      id : "notionmcp1",
-      title : "Notion MCP2",
-      description : "노션의 다양한 기능을 데이터 베이스를 활용하여 만든 시스템입니다.2",
-      saved : true,
-      usersCount:2048,
-    },
-  ]
+  
+  // 카테고리별로 데이터 필터링
+  const getItemsByCategory = (category: CategoryId) => {
+    if (category === "all") return DUMMY_MCP_LIST;
+    return DUMMY_MCP_LIST.filter(item => item.category === category);
+  };
+
+  // 표시할 카테고리들 (all 제외)
+  const displayCategories: CategoryId[] = ["memory", "web-search", "browser", "language", "etc"];
 
   return (
-    <div className='flex-1 h-full bg-surface-1 pt-20'>
-      <div className="mt-6 flex flex-col justify-center items-center">
+    <div className='flex-1 min-h-screen bg-surface-1 pt-20'>
+      <div className="mt-6 flex flex-col justify-center items-center max-w-7xl mx-auto px-4">
           <h1 className='text-4xl py-10'>MCP HUB</h1>
           <LandingChatStartButton />
-          <MarketGrid items={mcpDate} >
-          </MarketGrid>
           
+          {/* 카테고리별 MCP 섹션들 */}
+          <div className="w-full space-y-12 my-12">
+            {displayCategories.map((category) => {
+              const categoryItems = getItemsByCategory(category);
+              if (categoryItems.length === 0) return null;
+              
+              return (
+                <LandingMarketGrid 
+                  key={category}
+                  category={category} 
+                  items={categoryItems} 
+                />
+              );
+            })}
+          </div>
       </div>
-
     </div>
   );
 }
