@@ -24,7 +24,7 @@ export default async function RootLayout(
                 {/* ✅ 세션 컨텍스트로 감싸서 Header 등에서 useSession() 사용 가능 */}
                 <AuthProvider>
                   <ConditionalLayout>
-                    <main className="flex-1 min-h-0 flex flex-col"> {/* ✅ 남은 공간 채움 */}
+                    <main className="flex-1 min-h-0 w-full h-full flex flex-col"> {/* ✅ 남은 공간 채움 */}
                         <div className="min-w-[375px] bg-background text-foreground min-h-full">
                             {children}
                         </div>

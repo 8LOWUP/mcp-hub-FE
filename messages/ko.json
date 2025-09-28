@@ -1,7 +1,8 @@
 {
   "LandingPage": {
     "title": "메인페이지에 어서오세요",
-    "about": "하이"
+    "about": "하이",
+    "chatStartPlaceholder": "새로운 채팅을 시작해보세요"
   },
   "ChatPage": {
     "title": "메인페이지에 어서오세요",

@@ -1,67 +1,44 @@
 import {useTranslations} from 'next-intl';
-import {Link} from '@/i18n/routing';
-import ThemeToggle from '@/components/ui/theme-toggle';
-import PrimaryButton from '@/components/ui/PrimaryButton';
 import "../globals.css"
-import LocaleSwitcher from '@/components/ui/LocaleSwitcher';
-import SecondaryButton from '@/components/ui/SecondaryButton';
-import Example from '@/components/modal/Example';
-import MCPCard from "@/components/container/McpCard";
-import TextContainer from '@/components/container/TextContainer'
+import LandingChatStartButton from '@/features/landing/components/LandingChatStartButton';
+import LandingMarketGrid from '@/features/landing/components/LandingMarketGrid';
+import { DUMMY_MCP_LIST } from '@/constants/mcp-data';
+import { CATEGORY_PRESET, CategoryId } from '@/features/market/constants';
 
 export default function LandingPage() {
   const t = useTranslations('LandingPage');
+  
+  // 카테고리별로 데이터 필터링
+  const getItemsByCategory = (category: CategoryId) => {
+    if (category === "all") return DUMMY_MCP_LIST;
+    return DUMMY_MCP_LIST.filter(item => item.category === category);
+  };
+
+  // 표시할 카테고리들 (all 제외)
+  const displayCategories: CategoryId[] = ["memory", "web-search", "browser", "language", "etc"];
+
   return (
-    <div className='bg-surface-1 pt-20'>
-      <h1>{t('title')}</h1>
-      <Link href="/about">{t('about')}</Link>
-      <div className='flex justify-center items-center'>
-        <ThemeToggle />
-        <LocaleSwitcher/>
-        <PrimaryButton
-          size='sm'
-        >
-          + New Chat
-        </PrimaryButton>
-        <SecondaryButton
-          variant='secondary'
-        >
-          Upload
-        </SecondaryButton>
-        <Example/>
+    <div className='flex-1 min-h-screen bg-surface-1 pt-20'>
+      <div className="mt-6 flex flex-col justify-center items-center max-w-7xl mx-auto px-4">
+          <h1 className='text-4xl py-10'>MCP HUB</h1>
+          <LandingChatStartButton />
+          
+          {/* 카테고리별 MCP 섹션들 */}
+          <div className="w-full space-y-12 my-12">
+            {displayCategories.map((category) => {
+              const categoryItems = getItemsByCategory(category);
+              if (categoryItems.length === 0) return null;
+              
+              return (
+                <LandingMarketGrid 
+                  key={category}
+                  category={category} 
+                  items={categoryItems} 
+                />
+              );
+            })}
+          </div>
       </div>
-      <div className='flex flex-col'>
-        <TextContainer className='max-h-80 w-120'>
-          どこまでも続つづくような青あおの季き節せつは
-          도코마데모 츠즈쿠 요나 아오노 키세츠와
-          영원히 계속될 것만 같은 푸른 계절은
-          四よつ並ならぶ眼まなこの前まえを遮さえぎるものは何なにもない
-          요츠나라부 마나코노 마에오 사에기루 모노와 나니모 나이
-
-        </TextContainer>
-      </div>
-      <div className='text-primary'>Primary 텍스트</div>
-      <div className='text-secondary'>Secondary 텍스트</div>
-      <div className='text-muted'>Muted 텍스트</div>
-      <div className='text-disabled'>Disabled 텍스트</div>
-        <div className="mt-6 flex flex-col justify-center">
-
-            <MCPCard
-                id="notionmcp"
-                title="Notion MCP"
-                description="노션의 다양한 기능을 데이터 베이스를 활용하여 만든 시스템입니다."
-                saved = {true}
-                usersCount={2048}
-            />
-            <MCPCard
-                id="notionmcp"
-                title="Notion MCP"
-                description="노션의 다양한 기능을 데이터 베이스를 활용하여 만든 시스템입니다."
-                saved = {true}
-                usersCount={2048}
-            />
-
-        </div>
     </div>
   );
 }

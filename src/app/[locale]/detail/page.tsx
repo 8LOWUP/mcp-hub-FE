@@ -29,7 +29,7 @@ export default function MarketDetailPage({ params }: PageProps) {
 
     return (
         <div className="flex flex-col md:flex-row pt-20 md:pt-30 pb-10 items-start justify-center px-4 md:px-8 gap-6 md:gap-8">
-            <main className="flex flex-col md:flex-row w-full max-w-6xl gap-6 md:gap-8">
+            <main className="flex flex-col md:flex-row w-full gap-6 md:gap-8">
                 {/* 메인 컨텐츠 영역 */}
                 <section className="flex flex-col gap-4 md:w-4/6">
                     <McpHeader data={data} />

@@ -4,7 +4,7 @@
 import React from "react";
 import { useSearchParams } from "next/navigation";
 import MarketGrid from "../grid/MarketGrid";
-import { DUMMY_MCP_LIST } from "@/features/market/data";
+import { DUMMY_MCP_LIST } from "@/constants/mcp-data";
 import { getTitleByCategory } from "@/features/market/utils";
 import type { CategoryId } from "@/features/market/constants";
 
