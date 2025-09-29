@@ -11,6 +11,8 @@ import ThemeToggle from "@/components/ui/theme-toggle";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SearchBar from "@/components/ui/searchBar";
 import LoginModal from "@/features/auth/components/LoginModal";
+import { useLoginStore } from "@/store/login/login-store";
+import { socialLogin } from "@/services/auth/social-login";
 
 /* 경로 끝 슬래시 정규화 */
 const trimSlash = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
@@ -20,9 +22,10 @@ const Header: React.FC = () => {
     const pathnameRaw = usePathname() || "/";
     const pathname = trimSlash(pathnameRaw);
 
-    // 세션 (로그인 여부)
+    // 세션 (로그인 여부) - NextAuth와 우리 로그인 스토어 둘 다 확인
     const { status } = useSession();
-    const isAuthed = status === "authenticated";
+    const { isLoggedIn, user } = useLoginStore();
+    const isAuthed = status === "authenticated" || isLoggedIn;
 
     // locale 추출 (URL의 첫 세그먼트)
     const locale = React.useMemo(() => pathname.split("/")[1] || "en", [pathname]);
@@ -116,20 +119,36 @@ const Header: React.FC = () => {
 
                         {/* 로그인 전: Log In / 로그인 후: 아바타 */}
                         {isAuthed ? (
-                            <button
-                                type="button"
-                                onClick={handleProfileOrLoginClick}
-                                aria-label="Open profile"
-                                className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                            >
-                                <Image
-                                    src="/catprofile.svg"
-                                    alt=""
-                                    width={32}
-                                    height={32}
-                                    className="object-cover w-full h-full"
-                                />
-                            </button>
+                            <div className="flex items-center gap-2">
+                                {/* 사용자 정보 표시 (우리 로그인 스토어에서) */}
+                                {user && (
+                                    <span className="hidden md:block text-sm text-primary">
+                                        {user.name}
+                                    </span>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={handleProfileOrLoginClick}
+                                    aria-label="Open profile"
+                                    className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                                >
+                                    <Image
+                                        src={user?.profileImage || "/catprofile.svg"}
+                                        alt={user?.name || "Profile"}
+                                        width={32}
+                                        height={32}
+                                        className="object-cover w-full h-full"
+                                    />
+                                </button>
+                                {/* 로그아웃 버튼 */}
+                                <button
+                                    type="button"
+                                    onClick={() => socialLogin.logout()}
+                                    className="hidden md:block text-xs text-muted hover:text-primary transition-colors"
+                                >
+                                    Logout
+                                </button>
+                            </div>
                         ) : (
                             <PrimaryButton
                                 onClick={handleProfileOrLoginClick}
