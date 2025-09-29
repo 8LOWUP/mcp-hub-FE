@@ -5,8 +5,9 @@ interface PrimaryButtonProps {
     onClick?: () => void;
     variant?: "primary" | "secondary" | "outline";
     size?: "sm" | "md" | "lg";
-    className?: string;
+    additionalClassName?: string;
     disabled?: boolean;
+    type?: "button" | "submit" | "reset";
 }
 
 const PrimaryButton: React.FC<PrimaryButtonProps> = ({
@@ -14,7 +15,7 @@ const PrimaryButton: React.FC<PrimaryButtonProps> = ({
     onClick,
     variant = "primary",
     size = "md",
-    className,
+    additionalClassName,
     disabled = false,
 }) => {
     const variants = {
@@ -37,7 +38,7 @@ const PrimaryButton: React.FC<PrimaryButtonProps> = ({
                 "flex items-center justify-center rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
                 variants[variant],
                 sizes[size],
-                className
+                additionalClassName
             )}
         >
             {children}
