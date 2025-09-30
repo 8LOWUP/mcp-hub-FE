@@ -32,7 +32,7 @@ const Example: React.FC = () => {
                         </PrimaryButton>
 
                         {/* 강조 버튼: 포인트 색상 */}
-                        <PrimaryButton onClick={handleSave} className="bg-accent text-black hover:bg-accent-hover">
+                        <PrimaryButton onClick={handleSave} additionalClassName="bg-accent text-black hover:bg-accent-hover">
                             수정
                         </PrimaryButton>
                     </>

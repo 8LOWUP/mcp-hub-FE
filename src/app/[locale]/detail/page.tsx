@@ -29,14 +29,14 @@ export default function MarketDetailPage({ params }: PageProps) {
 
     return (
         <div className="flex flex-col md:flex-row pt-20 md:pt-30 pb-10 items-start justify-center px-4 md:px-8 gap-6 md:gap-8">
-            <main className="flex flex-col md:flex-row w-full gap-6 md:gap-8">
+            <div className="flex flex-col md:flex-row w-full gap-6 md:gap-8">
                 {/* 메인 컨텐츠 영역 */}
                 <section className="flex flex-col gap-4 md:w-4/6">
                     <McpHeader data={data} />
 
                     {/* 모바일 전용 Go to Chat 버튼 */}
                     <div className="block md:hidden">
-                        <PrimaryButton className="w-full py-2 text-sm">Go to Chat</PrimaryButton>
+                        <PrimaryButton additionalClassName="w-full py-2 text-sm">Go to Chat</PrimaryButton>
                     </div>
 
                     <McpAbout about={data.about} />
@@ -50,7 +50,7 @@ export default function MarketDetailPage({ params }: PageProps) {
                     <div className="md:mt-10 md:sticky md:top-24 flex flex-col gap-4">
                         {/* 데스크탑 전용 Go to Chat 버튼 */}
                         <div className="hidden md:flex justify-center w-full">
-                            <PrimaryButton className="w-full py-3 text-base transition transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg rounded-full">
+                            <PrimaryButton additionalClassName="w-full py-3 text-base transition transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg rounded-full">
                                 Go to Chat
                             </PrimaryButton>
                         </div>
@@ -59,7 +59,7 @@ export default function MarketDetailPage({ params }: PageProps) {
                         <McpDetails data={data} />
                     </div>
                 </aside>
-            </main>
+            </div>
         </div>
     );
 }
