@@ -2,12 +2,15 @@
 
 import { useEffect } from 'react';
 import { useSocialLoginCallback } from '@/hooks/auth/useSocialLoginCallback';
+import { usePathname } from 'next/navigation';
 
 /**
  * 소셜 로그인 콜백을 처리하는 컴포넌트
  * 앱 전체에서 URL의 code 파라미터를 감지하고 처리합니다.
  */
 export default function SocialLoginCallbackHandler() {
+  const pathname = usePathname();
+  if (pathname?.includes('/auth/callback')) return null;
   const { isProcessing, error } = useSocialLoginCallback();
 
   // 로딩 중이거나 에러가 있을 때만 UI 표시

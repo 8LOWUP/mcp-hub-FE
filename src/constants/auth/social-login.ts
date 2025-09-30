@@ -19,9 +19,9 @@ export const SOCIAL_CLIENT_IDS = {
 
 // 리다이렉트 URI
 export const REDIRECT_URIS = {
-  google: 'http://localhost:8080/members/auth/social/google',
-  kakao: 'http://localhost:8080/members/auth/social/kakao',
-  github: 'http://localhost:8080/members/auth/social/github',
+  google: 'http://localhost:3000/auth-callback.html',
+  kakao: 'http://localhost:3000/auth-callback.html',
+  github: 'http://localhost:3000/auth-callback.html',
 } as const;
 
 // 소셜 로그인 파라미터 생성 함수
@@ -34,6 +34,7 @@ export const generateSocialLoginUrl = (provider: SocialProvider): string => {
     response_type: 'code',
     client_id: clientId,
     redirect_uri: redirectUri,
+    state: provider, // 제공자 정보를 state 파라미터에 포함
   });
 
   // 제공자별 추가 파라미터

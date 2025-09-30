@@ -3,7 +3,7 @@
 // 기본 API 응답 타입
 export interface ApiResponse<T = any> {
   success: boolean;
-  data?: T;
+  result?: T;
   message?: string;
   error?: string;
   code?: string;
@@ -23,16 +23,16 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
-  user: User;
+  member: User;
 }
 
 export interface User {
   id: string;
   email: string;
-  name: string;
+  nickname: string;
   profileImage?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // MCP 관련 타입

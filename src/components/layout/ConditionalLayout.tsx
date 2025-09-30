@@ -9,9 +9,10 @@ import SocialLoginCallbackHandler from "@/components/auth/SocialLoginCallbackHan
 export default function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // chat 경로에서는 Header/Footer 숨김
-  const hideHeader = pathname.includes("/chat");
-  const hideFooter = pathname.includes("/chat");
+  // 특정 경로들에서는 Header/Footer 숨김
+  const hiddenSegments = ["chat", "auth"];
+  const hideHeader = hiddenSegments.some(seg => pathname.includes(seg));
+  const hideFooter = hiddenSegments.some(seg => pathname.includes(seg));
 
   return (
     <>

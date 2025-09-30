@@ -6,7 +6,7 @@ export const LOCAL_STORAGE_KEY = {
 } as const;
 
 // API Base URL (스웨거 문서 기반)
-export const API_BASE_URL = 'http://61.109.236.22';
+export const API_BASE_URL = 'https://61.109.236.22';
 
 // API 엔드포인트 상수 (실제 스웨거 문서 기반)
 export const API_ENDPOINTS = {

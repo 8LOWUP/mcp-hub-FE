@@ -5,9 +5,10 @@ import { useLoginStore } from "../store/login/login-store";
 // Next.js 환경변수 사용 (환경변수가 있으면 우선 사용, 없으면 constants의 기본값 사용)
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || API_BASE_URL;
 
+console.log('BASE_URL', BASE_URL);
+
 export const axiosInstance = axios.create({
     baseURL: BASE_URL,
-    timeout: 10000, // 10초 타임아웃
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

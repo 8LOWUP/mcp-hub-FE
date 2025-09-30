@@ -51,20 +51,16 @@ const Header: React.FC = () => {
 
     /* ================================
      * 프로필/로그인 버튼 클릭 동작
-     * - 랜딩(/[locale])에서는 로그인 모달 오픈 (비로그인 시)
-     * - 그 외 페이지에서는 profiles로 이동
-     * - 이미 로그인된 상태라면 언제나 profiles로 이동
+     * - 로그인된 상태라면 언제나 profiles로 이동
+     * - 비로그인 상태라면 언제나 로그인 모달 오픈
      * ================================ */
     const handleProfileOrLoginClick = () => {
         if (isAuthed) {
             go(`/${locale}/profiles`);
             return;
         }
-        if (isLocaleHome) {
-            openLogin();
-        } else {
-            go(`/${locale}/profiles`);
-        }
+        // 비로그인 상태라면 항상 로그인 모달 오픈
+        openLogin();
     };
 
     return (
@@ -105,12 +101,11 @@ const Header: React.FC = () => {
             <SearchBar />
           </div>
                     {/* 우측 액션 */}
-                    <div className="flex items-center gap-x-3">
+                    <div className="flex items-center gap-x-2">
                         <PrimaryButton
                             onClick={() => go(`/${locale}/upload`)}
                             variant="primary"
                             size="md"
-                            className="hidden md:flex h-9 px-15"
                         >
                             <span className="text-title5">Upload</span>
                         </PrimaryButton>
@@ -120,12 +115,6 @@ const Header: React.FC = () => {
                         {/* 로그인 전: Log In / 로그인 후: 아바타 */}
                         {isAuthed ? (
                             <div className="flex items-center gap-2">
-                                {/* 사용자 정보 표시 (우리 로그인 스토어에서) */}
-                                {user && (
-                                    <span className="hidden md:block text-sm text-primary">
-                                        {user.name}
-                                    </span>
-                                )}
                                 <button
                                     type="button"
                                     onClick={handleProfileOrLoginClick}
@@ -134,7 +123,7 @@ const Header: React.FC = () => {
                                 >
                                     <Image
                                         src={user?.profileImage || "/catprofile.svg"}
-                                        alt={user?.name || "Profile"}
+                                        alt={user?.nickname || "Profile"}
                                         width={32}
                                         height={32}
                                         className="object-cover w-full h-full"
@@ -154,7 +143,7 @@ const Header: React.FC = () => {
                                 onClick={handleProfileOrLoginClick}
                                 variant="secondary"
                                 size="sm"
-                                className="h-9 px-4"
+                                additionalClassName="py-2 px-2"
                             >
                                 Log In
                             </PrimaryButton>

@@ -48,7 +48,7 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
             <div className="mt-auto pt-6 space-y-3">
                 <PrimaryButton
                     size="md"
-                    className="w-full justify-center"
+                    additionalClassName="w-full justify-center"
                     onClick={handleLogout}
                 >
                     Log Out
@@ -56,7 +56,7 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
 
                 <PrimaryButton
                     size="md"
-                    className="w-full justify-center"
+                    additionalClassName="w-full justify-center"
                     onClick={() => setOpenDelete(true)}
                 >
                     Delete Account

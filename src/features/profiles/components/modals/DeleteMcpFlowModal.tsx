@@ -66,7 +66,7 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
                             <PrimaryButton
                                 variant="secondary"
                                 size="md"
-                                className="min-w-[96px] justify-center"
+                                additionalClassName="min-w-[96px] justify-center"
                                 onClick={onClose}
                                 disabled={isLoading}
                             >
@@ -74,7 +74,7 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
                             </PrimaryButton>
                             <PrimaryButton
                                 size="md"
-                                className="min-w-[96px] justify-center"
+                                additionalClassName="min-w-[96px] justify-center"
                                 onClick={handleConfirm}
                                 disabled={isLoading}
                             >
@@ -92,7 +92,7 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
                         <div className="flex justify-end">
                             <PrimaryButton
                                 size="md"
-                                className="min-w-[96px] justify-center"
+                                additionalClassName="min-w-[96px] justify-center"
                                 onClick={onClose}
                             >
                                 Close

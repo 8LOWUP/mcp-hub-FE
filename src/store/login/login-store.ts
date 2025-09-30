@@ -5,7 +5,7 @@ import { persist } from 'zustand/middleware';
 export interface User {
   id: string;
   email: string;
-  name: string;
+  nickname: string;
   profileImage?: string;
   provider?: 'google' | 'kakao' | 'github';
   createdAt?: string;

@@ -14,30 +14,31 @@ import type {
 
 // 인증 관련 API (실제 스웨거 기반)
 export const authApi = {
-  // 카카오 로그인 (code 파라미터 포함)
+  // 카카오 로그인 (GET + params)
   kakaoLogin: async (code?: string): Promise<ApiResponse<AuthResponse>> => {
-    const url = code 
-      ? `${API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_KAKAO}?code=${code}`
-      : API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_KAKAO;
-    const response = await axiosInstance.get(url);
+    const url = API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_KAKAO;
+    const config = code ? { params: { code : code } } : undefined;
+    console.log('[authApi.kakaoLogin] Using GET with params:', config?.params);
+    const response = await axiosInstance.get(url, config);
+    console.log('[authApi.kakaoLogin] GET called. Status:', response.status, 'OK?:', response.status >= 200 && response.status < 300);
     return response.data;
   },
 
-  // 구글 로그인 (code 파라미터 포함)
+  // 구글 로그인 (GET + params)
   googleLogin: async (code?: string): Promise<ApiResponse<AuthResponse>> => {
-    const url = code 
-      ? `${API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_GOOGLE}?code=${code}`
-      : API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_GOOGLE;
-    const response = await axiosInstance.get(url);
+    const url = API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_GOOGLE;
+    const config = code ? { params: { code } } : undefined;
+    console.log('[authApi.googleLogin] Using GET with params:', config?.params);
+    const response = await axiosInstance.get(url, config);
     return response.data;
   },
 
-  // 깃허브 로그인 (code 파라미터 포함)
+  // 깃허브 로그인 (GET + params)
   githubLogin: async (code?: string): Promise<ApiResponse<AuthResponse>> => {
-    const url = code 
-      ? `${API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_GITHUB}?code=${code}`
-      : API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_GITHUB;
-    const response = await axiosInstance.get(url);
+    const url = API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_GITHUB;
+    const config = code ? { params: { code } } : undefined;
+    console.log('[authApi.githubLogin] Using GET with params:', config?.params);
+    const response = await axiosInstance.get(url, config);
     return response.data;
   },
 
@@ -47,9 +48,12 @@ export const authApi = {
     return response.data;
   },
 
-  // 로그아웃
-  logout: async (): Promise<ApiResponse> => {
-    const response = await axiosInstance.delete(API_ENDPOINTS.MEMBERS.AUTH_LOGOUT);
+  // 로그아웃 (refreshToken을 params로 전송)
+  logout: async (refreshToken?: string): Promise<ApiResponse> => {
+    const response = await axiosInstance.delete(
+      API_ENDPOINTS.MEMBERS.AUTH_LOGOUT,
+      refreshToken ? { params: { refreshToken } } : undefined
+    );
     return response.data;
   },
 };
