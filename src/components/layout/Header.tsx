@@ -11,6 +11,8 @@ import ThemeToggle from "@/components/ui/theme-toggle";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SearchBar from "@/components/ui/searchBar";
 import LoginModal from "@/features/auth/components/LoginModal";
+import { useLoginStore } from "@/store/login/login-store";
+import { socialLogin } from "@/services/auth/social-login";
 
 /* 경로 끝 슬래시 정규화 */
 const trimSlash = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
@@ -20,9 +22,10 @@ const Header: React.FC = () => {
     const pathnameRaw = usePathname() || "/";
     const pathname = trimSlash(pathnameRaw);
 
-    // 세션 (로그인 여부)
+    // 세션 (로그인 여부) - NextAuth와 우리 로그인 스토어 둘 다 확인
     const { status } = useSession();
-    const isAuthed = status === "authenticated";
+    const { isLoggedIn, user } = useLoginStore();
+    const isAuthed = status === "authenticated" || isLoggedIn;
 
     // locale 추출 (URL의 첫 세그먼트)
     const locale = React.useMemo(() => pathname.split("/")[1] || "en", [pathname]);
@@ -48,20 +51,16 @@ const Header: React.FC = () => {
 
     /* ================================
      * 프로필/로그인 버튼 클릭 동작
-     * - 랜딩(/[locale])에서는 로그인 모달 오픈 (비로그인 시)
-     * - 그 외 페이지에서는 profiles로 이동
-     * - 이미 로그인된 상태라면 언제나 profiles로 이동
+     * - 로그인된 상태라면 언제나 profiles로 이동
+     * - 비로그인 상태라면 언제나 로그인 모달 오픈
      * ================================ */
     const handleProfileOrLoginClick = () => {
         if (isAuthed) {
             go(`/${locale}/profiles`);
             return;
         }
-        if (isLocaleHome) {
-            openLogin();
-        } else {
-            go(`/${locale}/profiles`);
-        }
+        // 비로그인 상태라면 항상 로그인 모달 오픈
+        openLogin();
     };
 
     return (
@@ -102,12 +101,11 @@ const Header: React.FC = () => {
             <SearchBar />
           </div>
                     {/* 우측 액션 */}
-                    <div className="flex items-center gap-x-3">
+                    <div className="flex items-center gap-x-2">
                         <PrimaryButton
                             onClick={() => go(`/${locale}/upload`)}
                             variant="primary"
                             size="md"
-                            className="hidden md:flex h-9 px-15"
                         >
                             <span className="text-title5">Upload</span>
                         </PrimaryButton>
@@ -116,26 +114,36 @@ const Header: React.FC = () => {
 
                         {/* 로그인 전: Log In / 로그인 후: 아바타 */}
                         {isAuthed ? (
-                            <button
-                                type="button"
-                                onClick={handleProfileOrLoginClick}
-                                aria-label="Open profile"
-                                className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                            >
-                                <Image
-                                    src="/catprofile.svg"
-                                    alt=""
-                                    width={32}
-                                    height={32}
-                                    className="object-cover w-full h-full"
-                                />
-                            </button>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={handleProfileOrLoginClick}
+                                    aria-label="Open profile"
+                                    className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                                >
+                                    <Image
+                                        src={user?.profileImage || "/catprofile.svg"}
+                                        alt={user?.nickname || "Profile"}
+                                        width={32}
+                                        height={32}
+                                        className="object-cover w-full h-full"
+                                    />
+                                </button>
+                                {/* 로그아웃 버튼 */}
+                                <button
+                                    type="button"
+                                    onClick={() => socialLogin.logout()}
+                                    className="hidden md:block text-xs text-muted hover:text-primary transition-colors"
+                                >
+                                    Logout
+                                </button>
+                            </div>
                         ) : (
                             <PrimaryButton
                                 onClick={handleProfileOrLoginClick}
                                 variant="secondary"
                                 size="sm"
-                                className="h-9 px-4"
+                                additionalClassName="py-2 px-2"
                             >
                                 Log In
                             </PrimaryButton>

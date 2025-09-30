@@ -82,7 +82,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
                         <PrimaryButton
                             variant="secondary"
                             size="md"
-                            className="min-w-[96px] justify-center"
+                            additionalClassName="min-w-[96px] justify-center"
                             onClick={onClose}
                         >
                             Cancel
@@ -90,7 +90,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
 
                         <PrimaryButton
                             size="md"
-                            className="min-w-[96px] justify-center"
+                            additionalClassName="min-w-[96px] justify-center"
                             onClick={handleNextFromConfirm}
                             disabled={isLoading}
                         >
@@ -100,7 +100,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
                 ) : (
                     <PrimaryButton
                         size="md"
-                        className="min-w-[96px] justify-center"
+                        additionalClassName="min-w-[96px] justify-center"
                         onClick={handleFinish}
                     >
                         Next
