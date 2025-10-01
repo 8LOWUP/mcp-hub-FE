@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
+import {useLocale} from "next-intl";
 
 interface MCPCardProps {
     id: string;
@@ -21,10 +22,12 @@ const MCPCard: React.FC<MCPCardProps> = ({
     usersCount,
     className,
 }) => {
+    const locale = useLocale();
+
     return (
 
         <Link
-            href={`/detail/${id}`}
+            href={`/${locale}/detail/${id}`}
             className={clsx(
                 "flex flex-col p-6 justify-items-center items-center w-full max-w-sm rounded-md",
                 "border border-white/20 bg-surface-1",
