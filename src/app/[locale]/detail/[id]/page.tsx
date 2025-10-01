@@ -44,7 +44,10 @@ export default function MarketDetailPage({ params }: PageProps) {
                     </div>
 
                     <McpAbout about={data.about ?? data.description} />
-                    {data.tools?.length > 0 && <MarketTools tools={data.tools} />}
+
+                    {/* ✅ 조건부 제거 → 항상 렌더링 */}
+                    <MarketTools tools={data.tools ?? []} />
+
                     <ReviewList reviews={data.reviews ?? []} />
                     <ReviewForm onAddReview={handleAddReview} />
                 </section>
@@ -56,7 +59,10 @@ export default function MarketDetailPage({ params }: PageProps) {
                                 Go to Chat
                             </PrimaryButton>
                         </div>
+
+                        {/* ✅ URL 없을 때도 fallback 보여주도록 항상 렌더링 */}
                         <McpUrlCopy url={data.url ?? data.requestUrl} />
+
                         <MarketConnectionPlatforms
                             platforms={data.connectionPlatform ?? []}
                         />

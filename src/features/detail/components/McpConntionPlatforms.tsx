@@ -15,6 +15,7 @@ export default function MarketConnectionPlatforms({ platforms }: Props) {
         google: "/google.svg",
         vscode: "/vscode.svg",
         instagram: "/instagram.svg",
+        github: "/github.svg", // 깃허브 추가 (예시)
     };
 
     return (
@@ -25,14 +26,13 @@ export default function MarketConnectionPlatforms({ platforms }: Props) {
             <TextContainer className="w-full flex flex-wrap gap-2 items-center">
                 {platforms.length > 0 ? (
                     platforms.map((platform, idx) => {
-                        // 👇 소문자로 변환해서 매핑 (API에서 "Youtube" / "youtube" 등 혼용될 수 있음)
                         const key = platform.toLowerCase();
                         const iconSrc = platformIconMap[key] || "/default.svg";
 
                         return (
                             <div
                                 key={idx}
-                                className="flex items-center gap-2 px-2 py-1 rounded"
+                                className="flex items-center px-2 py-1 rounded"
                             >
                                 <Image
                                     src={iconSrc}
@@ -42,7 +42,6 @@ export default function MarketConnectionPlatforms({ platforms }: Props) {
                                     unoptimized
                                     className="object-contain"
                                 />
-                                <span className="text-sm capitalize">{platform}</span>
                             </div>
                         );
                     })

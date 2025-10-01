@@ -5,7 +5,7 @@ import TextContainer from "@/components/container/TextContainer";
 import Image from "next/image";
 
 interface Props {
-    url: string;
+    url?: string;
 }
 
 export default function McpUrlCopy({ url }: Props) {
@@ -14,24 +14,39 @@ export default function McpUrlCopy({ url }: Props) {
     return (
         <div className="info-block relative">
             <div className="text-secondary font-semibold text-lg mb-4">URL</div>
-            <TextContainer className="w-full flex items-center justify-between gap-2">
-                <span className="truncate text-white">{url}</span>
-                <button
-                    onClick={() => {
-                        navigator.clipboard.writeText(url);
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 1500);
-                    }}
-                    className="hover:opacity-70"
-                >
-                    <Image src="/urlcopy.svg" alt="Copy URL" width={16} height={16} className="w-5 h-5" />
-                </button>
-            </TextContainer>
 
-            {copied && (
-                <div className="absolute top-0 right-0 mt-[-28px] bg-black text-white text-xs px-2 py-1 rounded shadow">
-                    Copied!
-                </div>
+            {!url ? (
+                <TextContainer className="w-full text-gray-400 text-sm p-4">
+                    등록된 URL이 없습니다.
+                </TextContainer>
+            ) : (
+                <>
+                    <TextContainer className="w-full flex items-center justify-between gap-2">
+                        <span className="truncate text-white">{url}</span>
+                        <button
+                            onClick={() => {
+                                navigator.clipboard.writeText(url);
+                                setCopied(true);
+                                setTimeout(() => setCopied(false), 1500);
+                            }}
+                            className="hover:opacity-70"
+                        >
+                            <Image
+                                src="/urlcopy.svg"
+                                alt="Copy URL"
+                                width={16}
+                                height={16}
+                                className="w-5 h-5"
+                            />
+                        </button>
+                    </TextContainer>
+
+                    {copied && (
+                        <div className="absolute top-0 right-0 mt-[-28px] bg-black text-white text-xs px-2 py-1 rounded shadow">
+                            Copied!
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
