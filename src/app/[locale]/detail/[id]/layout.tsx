@@ -1,3 +1,4 @@
+// src/app/[locale]/detail/[id]/layout.tsx
 export default function DetailLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="flex flex-col min-h-screen">
