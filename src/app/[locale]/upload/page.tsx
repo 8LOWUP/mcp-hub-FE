@@ -11,10 +11,11 @@ import SourceCodeURLInput from "@/features/upload/components/SourceCodeURLInput"
 import LicenseInput from "@/features/upload/components/LicenseInput";
 import UploadIcon from "@/features/upload/components/UploadIcon";
 
-import { useUploadForm } from "@/features/upload/hooks/uploadForm";
+import { useUploadForm } from "@/hooks/upload/useUploadForm";
 
 export default function MCPUploadPage() {
-    const { refs, error, message, handleDeploy, handleSave } = useUploadForm();
+    // ✅ useUploadForm 훅에서 파일 핸들러 포함해서 가져오기
+    const { refs, error, message, handleDeploy, handleSave, handleFileSelect } = useUploadForm();
 
     return (
         <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
@@ -26,24 +27,24 @@ export default function MCPUploadPage() {
                 <form className="space-y-4">
                     <MCPNameInput ref={refs.mcpNameRef} onEnter={() => refs.descriptionRef.current?.focus()} />
                     <DescriptionInput ref={refs.descriptionRef} onEnter={() => refs.serverURLRef.current?.focus()} />
-                    <TagsInput />
+                    <TagsInput ref={refs.categoryRef} />
                     <ServerURLInput ref={refs.serverURLRef} onEnter={() => refs.connectionPlatformRef.current?.focus()} />
                     <ToolsDescriptionInput />
                     <ConnectionPlatformInput ref={refs.connectionPlatformRef} onEnter={() => refs.developerNameRef.current?.focus()} />
                     <DeveloperNameInput ref={refs.developerNameRef} onEnter={() => refs.sourceCodeURLRef.current?.focus()} />
                     <SourceCodeURLInput ref={refs.sourceCodeURLRef} onEnter={() => refs.licenseRef.current?.focus()} />
                     <LicenseInput ref={refs.licenseRef} onEnter={() => {}} />
-                    <UploadIcon />
 
+                    {/* ✅ 파일 업로드 컴포넌트 → handleFileSelect 연결 */}
+                    <UploadIcon onFileSelect={handleFileSelect} />
+
+                    {/* ✅ 상태 메시지 표시 */}
                     <div className="flex justify-end mb-2">
-                        {error && (
-                            <p className="text-red-500 font-semibold text-right">{error}</p>
-                        )}
-                        {message && (
-                            <p className="text-green-500 font-semibold text-right">{message}</p>
-                        )}
+                        {error && <p className="text-red-500 font-semibold text-right">{error}</p>}
+                        {message && <p className="text-green-500 font-semibold text-right">{message}</p>}
                     </div>
 
+                    {/* ✅ 버튼 영역 */}
                     <div className="flex justify-end gap-2 mb-2">
                         <button
                             type="button"
