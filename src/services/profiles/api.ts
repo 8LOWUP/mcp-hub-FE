@@ -7,7 +7,7 @@ import { axiosInstance, getAccessToken, getStoredUser } from "@/services/AxiosIn
 import {
     ProfileType,
     UpdateProfilePayloadType,
-    PatchMyProfileRequestType,
+    PatchMyProfileRequestType, // 서버 스펙에 따라 사용 가능
 } from "@/types/profiles";
 
 /* ================================
@@ -54,8 +54,7 @@ const RL: RateLimiterStore =
 (globalThis as any).__PROFILE_RL__ = RL;
 
 /* ================================
- * 서버에 맞춘 최소간격 설정
- * (x-ratelimit-limit:1;window=PT10S → 10초에 1회)
+ * 서버 최소간격 (예: 10초 1회)
  * ================================ */
 const RL_WINDOW_MS = 10_500;
 const MIN_GAP_MS_READ = RL_WINDOW_MS;
@@ -85,8 +84,7 @@ const parseRetryAfterMs = (err: any): number | null => {
         if (m) {
             const v = Number(m[1]);
             const unit = m[2].toUpperCase();
-            const ms =
-                unit === "S" ? v * 1000 : unit === "M" ? v * 60_000 : v * 3_600_000;
+            const ms = unit === "S" ? v * 1000 : unit === "M" ? v * 60_000 : v * 3_600_000;
             return ms;
         }
         return RL_WINDOW_MS;
@@ -103,7 +101,6 @@ const withRateLimit = async <T>(
     kind: "read" | "write",
     fn: () => Promise<T>
 ): Promise<T> => {
-    // 쓰기 직후 읽기 지연
     if (kind === "read") {
         const sinceWrite = Date.now() - RL.lastWriteAt;
         if (sinceWrite < READ_AFTER_WRITE_GAP_MS) {
@@ -111,13 +108,11 @@ const withRateLimit = async <T>(
         }
     }
 
-    // 전역 최소 간격
     const sinceGlobal = Date.now() - RL.lastGlobalCallAt;
     if (sinceGlobal < GLOBAL_MIN_GAP_MS) {
         await sleep(GLOBAL_MIN_GAP_MS - sinceGlobal);
     }
 
-    // 엔드포인트별 최소 간격
     const last = RL.lastCallAtMap.get(key) ?? 0;
     const sinceKey = Date.now() - last;
     const minGap = kind === "write" ? MIN_GAP_MS_WRITE : MIN_GAP_MS_READ;
@@ -130,6 +125,8 @@ const withRateLimit = async <T>(
     const BASE_MS = RL_WINDOW_MS;
     const JITTER_MS = 250;
 
+    // 재시도 + 지터
+    // eslint-disable-next-line no-constant-condition
     while (true) {
         try {
             const res = await fn();
@@ -146,9 +143,7 @@ const withRateLimit = async <T>(
             attempt += 1;
             const retryAfter = parseRetryAfterMs(err);
             const backoff = (retryAfter ?? BASE_MS) + rand(0, JITTER_MS);
-            console.warn(
-                `[rate-limit] ${key} ${status} → retry #${attempt} after ${backoff}ms`
-            );
+            console.warn(`[rate-limit] ${key} ${status} → retry #${attempt} after ${backoff}ms`);
             await sleep(backoff);
         }
     }
@@ -171,7 +166,6 @@ export const getMyProfile = async (): Promise<ProfileType> => {
     return inFlightGetMe;
 };
 
-
 /* ================================
  * id 유틸
  * ================================ */
@@ -186,11 +180,13 @@ const coerceId = (raw: any): number | string | null => {
     }
     return null;
 };
+
 const getIdFromStoredUser = (): number | string | null => {
     const u = getStoredUser?.();
     if (!u) return null;
     return coerceId(u.memberId ?? u.id ?? u.userId);
 };
+
 const decodeJwtPayload = (token: string): any | null => {
     try {
         if (typeof window === "undefined") return null;
@@ -203,6 +199,7 @@ const decodeJwtPayload = (token: string): any | null => {
         return null;
     }
 };
+
 const getIdFromToken = (): number | string | null => {
     const token = getAccessToken?.();
     if (!token) return null;
@@ -219,6 +216,7 @@ export const patchMyProfile = async (
     payload: UpdateProfilePayloadType,
     currentProfile?: ProfileType
 ): Promise<ProfileType> => {
+    // 동시에 중복 PATCH 방지
     while (patchLock) {
         await sleep(80);
     }
@@ -233,6 +231,8 @@ export const patchMyProfile = async (
             throw new Error("로그인 정보에서 사용자 식별자를 가져올 수 없습니다.");
         }
 
+        // 서버 스펙: /members/me는 보통 body에 id가 필요 없지만
+        // BE 요구가 있을 수 있어서 안전하게 포함(없으면 무시됨)
         const body: { id: number | string; email?: string; nickname?: string } = { id: myId };
         if (payload?.email) body.email = String(payload.email).trim();
         if (payload?.nickname) body.nickname = String(payload.nickname).trim();

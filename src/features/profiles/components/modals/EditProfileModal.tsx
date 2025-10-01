@@ -1,3 +1,4 @@
+// src/features/profiles/components/modals/EditProfileModal.tsx
 "use client";
 
 import React from "react";
@@ -35,6 +36,8 @@ const EditProfileModal: React.FC<Props> = ({
         await onSubmit({ email, nickname });
     };
 
+    if (!isOpen) return null;
+
     return (
         <BaseModal
             isOpen={isOpen}
@@ -43,10 +46,18 @@ const EditProfileModal: React.FC<Props> = ({
             size="sm"
             footer={
                 <div className="flex w-full justify-end gap-2">
-                    <button className="px-4 py-2 rounded-2xl bg-surface-2" onClick={onClose} disabled={isSubmitting}>
+                    <button
+                        className="px-4 py-2 rounded-2xl bg-surface-2"
+                        onClick={onClose}
+                        disabled={isSubmitting}
+                    >
                         Cancel
                     </button>
-                    <button className="px-4 py-2 rounded-2xl bg-accent text-black" onClick={handleSubmit} disabled={isSubmitting}>
+                    <button
+                        className="px-4 py-2 rounded-2xl bg-accent text-black"
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                    >
                         {isSubmitting ? "Saving..." : "Save"}
                     </button>
                 </div>
