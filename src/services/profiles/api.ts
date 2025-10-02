@@ -63,7 +63,7 @@ const GLOBAL_MIN_GAP_MS = 400;
 const READ_AFTER_WRITE_GAP_MS = RL_WINDOW_MS;
 
 /* ================================
- * Retry-After 파서
+ * Retry-After 파서 (헤더 → ms)
  * ================================ */
 const parseRetryAfterMs = (err: any): number | null => {
     const h = err?.response?.headers;
@@ -121,7 +121,7 @@ const withRateLimit = async <T>(
     }
 
     let attempt = 0;
-    const MAX_RETRY = 3;
+    const MAX_RETRY = 6;              // ✅ 재시도 횟수 상향
     const BASE_MS = RL_WINDOW_MS;
     const JITTER_MS = 250;
 
@@ -142,7 +142,9 @@ const withRateLimit = async <T>(
 
             attempt += 1;
             const retryAfter = parseRetryAfterMs(err);
-            const backoff = (retryAfter ?? BASE_MS) + rand(0, JITTER_MS);
+            // ✅ 최소 윈도우(10.5s) 보장
+            const backoffBase = retryAfter != null ? Math.max(retryAfter, BASE_MS) : BASE_MS;
+            const backoff = backoffBase + rand(0, JITTER_MS);
             console.warn(`[rate-limit] ${key} ${status} → retry #${attempt} after ${backoff}ms`);
             await sleep(backoff);
         }
@@ -252,15 +254,30 @@ export const patchMyProfile = async (
 /* ================================
  * DELETE /members/me
  * ================================ */
-export const deleteMe = async (
-    refreshToken: string
-): Promise<string | { message?: string }> => {
+
+// 성공 신호를 2xx로 통일
+type DeleteMeOk = { ok: true };
+
+// ✅ 동시 중복 호출 합치기(in-flight coalescing)
+let inFlightDeleteMe: Promise<DeleteMeOk> | null = null;
+
+export const deleteMe = async (refreshToken: string): Promise<DeleteMeOk> => {
     const key = "DELETE:/members/me";
-    const data = await withRateLimit(key, "write", async () => {
-        const { data } = await axiosInstance.delete("/members/me", {
+
+    if (inFlightDeleteMe) return inFlightDeleteMe;
+
+    inFlightDeleteMe = withRateLimit<unknown>(key, "write", async () => {
+        // 2xx가 아니면 axios가 throw → withRateLimit가 재시도/최종 throw 처리
+        await axiosInstance.delete("/members/me", {
             params: { refreshToken },
         });
-        return data;
-    });
-    return normalize(data);
+        // 응답 바디 모양과 무관하게 2xx면 성공으로 통일
+        return { ok: true } as DeleteMeOk;
+    })
+        .then((v) => v as DeleteMeOk)
+        .finally(() => {
+            inFlightDeleteMe = null;
+        });
+
+    return inFlightDeleteMe;
 };

@@ -13,12 +13,21 @@ export const useDeleteMe = () => {
         setLoading(true);
         setErr(undefined);
         try {
-            const { refreshToken, logout } = useLoginStore.getState();
+            const { refreshToken, hardLogout } = useLoginStore.getState();
             if (!refreshToken) throw new Error("refreshToken is missing.");
+
+            // 1) 서버 탈퇴
             const res = await deleteMe(refreshToken);
             setMsg(typeof res === "string" ? res : res?.message ?? "탈퇴가 완료되었습니다.");
-            logout?.();
-            if (typeof window !== "undefined") window.location.href = "/login";
+
+            // 2) 프론트 상태 완전 초기화
+            hardLogout?.();
+
+            // 3) 이동 + 완전 리로드(메모리 초기화)
+            if (typeof window !== "undefined") {
+                window.location.replace("/login");
+                window.location.reload();
+            }
         } catch (e) {
             setErr(e instanceof Error ? e.message : "탈퇴에 실패했습니다.");
         } finally {
