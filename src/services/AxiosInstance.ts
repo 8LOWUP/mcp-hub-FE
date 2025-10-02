@@ -1,3 +1,4 @@
+// src/services/AxiosInstance.ts
 import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { LOCAL_STORAGE_KEY, PUBLIC_PATHS, API_BASE_URL } from "@/constants/apis/key";
 import { useLoginStore } from "@/store/login/login-store";
@@ -24,7 +25,9 @@ export const axiosInstance = axios.create({
     },
 });
 
-// ✅ SSR-safe localStorage 유틸 (외부에서도 쓸 수 있게 export)
+/* ================================
+ * SSR-safe localStorage 유틸
+ * ================================ */
 export const getLocalStorageItem = (key: string): string | null => {
     if (typeof window === "undefined") return null;
     try {
@@ -35,22 +38,48 @@ export const getLocalStorageItem = (key: string): string | null => {
     }
 };
 
-export const removeLocalStorageItem = (key: string): void => {
+// 단일 키 or 전체 정리(매개변수 없으면 전체)
+export const removeLocalStorageItem = (key?: string): void => {
     if (typeof window === "undefined") return;
     try {
-        localStorage.removeItem(key);
+        if (key) {
+            localStorage.removeItem(key);
+        } else {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.accessToken);
+            localStorage.removeItem(LOCAL_STORAGE_KEY.refreshToken);
+            localStorage.removeItem(LOCAL_STORAGE_KEY.user);
+            // ✅ zustand persist 저장 키도 제거(중요)
+            localStorage.removeItem("login-storage");
+        }
     } catch (error) {
         console.error("localStorage 삭제 오류:", error);
     }
 };
 
-// ✅ (중요) 토큰/유저 getter를 export해서 다른 모듈에서 재사용
+/* ================================
+ * (중요) 토큰/유저 getter
+ * ================================ */
 export const getAccessToken = (): string | null => {
-    const { accessToken } = useLoginStore.getState();
-    if (accessToken) return accessToken;
+    const state = useLoginStore.getState();
 
     const rawAccessToken = getLocalStorageItem(LOCAL_STORAGE_KEY.accessToken);
-    return rawAccessToken?.replace(/^"(.*)"$/, "$1") || null;
+    const tokenFromLS = rawAccessToken?.replace(/^"(.*)"$/, "$1") || null;
+    const tokenFromStore = state.accessToken;
+    const token = tokenFromStore || tokenFromLS;
+
+    console.log(
+        "[AUTH DEBUG]",
+        "hasJustDeleted=",
+        state.hasJustDeleted,
+        "store=",
+        !!tokenFromStore,
+        "ls=",
+        !!tokenFromLS,
+        "final=",
+        !!token
+    );
+
+    return token;
 };
 
 export const getStoredUser = (): any | null => {
@@ -68,17 +97,59 @@ export const getStoredUser = (): any | null => {
     }
 };
 
-// 요청 인터셉터: 매 요청마다 실시간으로 토큰을 확인하고 추가
+// ✅ 추가: refreshToken getter (named export)
+export const getRefreshToken = (): string | null => {
+    // store에 refreshToken이 있다면 우선 사용 (없어도 안전)
+    const state = useLoginStore.getState() as any;
+    const fromStore: string | null = state?.refreshToken ?? null;
+
+    const raw = getLocalStorageItem(LOCAL_STORAGE_KEY.refreshToken);
+    const fromLS = raw?.replace(/^"(.*)"$/, "$1") || null;
+
+    return fromStore || fromLS;
+};
+
+// ✅ 추가: 인증 상태 정리 (named export)
+export const clearAuth = (): void => {
+    // zustand 스토어에 하드 로그아웃 액션이 있으면 사용
+    const { hardLogout } = useLoginStore.getState() as any;
+    if (typeof hardLogout === "function") {
+        try {
+            hardLogout();
+        } catch (e) {
+            console.warn("[clearAuth] hardLogout 실행 중 오류:", e);
+        }
+    } else {
+        // fallback: 최소한 로컬스토리지/퍼시스트 키는 비운다
+        removeLocalStorageItem();
+    }
+
+    // 다음 요청 1회 Authorization 주입 방지 플래그
+    if (typeof window !== "undefined") {
+        sessionStorage.setItem("BLOCK_AUTH_ONCE", "1");
+    }
+};
+
+/* ================================
+ * 요청 인터셉터
+ * ================================ */
 axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
+        // ✅ 탈퇴/강제 로그아웃 직후 첫 요청은 Authorization 강제 차단
+        if (typeof window !== "undefined" && sessionStorage.getItem("BLOCK_AUTH_ONCE") === "1") {
+            delete (config.headers as any).Authorization;
+            sessionStorage.removeItem("BLOCK_AUTH_ONCE");
+            return config;
+        }
+
         const url = config.url || "";
         const isPublicPath = PUBLIC_PATHS.some((path) => url.startsWith(path));
 
         if (!isPublicPath) {
             const accessToken = getAccessToken();
             if (accessToken) {
-                config.headers.Authorization = `Bearer ${accessToken}`;
-                console.log("✅ Authorization 헤더 추가됨:", config.headers.Authorization);
+                (config.headers as any).Authorization = `Bearer ${accessToken}`;
+                console.log("✅ Authorization 헤더 추가됨:", (config.headers as any).Authorization);
             } else {
                 console.warn("⚠️ accessToken 없음, Authorization 헤더 미포함");
             }
@@ -88,13 +159,12 @@ axiosInstance.interceptors.request.use(
 
         return config;
     },
-    (error) => {
-        console.error("❌ 요청 인터셉터 오류:", error);
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
-// 응답 인터셉터: 401 등 에러 처리
+/* ================================
+ * 응답 인터셉터
+ * ================================ */
 axiosInstance.interceptors.response.use(
     (response: AxiosResponse) => response,
     (error) => {
@@ -103,12 +173,16 @@ axiosInstance.interceptors.response.use(
         if (error.response?.status === 401) {
             console.warn("🔒 인증 토큰이 만료되었습니다. 로그인이 필요합니다.");
 
-            const { logout } = useLoginStore.getState();
-            logout();
-
-            removeLocalStorageItem(LOCAL_STORAGE_KEY.accessToken);
-            removeLocalStorageItem(LOCAL_STORAGE_KEY.refreshToken);
-            removeLocalStorageItem(LOCAL_STORAGE_KEY.user);
+            // ✅ 하드 로그아웃: 메모리 + persist + 로컬키 + 1회 차단 플래그
+            const { hardLogout } = useLoginStore.getState() as any;
+            if (typeof hardLogout === "function") {
+                hardLogout();
+            } else {
+                removeLocalStorageItem();
+                if (typeof window !== "undefined") {
+                    sessionStorage.setItem("BLOCK_AUTH_ONCE", "1");
+                }
+            }
 
             if (typeof window !== "undefined") {
                 window.location.href = "/login";
@@ -123,7 +197,9 @@ axiosInstance.interceptors.response.use(
     }
 );
 
-// API 응답 타입 정의
+/* ================================
+ * API 응답 타입 & 래퍼
+ * ================================ */
 export interface ApiResponse<T = any> {
     success: boolean;
     data?: T;
@@ -131,7 +207,6 @@ export interface ApiResponse<T = any> {
     error?: string;
 }
 
-// HTTP 메서드별 래퍼 함수들
 export const api = {
     get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
         axiosInstance.get(url, config),
