@@ -34,11 +34,18 @@ const normalize = <T>(raw: unknown): T => {
 };
 
 /* ================================
- * 공통: sleep, rand
+ * 공통: sleep, rand, safeJson
  * ================================ */
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const rand = (min: number, max: number) =>
     Math.floor(Math.random() * (max - min + 1)) + min;
+const safeJson = (v: any) => {
+    try {
+        return JSON.stringify(v, null, 2);
+    } catch {
+        return String(v);
+    }
+};
 
 /* ================================
  * 전역 RateLimit 스토어 (HMR 방지)
@@ -84,7 +91,8 @@ const parseRetryAfterMs = (err: any): number | null => {
         if (m) {
             const v = Number(m[1]);
             const unit = m[2].toUpperCase();
-            const ms = unit === "S" ? v * 1000 : unit === "M" ? v * 60_000 : v * 3_600_000;
+            const ms =
+                unit === "S" ? v * 1000 : unit === "M" ? v * 60_000 : v * 3_600_000;
             return ms;
         }
         return RL_WINDOW_MS;
@@ -121,7 +129,7 @@ const withRateLimit = async <T>(
     }
 
     let attempt = 0;
-    const MAX_RETRY = 6;              // ✅ 재시도 횟수 상향
+    const MAX_RETRY = 6; // 재시도 횟수 상향
     const BASE_MS = RL_WINDOW_MS;
     const JITTER_MS = 250;
 
@@ -142,10 +150,14 @@ const withRateLimit = async <T>(
 
             attempt += 1;
             const retryAfter = parseRetryAfterMs(err);
-            // ✅ 최소 윈도우(10.5s) 보장
-            const backoffBase = retryAfter != null ? Math.max(retryAfter, BASE_MS) : BASE_MS;
+            // 최소 윈도우(10.5s) 보장
+            const backoffBase =
+                retryAfter != null ? Math.max(retryAfter, BASE_MS) : BASE_MS;
             const backoff = backoffBase + rand(0, JITTER_MS);
-            console.warn(`[rate-limit] ${key} ${status} → retry #${attempt} after ${backoff}ms`);
+            // eslint-disable-next-line no-console
+            console.warn(
+                `[rate-limit] ${key} ${status} → retry #${attempt} after ${backoff}ms`
+            );
             await sleep(backoff);
         }
     }
@@ -171,12 +183,13 @@ export const getMyProfile = async (): Promise<ProfileType> => {
 /* ================================
  * id 유틸
  * ================================ */
+// 문자열/숫자 id 정규화 (문자열 "undefined"/"null" 도 무효 처리)
 const coerceId = (raw: any): number | string | null => {
     if (raw == null) return null;
     if (typeof raw === "number" && Number.isFinite(raw)) return raw;
     if (typeof raw === "string") {
         const s = raw.trim();
-        if (!s) return null;
+        if (!s || s.toLowerCase() === "undefined" || s.toLowerCase() === "null") return null;
         if (/^\d+$/.test(s)) return Number(s);
         return s;
     }
@@ -184,9 +197,13 @@ const coerceId = (raw: any): number | string | null => {
 };
 
 const getIdFromStoredUser = (): number | string | null => {
-    const u = getStoredUser?.();
-    if (!u) return null;
-    return coerceId(u.memberId ?? u.id ?? u.userId);
+    try {
+        const u = getStoredUser?.();
+        if (!u) return null;
+        return coerceId(u.memberId ?? u.id ?? u.userId);
+    } catch {
+        return null;
+    }
 };
 
 const decodeJwtPayload = (token: string): any | null => {
@@ -203,49 +220,142 @@ const decodeJwtPayload = (token: string): any | null => {
 };
 
 const getIdFromToken = (): number | string | null => {
-    const token = getAccessToken?.();
-    if (!token) return null;
-    const p = decodeJwtPayload(token);
-    if (!p) return null;
-    return coerceId(p.sub ?? p.userId ?? p.memberId ?? p.id);
+    try {
+        const token = getAccessToken?.();
+        if (!token) return null;
+        const p = decodeJwtPayload(token);
+        if (!p) return null;
+        return coerceId(p.sub ?? p.userId ?? p.memberId ?? p.id);
+    } catch {
+        return null;
+    }
+};
+
+// ✅ 최종 안전 id 확보: currentProfile → storedUser → token → (fallback) /members/me 호출
+const ensureMyId = async (currentProfile?: ProfileType): Promise<number | string> => {
+    const fromCurrent = coerceId(currentProfile?.memberId ?? currentProfile?.id);
+    const fromStored  = getIdFromStoredUser();
+    const fromToken   = getIdFromToken();
+
+    const id = fromCurrent ?? fromStored ?? fromToken;
+    if (id != null) return id;
+
+    // 마지막 수단: 서버에서 me 조회 후 id 가져오기
+    const me = await getMyProfile().catch(() => null);
+    const fromMe = coerceId(me?.memberId ?? me?.id);
+    if (fromMe == null) {
+        throw new Error("사용자 id를 확인할 수 없습니다. 다시 로그인해 주세요.");
+    }
+    return fromMe;
 };
 
 /* ================================
- * PATCH /members/me
+ * PATCH 바디/쿼리 빌더 (스웨거 스펙 맞춤)
+ * ================================ */
+const buildPatchBody = (input: {
+    id: number | string;
+    email?: string;
+    nickname?: string;
+}) => {
+    const body: Record<string, string | number> = { id: input.id };
+    if (typeof input.email === "string") {
+        const s = input.email.trim();
+        if (s.length > 0) body.email = s;
+    }
+    if (typeof input.nickname === "string") {
+        const s = input.nickname.trim();
+        if (s.length > 0) body.nickname = s;
+    }
+    return body;
+};
+
+const buildPatchParams = (input: {
+    id: number | string;
+    email?: string;
+    nickname?: string;
+}) => {
+    const params: Record<string, string | number> = { id: input.id };
+    if (typeof input.email === "string") {
+        const s = input.email.trim();
+        if (s.length > 0) params.email = s;
+    }
+    if (typeof input.nickname === "string") {
+        const s = input.nickname.trim();
+        if (s.length > 0) params.nickname = s;
+    }
+    return params;
+};
+
+/* ================================
+ * PATCH /members/me  (스웨거: query에 id 필수)
  * ================================ */
 let patchLock = false;
 export const patchMyProfile = async (
     payload: UpdateProfilePayloadType,
     currentProfile?: ProfileType
 ): Promise<ProfileType> => {
-    // 동시에 중복 PATCH 방지
-    while (patchLock) {
-        await sleep(80);
-    }
+    while (patchLock) await sleep(80);
     patchLock = true;
 
+    let reqBody: Record<string, any> = {};
+    let reqParams: Record<string, any> = {};
+    let lastStatus: number | undefined;
+    let lastServerMsg: any;
+
     try {
+        // 1) id 확보 (스웨거: query id 필수)
         const fromCurrent = coerceId(currentProfile?.memberId ?? currentProfile?.id);
         const fromStored = getIdFromStoredUser();
         const fromToken = getIdFromToken();
         const myId = fromCurrent ?? fromStored ?? fromToken;
         if (myId == null) {
-            throw new Error("로그인 정보에서 사용자 식별자를 가져올 수 없습니다.");
+            throw new Error("로그인 정보에서 사용자 식별자(id)를 가져올 수 없습니다.");
         }
 
-        // 서버 스펙: /members/me는 보통 body에 id가 필요 없지만
-        // BE 요구가 있을 수 있어서 안전하게 포함(없으면 무시됨)
-        const body: { id: number | string; email?: string; nickname?: string } = { id: myId };
-        if (payload?.email) body.email = String(payload.email).trim();
-        if (payload?.nickname) body.nickname = String(payload.nickname).trim();
+        // 2) 스펙에 맞춘 body/params 구성
+        reqBody = buildPatchBody({
+            id: myId,
+            email: payload?.email,
+            nickname: payload?.nickname,
+        });
+        reqParams = buildPatchParams({
+            id: myId,
+            email: payload?.email,
+            nickname: payload?.nickname,
+        });
 
+        // 3) 요청
         const key = "PATCH:/members/me";
         const data = await withRateLimit(key, "write", async () => {
-            const { data } = await axiosInstance.patch("/members/me", body);
-            return data;
+            const res = await axiosInstance.patch("/members/me", reqBody, {
+                params: reqParams, // ✅ 쿼리에 id 포함
+                headers: { "Content-Type": "application/json" },
+            });
+            return res.data;
         });
 
         return normalize<ProfileType>(data);
+    } catch (e: any) {
+        lastStatus = e?.response?.status;
+        lastServerMsg = e?.response?.data ?? e?.message;
+
+        // eslint-disable-next-line no-console
+        console.error(
+            "[PATCH /members/me] failed",
+            "\nstatus:", lastStatus,
+            "\nparams:", safeJson(reqParams),
+            "\nbody:", safeJson(reqBody),
+            "\nserverMsg:", safeJson(lastServerMsg)
+        );
+
+        if (lastStatus === 400) {
+            throw new Error(
+                typeof lastServerMsg === "string"
+                    ? lastServerMsg
+                    : "프로필 수정 요청이 서버 검증에 실패했습니다. 입력 값을 확인해주세요."
+            );
+        }
+        throw e;
     } finally {
         patchLock = false;
     }
@@ -258,7 +368,7 @@ export const patchMyProfile = async (
 // 성공 신호를 2xx로 통일
 type DeleteMeOk = { ok: true };
 
-// ✅ 동시 중복 호출 합치기(in-flight coalescing)
+// 동시 중복 호출 합치기(in-flight coalescing)
 let inFlightDeleteMe: Promise<DeleteMeOk> | null = null;
 
 export const deleteMe = async (refreshToken: string): Promise<DeleteMeOk> => {
@@ -267,11 +377,9 @@ export const deleteMe = async (refreshToken: string): Promise<DeleteMeOk> => {
     if (inFlightDeleteMe) return inFlightDeleteMe;
 
     inFlightDeleteMe = withRateLimit<unknown>(key, "write", async () => {
-        // 2xx가 아니면 axios가 throw → withRateLimit가 재시도/최종 throw 처리
         await axiosInstance.delete("/members/me", {
             params: { refreshToken },
         });
-        // 응답 바디 모양과 무관하게 2xx면 성공으로 통일
         return { ok: true } as DeleteMeOk;
     })
         .then((v) => v as DeleteMeOk)
