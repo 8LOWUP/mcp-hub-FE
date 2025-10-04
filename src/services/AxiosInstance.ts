@@ -1,3 +1,4 @@
+//src/services/AxiosInstance.ts
 import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { LOCAL_STORAGE_KEY, PUBLIC_PATHS, API_BASE_URL } from "../constants/apis/key";
 import { useLoginStore } from "../store/login/login-store";
@@ -51,23 +52,20 @@ const getAccessToken = (): string | null => {
 // 요청 인터셉터: 매 요청마다 실시간으로 토큰을 확인하고 추가
 axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        // 인증이 필요하지 않은 API 경로들
         const isPublicPath = PUBLIC_PATHS.some(path => config.url?.includes(path));
-        
-        // 공개 API가 아닌 경우에만 Authorization 헤더 추가
-        if (!isPublicPath) {
-            // 토큰 가져오기 (Zustand 스토어 우선, localStorage fallback)
+        const isGetRequest = config.method?.toUpperCase() === "GET";
+
+        // 공개 + GET 요청일 때만 Authorization 제외
+        if (isPublicPath && isGetRequest) {
+            console.log("✅ 공개 GET API, Authorization 헤더 제외:", config.url);
+        } else {
             const accessToken = getAccessToken();
-            
-            // 토큰이 존재할 때만 Authorization 헤더 추가
             if (accessToken) {
                 config.headers.Authorization = `Bearer ${accessToken}`;
                 console.log("✅ Authorization 헤더 추가됨:", config.headers.Authorization);
             } else {
                 console.warn("⚠️ accessToken 없음, Authorization 헤더 미포함");
             }
-        } else {
-            console.log("✅ 공개 API, Authorization 헤더 제외:", config.url);
         }
         
         return config;

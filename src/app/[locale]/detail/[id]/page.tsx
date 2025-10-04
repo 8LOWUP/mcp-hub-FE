@@ -1,8 +1,7 @@
+// src/app/[locale]/detail/[id]/page.tsx
 "use client";
 
 import { use } from "react";
-import { Review } from "@/types/detail/detail-types";
-import { useMarketDetail } from "@/hooks/detail/useMarketDetail";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import McpAbout from "@/features/detail/components/McpAbout";
 import MarketTools from "@/features/detail/components/McpTool";
@@ -13,29 +12,36 @@ import McpHeader from "@/features/detail/components/McpHeader";
 import ReviewList from "@/features/detail/components/ReviewList";
 import ReviewForm from "@/features/detail/components/ReviewForm";
 
+import { useMarketDetail } from "@/hooks/detail/useMarketDetail";
+import { useMarketReviews } from "@/hooks/detail/useReview";
+import {useLoginStore} from "@/store/login/login-store";
+
 interface PageProps {
     params: Promise<{ id: string }>;
 }
 
 export default function MarketDetailPage({ params }: PageProps) {
     const { id } = use(params);
+    const mcpId = Number(id);
 
-    const { data, setData, loading } = useMarketDetail(id);
+    // ✅ MCP 상세
+    const { data: detail, isLoading: loadingDetail, error } = useMarketDetail(mcpId);
 
-    const handleAddReview = (review: Review) => {
-        setData((prev) =>
-            prev ? { ...prev, reviews: [review, ...(prev.reviews ?? [])] } : prev
-        );
-    };
+    // ✅ 리뷰 목록
+    const { data: reviewData, isLoading: loadingReviews } = useMarketReviews(mcpId, {
+        page: 0,
+        size: 10,
+        sort: "createdAt,DESC",
+    });
 
-    if (loading) return <div className="pt-20 text-center">Loading...</div>;
-    if (!data) return <div className="pt-20 text-center">데이터 없음</div>;
+    if (loadingDetail) return <div className="pt-20 text-center">Loading...</div>;
+    if (error || !detail) return <div className="pt-20 text-center">데이터 없음</div>;
 
     return (
         <div className="flex flex-col md:flex-row pt-20 md:pt-30 pb-10 items-start justify-center px-4 md:px-8 gap-6 md:gap-8">
             <div className="flex flex-col md:flex-row w-full gap-6 md:gap-8">
                 <section className="flex flex-col gap-4 md:w-4/6">
-                    <McpHeader data={data} />
+                    <McpHeader data={detail} />
 
                     <div className="block md:hidden">
                         <PrimaryButton additionalClassName="w-full py-2 text-sm">
@@ -43,13 +49,25 @@ export default function MarketDetailPage({ params }: PageProps) {
                         </PrimaryButton>
                     </div>
 
-                    <McpAbout about={data.about ?? data.description} />
+                    <McpAbout about={detail.description} />
 
-                    {/* ✅ 조건부 제거 → 항상 렌더링 */}
-                    <MarketTools tools={data.tools ?? []} />
+                    <MarketTools tools={detail.tools ?? []} />
 
-                    <ReviewList reviews={data.reviews ?? []} />
-                    <ReviewForm onAddReview={handleAddReview} />
+                    {/* ✅ 리뷰 목록 */}
+                    {loadingReviews ? (
+                        <div className="text-center text-gray-400">리뷰 불러오는 중...</div>
+                    ) : (
+                        <ReviewList reviews={reviewData?.content ?? []} />
+                    )}
+
+                    {/* ✅ 리뷰 작성 */}
+                    {useLoginStore.getState().isLoggedIn ? (
+                        <ReviewForm mcpId={mcpId} />
+                    ) : (
+                        <p className="text-gray-400 text-sm">
+                            로그인해야 리뷰를 작성할 수 있습니다.
+                        </p>
+                    )}
                 </section>
 
                 <aside className="flex flex-col gap-4 md:w-2/6">
@@ -60,13 +78,12 @@ export default function MarketDetailPage({ params }: PageProps) {
                             </PrimaryButton>
                         </div>
 
-                        {/* ✅ URL 없을 때도 fallback 보여주도록 항상 렌더링 */}
-                        <McpUrlCopy url={data.url ?? data.requestUrl} />
+                        <McpUrlCopy url={detail.requestUrl ?? undefined} />
 
                         <MarketConnectionPlatforms
-                            platforms={data.connectionPlatform ?? []}
+                            platforms={detail.platformName ? detail.platformName.split(",") : []}
                         />
-                        <McpDetails data={data} />
+                        <McpDetails data={detail} />
                     </div>
                 </aside>
             </div>

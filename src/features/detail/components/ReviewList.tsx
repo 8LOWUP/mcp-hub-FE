@@ -1,12 +1,13 @@
+//src/features/detail/ReviewList.tsx
 "use client";
 
 import { useState } from "react";
-import { Review } from "@/features/detail/hooks/types";
+import type { ReviewItem } from "@/types/detail/detail-types";
 import ReviewCard from "./ReviewCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ReviewListProps {
-    reviews: Review[];
+    reviews: ReviewItem[];
 }
 
 const REVIEWS_PER_PAGE = 4;
@@ -29,14 +30,13 @@ export default function ReviewList({ reviews }: ReviewListProps) {
                 User Reviews
             </h3>
 
-            {/* 카드 영역 */}
             <div
                 key={page}
                 className="grid grid-cols-2 grid-rows-2 gap-4 animate-fade-in-up"
             >
                 {currentReviews.map((r, i) => (
                     <div
-                        key={r.id}
+                        key={r.reviewId}
                         className="animate-fade-in-up"
                         style={{ animationDelay: `${i * 0.1}s` }}
                     >
@@ -45,38 +45,37 @@ export default function ReviewList({ reviews }: ReviewListProps) {
                 ))}
             </div>
 
-            {/* 컨트롤러 */}
-            <div className="flex justify-between items-center mt-6">
-                {/* Prev */}
-                <button
-                    onClick={handlePrev}
-                    disabled={page === 0}
-                    className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-600/50 text-gray-300 hover:text-white hover:bg-accent hover:scale-110 disabled:opacity-30 transition-all"
-                >
-                    <ChevronLeft size={16} />
-                </button>
+            {/* 페이지네이션 */}
+            {totalPages > 1 && (
+                <div className="flex justify-between items-center mt-6">
+                    <button
+                        onClick={handlePrev}
+                        disabled={page === 0}
+                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-600/50 text-gray-300 hover:text-white hover:bg-accent hover:scale-110 disabled:opacity-30 transition-all"
+                    >
+                        <ChevronLeft size={16} />
+                    </button>
 
-                {/* 인디케이터 */}
-                <div className="flex gap-2 items-center">
-                    {Array.from({ length: totalPages }, (_, i) => (
-                        <span
-                            key={i}
-                            className={`w-2.5 h-2.5 rounded-full transition-all ${
-                                i === page ? "bg-accent scale-110" : "bg-gray-600"
-                            }`}
-                        />
-                    ))}
+                    <div className="flex gap-2 items-center">
+                        {Array.from({ length: totalPages }, (_, i) => (
+                            <span
+                                key={i}
+                                className={`w-2.5 h-2.5 rounded-full transition-all ${
+                                    i === page ? "bg-accent scale-110" : "bg-gray-600"
+                                }`}
+                            />
+                        ))}
+                    </div>
+
+                    <button
+                        onClick={handleNext}
+                        disabled={page === totalPages - 1}
+                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-600/50 text-gray-300 hover:text-white hover:bg-accent hover:scale-110 disabled:opacity-30 transition-all"
+                    >
+                        <ChevronRight size={16} />
+                    </button>
                 </div>
-
-                {/* Next */}
-                <button
-                    onClick={handleNext}
-                    disabled={page === totalPages - 1}
-                    className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-600/50 text-gray-300 hover:text-white hover:bg-accent hover:scale-110 disabled:opacity-30 transition-all"
-                >
-                    <ChevronRight size={16} />
-                </button>
-            </div>
+            )}
         </div>
     );
 }

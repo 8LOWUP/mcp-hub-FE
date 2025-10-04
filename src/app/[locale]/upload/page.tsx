@@ -1,3 +1,4 @@
+//src/app/[locale]/detail/page.tsx
 "use client";
 
 import MCPNameInput from "@/features/upload/components/McpNameInput";

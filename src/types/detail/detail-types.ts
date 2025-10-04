@@ -1,52 +1,91 @@
-// src/types/detail/detail-types.ts
+// types/detail/detail-types.ts
 
-// ✅ MCP 툴 정의
-export interface McpTool {
-    id: number;
-    name: string;
-    content: string;
-}
+import { CommonResponse } from "../common";
 
-// ✅ MCP 상세 정의 (Swagger + FE 확장 필드)
-export interface McpItem {
+// ✅ MCP 상세 조회 (GET /mcps/{mcpId})
+export type getMcpDetailResponse = CommonResponse<{
     id: number;
     name: string;
     version: string;
     description: string;
-    requestUrl: string;
-    sourceUrl: string;
-    imageUrl: string;
+    requestUrl?: string | null;
+    sourceUrl?: string | null;
+    imageUrl?: string;
     isKeyRequired: boolean;
+    developerName?: string | null;
     categoryName: string;
     platformName: string;
     licenseName: string;
-    averageRating: number;
-    savedUserCount: number;
-    tools: McpTool[];
-    publishDate: string | null;   // null 가능성 반영
-    lastPublishDate: string | null;
-    developerName: string;
+    averageRating?: number | null;
+    savedUserCount?: number | null;
+    tools: string[];
+    publishDate?: string | null;
+    lastPublishDate?: string | null;
+}>;
 
-    // 📌 FE 확장 필드
-    about?: string;
-    connectionPlatform?: string[];
-    url?: string;
-    reviews?: Review[];
-}
+// ✅ 리뷰 조회 (GET /mcps/review/{mcpId})
+export type getMcpReviewsRequest = {
+    page: number;
+    size: number;
+    sort: string;
+};
 
-// ✅ 리뷰 타입 따로 분리
-export interface Review {
-    id: number;
-    content: string;
+export type ReviewItem = {
+    reviewId: number;
+    userName: string;
     rating: number;
-    author: string;
+    comment: string;
     createdAt: string;
-}
+    updatedAt: string;
+    mine: boolean;
+};
 
-// ✅ 공통 API 응답 타입
-export interface ApiResponse<T = any> {
-    result: T;
-    message?: string;
-    timestamp?: string;
-    code?: string;
-}
+export type PageSort = {
+    empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
+};
+
+export type Pageable = {
+    offset: number;
+    sort: PageSort;
+    paged: boolean;
+    pageNumber: number;
+    pageSize: number;
+    unpaged: boolean;
+};
+
+export type getMcpReviewsResponse = CommonResponse<{
+    totalPages: number;
+    totalElements: number;
+    size: number;
+    content: ReviewItem[];
+    number: number;
+    sort: PageSort;
+    numberOfElements: number;
+    pageable: Pageable;
+    first: boolean;
+    last: boolean;
+    empty: boolean;
+}>;
+
+// ✅ 리뷰 작성 (POST /mcps/review/{mcpId})
+export type postMcpReviewRequestBody = {
+    userName?: string; // ✅ 백엔드 수정 후 삭제하기-리뷰 이름
+    rating: number;
+    comment: string;
+};
+
+export type postMcpReviewResponse = CommonResponse<number>; // result = reviewId
+
+// ✅ 리뷰 수정 (PATCH /mcps/review/{reviewId})
+export type patchMcpReviewRequestBody = {
+    userName: string;
+    rating: number;
+    comment: string;
+};
+
+export type patchMcpReviewResponse = CommonResponse<number>; // result = reviewId
+
+// ✅ 리뷰 삭제 (DELETE /mcps/review/{reviewId})
+export type deleteMcpReviewResponse = CommonResponse<number>; // result = reviewId
