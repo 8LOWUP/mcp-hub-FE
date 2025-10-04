@@ -1,4 +1,3 @@
-//src/features/detail/ReviewCard.tsx
 "use client";
 
 import { useState } from "react";
@@ -6,6 +5,7 @@ import type { ReviewItem } from "@/types/detail/detail-types";
 import Image from "next/image";
 import { Star, Pencil, Trash2, Check, X } from "lucide-react";
 import { useUpdateReview, useDeleteReview } from "@/hooks/detail/useReview";
+import { useLoginStore } from "@/store/login/login-store"; // 🔑 로그인 상태 확인
 
 interface ReviewCardProps {
     review: ReviewItem;
@@ -17,20 +17,24 @@ export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
     const [editedComment, setEditedComment] = useState(review.comment);
     const [editedRating, setEditedRating] = useState(review.rating);
 
-    const updateReview = useUpdateReview(review.reviewId, mcpId);
-    const deleteReview = useDeleteReview(review.reviewId, mcpId);
+    // ✅ 로그인 여부
+    const isLoggedIn = !!useLoginStore((s) => s.user);
+
+    // ✅ 순서: (mcpId, reviewId)
+    const updateReview = useUpdateReview(mcpId, review.reviewId);
+    const deleteReview = useDeleteReview(mcpId, review.reviewId);
 
     // ✅ 리뷰 수정 저장
-    // const handleUpdate = () => {
-    //     updateReview.mutate(
-    //         { rating: editedRating, comment: editedComment },
-    //         {
-    //             onSuccess: () => {
-    //                 setIsEditing(false);
-    //             },
-    //         }
-    //     );
-    // };
+    const handleUpdate = () => {
+        updateReview.mutate(
+            { rating: editedRating, comment: editedComment },
+            {
+                onSuccess: () => {
+                    setIsEditing(false);
+                },
+            }
+        );
+    };
 
     // ✅ 리뷰 삭제
     const handleDelete = () => {
@@ -40,7 +44,9 @@ export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
     };
 
     return (
-        <div className="border border-[#414141] bg-[#2C2C2C] text-white p-4 rounded-xl shadow-md flex gap-3 transition-all duration-500 ease-out animate-fade-in-up">
+        <div
+            className="border border-[#414141] bg-[#2C2C2C] text-white p-4 rounded-xl shadow-md flex gap-3 transition-all duration-500 ease-out animate-fade-in-up min-h-[100px]"
+        >
             {/* 프로필 */}
             <div className="w-8 h-8 flex-shrink-0 rounded-full border border-accent-color-1 overflow-hidden">
                 <Image
@@ -95,20 +101,21 @@ export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
                     </p>
                 )}
 
-                {/* ✅ 수정/삭제 버튼 (본인 리뷰일 경우에만 노출) */}
-                {review.mine && (
-                    <div className="flex gap-2 mt-2">
+                {/* ✅ 수정/삭제 버튼 (로그인 상태 + 본인 리뷰일 경우만 노출) */}
+                {isLoggedIn && review.mine && (
+                    <div className="flex gap-2 mt-2 ml-auto justify-end">
                         {isEditing ? (
                             <>
                                 <button
-                                    //onClick={handleUpdate}
-                                    className="flex items-center gap-1 text-green-400 text-xs"
+                                    onClick={handleUpdate}
+                                    disabled={updateReview.isPending}
+                                    className="flex items-center gap-1 text-green-400 text-xs hover:underline"
                                 >
                                     <Check size={14} /> 저장
                                 </button>
                                 <button
                                     onClick={() => setIsEditing(false)}
-                                    className="flex items-center gap-1 text-gray-400 text-xs"
+                                    className="flex items-center gap-1 text-gray-400 text-xs hover:underline"
                                 >
                                     <X size={14} /> 취소
                                 </button>
@@ -117,13 +124,14 @@ export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
                             <>
                                 <button
                                     onClick={() => setIsEditing(true)}
-                                    className="flex items-center gap-1 text-blue-400 text-xs"
+                                    className="flex items-center gap-1 text-blue-400 text-xs hover:underline"
                                 >
                                     <Pencil size={14} /> 수정
                                 </button>
                                 <button
                                     onClick={handleDelete}
-                                    className="flex items-center gap-1 text-red-400 text-xs"
+                                    disabled={deleteReview.isPending}
+                                    className="flex items-center gap-1 text-red-400 text-xs hover:underline"
                                 >
                                     <Trash2 size={14} /> 삭제
                                 </button>

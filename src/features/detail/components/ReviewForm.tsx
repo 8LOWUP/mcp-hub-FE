@@ -28,7 +28,6 @@ export default function ReviewForm({ mcpId }: ReviewFormProps) {
 
         // ✅ 현재는 user.nickname → userName 매핑
         const newReview: postMcpReviewRequestBody = {
-            userName: user.nickname, // ✅ 백엔드 수정 후 삭제하기-리뷰 이름
             rating,
             comment,
         };

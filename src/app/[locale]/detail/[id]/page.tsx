@@ -13,7 +13,7 @@ import ReviewForm from "@/features/detail/components/ReviewForm";
 
 import { useMarketDetail } from "@/hooks/detail/useMarketDetail";
 import { useMarketReviews } from "@/hooks/detail/useReview";
-import {useLoginStore} from "@/store/login/login-store";
+import { useLoginStore } from "@/store/login/login-store";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -56,12 +56,21 @@ export default function MarketDetailPage({ params }: PageProps) {
                     {loadingReviews ? (
                         <div className="text-center text-gray-400">리뷰 불러오는 중...</div>
                     ) : (
-                        <ReviewList reviews={reviewData?.content ?? []} />
+                        <ReviewList
+                            reviews={reviewData?.content ?? []}
+                            mcpId={mcpId} // 🔑 mcpId 전달
+                        />
                     )}
 
-                    {/* ✅ 리뷰 작성 */}
+                    {/* ✅ 리뷰 작성 (조건부 렌더링) */}
                     {useLoginStore.getState().isLoggedIn ? (
-                        <ReviewForm mcpId={mcpId} />
+                        reviewData?.content.some(r => r.mine) ? (
+                            <p className="text-gray-400 text-sm">
+                                이미 리뷰를 작성하셨습니다. 수정/삭제만 가능합니다.
+                            </p>
+                        ) : (
+                            <ReviewForm mcpId={mcpId} />
+                        )
                     ) : (
                         <p className="text-gray-400 text-sm">
                             로그인해야 리뷰를 작성할 수 있습니다.
@@ -79,10 +88,8 @@ export default function MarketDetailPage({ params }: PageProps) {
 
                         <McpUrlCopy url={detail.requestUrl ?? undefined} />
 
-
                         {/*<MarketConnectionPlatforms 삭제*/}
-                        {/*    platforms={detail.platformName ? detail.platformName.split(",") : []}*/}
-                        {/*/>*/}
+
                         <McpDetails data={detail} />
                     </div>
                 </aside>

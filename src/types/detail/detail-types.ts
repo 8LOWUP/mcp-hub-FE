@@ -78,7 +78,6 @@ export type getMcpReviewsResponse = CommonResponse<{
 
 // ✅ 리뷰 작성 (POST /mcps/review/{mcpId})
 export type postMcpReviewRequestBody = {
-    userName?: string; // ✅ 백엔드 수정 후 삭제 예정 - 리뷰 이름
     rating: number;
     comment: string;
 };
@@ -87,7 +86,6 @@ export type postMcpReviewResponse = CommonResponse<number>; // result = reviewId
 
 // ✅ 리뷰 수정 (PATCH /mcps/review/{reviewId})
 export type patchMcpReviewRequestBody = {
-    userName: string;
     rating: number;
     comment: string;
 };

@@ -54,20 +54,28 @@ axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         const isPublicPath = PUBLIC_PATHS.some(path => config.url?.includes(path));
         const isGetRequest = config.method?.toUpperCase() === "GET";
+        const accessToken = getAccessToken();
 
-        // 공개 + GET 요청일 때만 Authorization 제외
+        // ✅ 공개 GET API
         if (isPublicPath && isGetRequest) {
-            console.log("✅ 공개 GET API, Authorization 헤더 제외:", config.url);
+            if (accessToken) {
+                // 로그인 상태 → 토큰 붙여서 mine 계산 가능
+                config.headers.Authorization = `Bearer ${accessToken}`;
+                console.log("🔑 로그인 상태 공개 GET API 요청, Authorization 추가:", config.url);
+            } else {
+                // 비로그인 상태 → 토큰 없이 요청
+                console.log("🌍 비로그인 상태 공개 GET API 요청:", config.url);
+            }
         } else {
-            const accessToken = getAccessToken();
+            // ✅ private API → 토큰 필수
             if (accessToken) {
                 config.headers.Authorization = `Bearer ${accessToken}`;
-                console.log("✅ Authorization 헤더 추가됨:", config.headers.Authorization);
+                console.log("🔒 Private API 요청, Authorization 추가:", config.url);
             } else {
-                console.warn("⚠️ accessToken 없음, Authorization 헤더 미포함");
+                console.warn("⚠️ Private API 요청인데 accessToken 없음:", config.url);
             }
         }
-        
+
         return config;
     },
     (error) => {
@@ -75,6 +83,7 @@ axiosInstance.interceptors.request.use(
         return Promise.reject(error);
     }
 );
+
 
 // 응답 인터셉터: 401, 400 에러 처리 등
 axiosInstance.interceptors.response.use(

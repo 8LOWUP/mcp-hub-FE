@@ -1,4 +1,3 @@
-//src/features/detail/ReviewList.tsx
 "use client";
 
 import { useState } from "react";
@@ -8,11 +7,12 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ReviewListProps {
     reviews: ReviewItem[];
+    mcpId: number; // 🔑 mcpId 추가
 }
 
 const REVIEWS_PER_PAGE = 4;
 
-export default function ReviewList({ reviews }: ReviewListProps) {
+export default function ReviewList({ reviews, mcpId }: ReviewListProps) {
     const [page, setPage] = useState(0);
 
     const totalPages = Math.ceil(reviews.length / REVIEWS_PER_PAGE);
@@ -21,8 +21,7 @@ export default function ReviewList({ reviews }: ReviewListProps) {
     const currentReviews = reviews.slice(start, end);
 
     const handlePrev = () => setPage((p) => (p > 0 ? p - 1 : p));
-    const handleNext = () =>
-        setPage((p) => (p < totalPages - 1 ? p + 1 : p));
+    const handleNext = () => setPage((p) => (p < totalPages - 1 ? p + 1 : p));
 
     return (
         <div className="mt-5 rounded-2xl border border-contrast shadow-xl p-8">
@@ -40,7 +39,8 @@ export default function ReviewList({ reviews }: ReviewListProps) {
                         className="animate-fade-in-up"
                         style={{ animationDelay: `${i * 0.1}s` }}
                     >
-                        <ReviewCard review={r} />
+                        {/* 🔑 mcpId 넘겨주기 */}
+                        <ReviewCard review={r} mcpId={mcpId} />
                     </div>
                 ))}
             </div>
@@ -61,7 +61,9 @@ export default function ReviewList({ reviews }: ReviewListProps) {
                             <span
                                 key={i}
                                 className={`w-2.5 h-2.5 rounded-full transition-all ${
-                                    i === page ? "bg-accent scale-110" : "bg-gray-600"
+                                    i === page
+                                        ? "bg-accent scale-110"
+                                        : "bg-gray-600"
                                 }`}
                             />
                         ))}
