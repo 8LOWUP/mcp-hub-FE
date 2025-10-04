@@ -14,9 +14,8 @@ import type {
     patchMcpReviewResponse,
     deleteMcpReviewResponse,
 } from "@/types/detail/detail-types";
-import {useLoginStore} from "@/store/login/login-store";
 
-// ✅ MCP 리뷰 조회 훅 (mine 재계산 포함)
+// ✅ MCP 리뷰 조회 훅
 export const useMarketReviews = (
     mcpId: number,
     params: { page: number; size: number; sort?: string }
@@ -27,7 +26,6 @@ export const useMarketReviews = (
             const finalParams = { ...params, sort: params.sort ?? "createdAt,desc" };
             const res = await getMcpReviews(mcpId, finalParams);
 
-            // ✅ 서버에서 내려준 mine 그대로 사용
             return res.result;
         },
         enabled: !!mcpId,
