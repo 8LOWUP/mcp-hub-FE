@@ -31,7 +31,8 @@ export default function ReviewList({ reviews, mcpId }: ReviewListProps) {
 
             <div
                 key={page}
-                className="grid grid-cols-2 grid-rows-2 gap-4 animate-fade-in-up"
+                className={`grid grid-cols-2 gap-4 animate-fade-in-up 
+                ${currentReviews.length <= 2 ? "grid-rows-1" : "grid-rows-2"}`}
             >
                 {currentReviews.map((r, i) => (
                     <div

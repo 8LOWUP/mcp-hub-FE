@@ -79,7 +79,7 @@ export default function MarketDetailPage({ params }: PageProps) {
                 </section>
 
                 <aside className="flex flex-col gap-4 md:w-2/6">
-                    <div className="md:mt-10 md:sticky md:top-24 flex flex-col gap-4">
+                    <div className="md:mt-10 md:sticky md:top-30 flex flex-col gap-4">
                         <div className="hidden md:flex justify-center w-full">
                             <PrimaryButton additionalClassName="w-full py-3 text-base transition transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg rounded-full">
                                 Go to Chat

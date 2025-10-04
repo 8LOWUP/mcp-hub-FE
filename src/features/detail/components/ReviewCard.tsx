@@ -45,7 +45,7 @@ export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
 
     return (
         <div
-            className="border border-[#414141] bg-[#2C2C2C] text-white p-4 rounded-xl shadow-md flex gap-3 transition-all duration-500 ease-out animate-fade-in-up min-h-[100px]"
+            className="h-full border border-[#414141] bg-[#2C2C2C] text-white p-4 rounded-xl shadow-md flex flex-col gap-3 transition-all duration-500 ease-out animate-fade-in-up"
         >
             {/* 프로필 */}
             <div className="w-8 h-8 flex-shrink-0 rounded-full border border-accent-color-1 overflow-hidden">
@@ -92,12 +92,19 @@ export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
                 {isEditing ? (
                     <textarea
                         value={editedComment}
-                        onChange={(e) => setEditedComment(e.target.value)}
-                        className="w-full p-2 rounded-md bg-[#1e1e1e] border border-gray-600 text-sm"
+                        onChange={(e) => {
+                            if (e.target.value.length <= 100) {
+                                setEditedComment(e.target.value);
+                            }
+                        }}
+                        placeholder="리뷰는 최대 100자까지 작성할 수 있습니다."
+                        className="w-full p-2 rounded-md bg-[#1e1e1e] border border-gray-600 text-sm flex-1"
                     />
                 ) : (
-                    <p className="text-gray-100 text-sm leading-relaxed">
-                        {review.comment}
+                    <p className="text-gray-100 text-sm leading-relaxed flex-1">
+                        {review.comment.length > 100
+                            ? review.comment.slice(0, 100) + "..."
+                            : review.comment}
                     </p>
                 )}
 
