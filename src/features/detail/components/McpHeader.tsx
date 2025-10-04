@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import type { McpItem } from "@/types/detail/detail-types"; // ✅ 여기서 타입 가져오기
+import type { getMcpDetailResponse } from "@/types/detail/detail-types"; // ✅ 올바른 타입 import
 
 interface Props {
-    data: McpItem; // ✅ McpItem으로 수정
+    data: getMcpDetailResponse["result"];
 }
 
 export default function MarketHeader({ data }: Props) {

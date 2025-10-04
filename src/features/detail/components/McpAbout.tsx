@@ -1,8 +1,8 @@
 import TextContainer from "@/components/container/TextContainer";
-import type { McpItem } from "@/types/detail/detail-types";  // ✅ 올바른 타입 import
+import type { getMcpDetailResponse } from "@/types/detail/detail-types";  // ✅ 올바른 타입 import
 
 interface Props {
-    about?: McpItem["about"]; // optional
+    about?: getMcpDetailResponse["result"]["description"]; // optional
 }
 
 export default function McpAbout({ about }: Props) {

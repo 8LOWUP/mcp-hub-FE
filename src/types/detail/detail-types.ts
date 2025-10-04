@@ -1,4 +1,4 @@
-// types/detail/detail-types.ts
+// src/types/detail/detail-types.ts
 
 import { CommonResponse } from "../common";
 
@@ -18,7 +18,14 @@ export type getMcpDetailResponse = CommonResponse<{
     licenseName: string;
     averageRating?: number | null;
     savedUserCount?: number | null;
-    tools: string[];
+
+    // ✅ tools: 객체 배열로 수정
+    tools: {
+        id: number;
+        name: string;
+        content: string;
+    }[];
+
     publishDate?: string | null;
     lastPublishDate?: string | null;
 }>;
@@ -71,7 +78,7 @@ export type getMcpReviewsResponse = CommonResponse<{
 
 // ✅ 리뷰 작성 (POST /mcps/review/{mcpId})
 export type postMcpReviewRequestBody = {
-    userName?: string; // ✅ 백엔드 수정 후 삭제하기-리뷰 이름
+    userName?: string; // ✅ 백엔드 수정 후 삭제 예정 - 리뷰 이름
     rating: number;
     comment: string;
 };

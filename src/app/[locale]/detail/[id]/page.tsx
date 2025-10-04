@@ -6,7 +6,6 @@ import PrimaryButton from "@/components/ui/PrimaryButton";
 import McpAbout from "@/features/detail/components/McpAbout";
 import MarketTools from "@/features/detail/components/McpTool";
 import McpUrlCopy from "@/features/detail/components/McpUrlCopy";
-import MarketConnectionPlatforms from "@/features/detail/components/McpConntionPlatforms";
 import McpDetails from "@/features/detail/components/McpDetails";
 import McpHeader from "@/features/detail/components/McpHeader";
 import ReviewList from "@/features/detail/components/ReviewList";
@@ -51,7 +50,7 @@ export default function MarketDetailPage({ params }: PageProps) {
 
                     <McpAbout about={detail.description} />
 
-                    <MarketTools tools={detail.tools ?? []} />
+                    <MarketTools data={detail} />
 
                     {/* ✅ 리뷰 목록 */}
                     {loadingReviews ? (
@@ -80,9 +79,10 @@ export default function MarketDetailPage({ params }: PageProps) {
 
                         <McpUrlCopy url={detail.requestUrl ?? undefined} />
 
-                        <MarketConnectionPlatforms
-                            platforms={detail.platformName ? detail.platformName.split(",") : []}
-                        />
+
+                        {/*<MarketConnectionPlatforms 삭제*/}
+                        {/*    platforms={detail.platformName ? detail.platformName.split(",") : []}*/}
+                        {/*/>*/}
                         <McpDetails data={detail} />
                     </div>
                 </aside>

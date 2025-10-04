@@ -1,9 +1,11 @@
+"use client";
+
 import TextContainer from "@/components/container/TextContainer";
 import Image from "next/image";
-import type { McpItem } from "@/types/detail/detail-types"; // ✅ 실제 타입 import
+import type { getMcpDetailResponse } from "@/types/detail/detail-types";
 
 interface Props {
-    data: McpItem;
+    data: getMcpDetailResponse["result"];
 }
 
 export default function McpDetails({ data }: Props) {
@@ -16,7 +18,8 @@ export default function McpDetails({ data }: Props) {
                     <div className="flex justify-between items-center">
                         <div className="text-secondary">Developer Name</div>
                         <div className="text-white">
-                            {data.developerName || "N/A"}                        </div>
+                            {data.developerName || "N/A"}
+                        </div>
                     </div>
 
                     {/* Published */}
@@ -62,6 +65,14 @@ export default function McpDetails({ data }: Props) {
                         <div className="text-secondary">License</div>
                         <div className="text-white">
                             {data.licenseName || "N/A"}
+                        </div>
+                    </div>
+
+                    {/* ✅ Connection Platform (string만) */}
+                    <div className="flex justify-between items-center">
+                        <div className="text-secondary">Connection Platform</div>
+                        <div className="text-white">
+                            {data.platformName || "N/A"}
                         </div>
                     </div>
                 </div>

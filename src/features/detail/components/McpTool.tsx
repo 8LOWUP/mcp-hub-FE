@@ -3,13 +3,15 @@
 
 import { CheckCircle2 } from "lucide-react";
 import TextContainer from "@/components/container/TextContainer";
-import type { McpTool } from "@/types/detail/detail-types";
+import type { getMcpDetailResponse } from "@/types/detail/detail-types"; // ✅ 타입 import
 
 interface Props {
-    tools?: McpTool[]; // optional로 받아도 안전
+    data: getMcpDetailResponse["result"]; // ✅ data 안에 tools 포함
 }
 
-export default function MarketTools({ tools = [] }: Props) {
+export default function MarketTools({ data }: Props) {
+    const tools = data?.tools ?? []; // ✅ 안전하게 꺼내오기
+
     if (tools.length === 0) {
         return (
             <div>
@@ -35,14 +37,15 @@ export default function MarketTools({ tools = [] }: Props) {
                     {leftTools.map((tool) => (
                         <div
                             key={tool.id}
-                            className="flex items-start gap-3  p-3 rounded-xl transition-colors duration-200"
+                            className="flex items-start gap-3 p-3 rounded-xl transition-colors duration-200"
                         >
                             <div className="w-6 h-6 flex items-center justify-center mt-0.5">
                                 <CheckCircle2 className="w-4 h-4 text-amber-300" />
                             </div>
-                            <span className="text-white leading-relaxed">
-                                {tool.content}
-                            </span>
+                            <div className="text-white leading-relaxed">
+                                <div className="font-semibold">{tool.name}</div>
+                                <div className="text-sm text-gray-300">{tool.content}</div>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -57,9 +60,10 @@ export default function MarketTools({ tools = [] }: Props) {
                             <div className="w-6 h-6 flex items-center justify-center mt-0.5">
                                 <CheckCircle2 className="w-4 h-4 text-amber-300" />
                             </div>
-                            <span className="text-white leading-relaxed">
-                                {tool.content}
-                            </span>
+                            <div className="text-white leading-relaxed">
+                                <div className="font-semibold">{tool.name}</div>
+                                <div className="text-sm text-gray-300">{tool.content}</div>
+                            </div>
                         </div>
                     ))}
                 </div>
