@@ -1,40 +1,45 @@
 // src/types/upload/upload-types.ts
 
-// MCP Meta 저장 요청 타입
-// PATCH /mcps/dashboard/{mcpId}/meta 요청 바디
-export interface McpMetaPayload {
+import {CommonResponse} from "@/types/common";
+
+/*파일 업로드*/
+
+export interface FileUploadRequest {
+    category: string;
+    file: File;
+}
+
+export interface FileUploadResult {
+    url: string;
+}
+
+export type FileUploadResponse = CommonResponse<FileUploadResult>;
+
+/* mcp 메타 데이터 */
+
+export interface McpTool {
+    name: string;
+    content: string;
+}
+
+export interface McpMeta {
+    mcpId: number;
     name: string;
     description: string;
+    categoryId: number;
+    licenseId: number;
     sourceUrl: string;
     imageUrl: string;
+    platformName: string;
     requestUrl: string;
     developerName: string;
     isKeyRequired: boolean;
-    categoryId: number;   // 프론트에서 매핑
-    platformName: string;
-    licenseId: number;    // 프론트에서 매핑
-    tools: {
-        name: string;
-        content?: string;
-    }[];
+    tools: McpTool[];
 }
 
-// Draft 생성 응답
-// POST /mcps/dashboard 응답 (draft 생성)
-export interface DraftResponse {
-    result: number; // mcpId
-    code: string;
-    message: string;
-    timestamp: string;
+export interface McpMetaRequest {
+    file: string;
+    meta: McpMeta;
 }
 
-// 파일 업로드 응답
-// POST /files/{category} 응답
-export interface FileUploadResponse {
-    result: {
-        url: string; // 업로드된 파일의 URL
-    };
-    message: string;
-    timestamp: string;
-    code: string;
-}
+export type McpMetaResponse = CommonResponse<number>;

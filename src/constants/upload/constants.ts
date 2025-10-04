@@ -24,5 +24,5 @@ export const LICENSE_MAP: Record<string, number> = {
     "GPL License": 2,
     "Apache License 2.0": 3,
     "Proprietary": 4,
-    "기타": 5,
+    "etc": 5,
 };
