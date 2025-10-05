@@ -365,8 +365,14 @@ export const patchMyProfile = async (
  * DELETE /members/me
  * ================================ */
 
-// 성공 신호를 2xx로 통일
-type DeleteMeOk = { ok: true };
+// 성공 신호를 2xx로 통일(+ 서버 메시지 보존)
+type DeleteMeOk = {
+    ok: true;
+    message?: string;
+    code?: string;
+    timestamp?: string;
+    raw?: unknown; // 서버 원본(디버깅용)
+};
 
 // 동시 중복 호출 합치기(in-flight coalescing)
 let inFlightDeleteMe: Promise<DeleteMeOk> | null = null;
@@ -376,11 +382,37 @@ export const deleteMe = async (refreshToken: string): Promise<DeleteMeOk> => {
 
     if (inFlightDeleteMe) return inFlightDeleteMe;
 
-    inFlightDeleteMe = withRateLimit<unknown>(key, "write", async () => {
-        await axiosInstance.delete("/members/me", {
+    inFlightDeleteMe = withRateLimit<DeleteMeOk>(key, "write", async () => {
+        const res = await axiosInstance.delete("/members/me", {
             params: { refreshToken },
         });
-        return { ok: true } as DeleteMeOk;
+
+        const data = res?.data as any;
+
+        const message =
+            typeof data === "string"
+                ? data
+                : typeof data?.message === "string"
+                    ? data.message
+                    : undefined;
+
+        const code =
+            typeof data === "object" && data && typeof data.code === "string"
+                ? data.code
+                : undefined;
+
+        const timestamp =
+            typeof data === "object" && data && typeof data.timestamp === "string"
+                ? data.timestamp
+                : undefined;
+
+        return {
+            ok: true,
+            message,
+            code,
+            timestamp,
+            raw: data,
+        };
     })
         .then((v) => v as DeleteMeOk)
         .finally(() => {
