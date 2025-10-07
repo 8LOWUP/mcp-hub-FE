@@ -205,17 +205,15 @@ export class SocialLoginService {
     
     try {
       setLoading(true);
-      // 1) 로컬 스토리지/상태 우선 정리
+      // 1) 백엔드에 로그아웃 요청을 먼저 시도 (refreshToken 전달)
       const tokenToRevoke = refreshToken ?? undefined;
-      logout();
-
-      // 2) 백엔드에 로그아웃 요청 (refreshToken 전달)
       await apiService.auth.logout(tokenToRevoke);
-      
     } catch (error: any) {
       console.error('로그아웃 오류:', error);
       setError('로그아웃 중 오류가 발생했습니다.');
     } finally {
+      // 2) 이후 로컬 스토리지/상태 정리
+      logout();
       setLoading(false);
     }
   }

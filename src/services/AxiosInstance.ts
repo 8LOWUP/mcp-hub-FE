@@ -238,16 +238,19 @@ axiosInstance.interceptors.response.use(
                 // 대기 중인 요청들 실패 처리
                 processQueue(refreshError, null);
                 
-                // Zustand 스토어에서 로그아웃 처리
-                const { logout } = useLoginStore.getState();
-                logout();
-                
-                // localStorage에서도 토큰 제거 (fallback)
-                removeLocalStorageItem(LOCAL_STORAGE_KEY.accessToken);
-                removeLocalStorageItem(LOCAL_STORAGE_KEY.refreshToken);
-                removeLocalStorageItem(LOCAL_STORAGE_KEY.user);
-                
-                // 리다이렉트는 하지 않음. 헤더의 로그인 모달을 통해 재인증 유도
+                // 리프레시 요청의 응답 상태에 따라 처리 분기
+                const status = (refreshError as any)?.response?.status;
+                if (status === 401 || status === 403) {
+                    // 리프레시 토큰도 유효하지 않음 → 확정 로그아웃 및 스토리지 정리
+                    const { logout } = useLoginStore.getState();
+                    logout();
+                    removeLocalStorageItem(LOCAL_STORAGE_KEY.accessToken);
+                    removeLocalStorageItem(LOCAL_STORAGE_KEY.refreshToken);
+                    removeLocalStorageItem(LOCAL_STORAGE_KEY.user);
+                } else {
+                    // 일시적 오류(400, 404, 5xx, 네트워크 등) → 스토리지 보존
+                    console.warn("⚠️ 재발급 실패이지만 토큰은 보존합니다. status:", status);
+                }
                 
                 return Promise.reject(refreshError);
             } finally {

@@ -1,17 +1,25 @@
 "use client";
 
-import { useModelManager } from "@/hooks/chat/useModelManager";
 import ChattingInputContainer from "./ChattingInputContainer";
+import type { ModelInfo } from "@/hooks/chat/useModelManager";
+
+type ChatContainerProps = {
+  onSend?: (text: string, modelId?: string) => void;
+  isSending?: boolean;
+  availableModels: ModelInfo[];
+  selectedModel: ModelInfo | null;
+  modelsLoading: boolean;
+  selectModel: (modelId: string) => void;
+};
 
 export default function ChatContainer({
   onSend,
   isSending = false,
-}: {
-  onSend?: (text: string, modelId?: string) => void;
-  isSending?: boolean;
-}) {
-  // 🔹 상위에서 한 번만 실행
-  const { availableModels, selectedModel, isLoading: modelsLoading, selectModel } = useModelManager();
+  availableModels,
+  selectedModel,
+  modelsLoading,
+  selectModel,
+}: ChatContainerProps) {
   
   return (
     <ChattingInputContainer 

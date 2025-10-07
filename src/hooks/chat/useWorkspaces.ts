@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
 import { workspacesApi } from '@/services/chat/apis';
 import type { 
   postWorkspaceCreateRequestBody,
@@ -11,29 +10,10 @@ import type {
 export const useWorkspaces = () => {
   const query = useQuery({
     queryKey: ['workspaces'],
-    queryFn: () => {
-      console.log('🌐 워크스페이스 목록 API 호출 시작');
-      return workspacesApi.getWorkspaces();
-    },
-    select: (data) => {
-      console.log('📋 워크스페이스 목록 API 응답:', data);
-      console.log('📋 워크스페이스 목록 결과:', data.result);
-      
-      // 서버에서 받은 워크스페이스만 반환 (임시 워크스페이스는 React Query 캐시에서 관리)
-      console.log('📋 서버 워크스페이스 목록:', data.result);
-      
-      return data.result;
-    },
+    queryFn: () => workspacesApi.getWorkspaces(),
+    select: (data) => data.result,
   });
 
-  useEffect(() => {
-    if (query.data) {
-      console.log('✅ 워크스페이스 목록 로드 성공:', query.data);
-    }
-    if (query.error) {
-      console.error('❌ 워크스페이스 목록 로드 실패:', query.error);
-    }
-  }, [query.data, query.error]);
 
   return query;
 };
@@ -66,14 +46,6 @@ export const useWorkspaceChats = (workspaceId: string | null, page: number = 0, 
     enabled: !!workspaceId,
   });
 
-  useEffect(() => {
-    if (query.data) {
-      console.log('✅ 워크스페이스 채팅 로그 로드 성공:', query.data);
-    }
-    if (query.error) {
-      console.error('❌ 워크스페이스 채팅 로그 로드 실패:', query.error);
-    }
-  }, [query.data, query.error]);
 
   return query;
 };

@@ -44,8 +44,8 @@ export type getWorkspaceHistory = CommonResponse<WorkspaceSummary[]>
 
 //워크 스페이스 생성
 export type mcpInfo = {
-  id : string,
-  active : boolean
+  id? : string,
+  active? : boolean
 };
 
 export type postWorkspaceCreateRequestBody = {
@@ -155,9 +155,12 @@ export type postWorkspaceChattingResponse = CommonResponse<{
 }>
 
 // LLM 전체 리스트 조회
-export type getAllLLMListResponse = CommonResponse<{
-  llmList: LLMInfo[]
-}>
+export type getAllLLMListResponse = {
+  code: string;
+  timestamp: string;
+  message: string;
+  llmList: LLMInfo[];
+}
 
 // 사용자 LLM 토큰 조회
 export type getLLMTokenCheckResponse = CommonResponse<LLMTokenInfo[]>

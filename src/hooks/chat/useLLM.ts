@@ -8,29 +8,15 @@ import type {
 
 // LLM 전체 리스트 조회
 export const useLLMs = (enabled: boolean = true) => {
-  console.log('🚀 useLLMs 훅이 호출되었습니다!', { enabled });
   const query = useQuery({
     queryKey: ['llms'],
-    queryFn: () => {
-      console.log('🌐 useLLMs queryFn 실행 - API 호출 시작');
-      return llmApi.getAllLLMs();
-    },
+    queryFn: () => llmApi.getAllLLMs(),
     enabled: enabled,
-    select: (data) => {
-      console.log('🔍 useLLMs select 함수 - 원본 데이터:', data);
-      console.log('🔍 useLLMs select 함수 - data.result:', data.result);
-      return data.result;
-    },
+    select: (data) => data.llmList,
+    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+    cacheTime: 10 * 60 * 1000, // 10분간 메모리에 보관
   });
 
-  useEffect(() => {
-    if (query.data) {
-      console.log('✅ useLLMs 성공:', query.data);
-    }
-    if (query.error) {
-      console.error('❌ useLLMs 에러:', query.error);
-    }
-  }, [query.data, query.error]);
 
   return query;
 };

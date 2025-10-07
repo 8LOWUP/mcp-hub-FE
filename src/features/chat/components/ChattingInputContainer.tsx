@@ -25,6 +25,10 @@ const ChattingInputContainer = memo(function ChattingInputContainer({
   const hasText = value.trim().length > 0;
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   
+  // 800자 제한
+  const MAX_LENGTH = 800;
+  const isOverLimit = value.length > MAX_LENGTH;
+  
   const { openModelSelectorModal, modelSelectorModal, closeModelSelectorModal } = useModalStore();
   const modelBtnRef = useRef<HTMLButtonElement | null>(null);
   
@@ -42,15 +46,15 @@ const ChattingInputContainer = memo(function ChattingInputContainer({
   const send = useCallback(() => {
     const v = value.trim();
     
-    if (!v || isComposing || isSending) {
-      return; // 한글 입력 중이거나 전송 중이면 전송하지 않음
+    if (!v || isComposing || isSending || isOverLimit) {
+      return; // 한글 입력 중이거나 전송 중이거나 글자 수 초과시 전송하지 않음
     }
     
     // 현재 선택된 모델 ID 사용
-    const modelId = selectedModel?.id || 'GPT';
+    const modelId = selectedModel?.id || 'gpt-5';
     onSend?.(v, modelId);
     setValue("");
-  }, [value, isComposing, isSending, onSend, selectedModel?.id]);
+  }, [value, isComposing, isSending, isOverLimit, onSend, selectedModel?.id]);
 
   // 한글 입력 시작
   const handleCompositionStart = useCallback(() => {
@@ -66,11 +70,11 @@ const ChattingInputContainer = memo(function ChattingInputContainer({
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (!isComposing && !isSending) { // 한글 입력 중이 아니고 전송 중이 아니면 전송
+      if (!isComposing && !isSending && !isOverLimit) { // 한글 입력 중이 아니고 전송 중이 아니고 글자 수 초과가 아니면 전송
         send();
       }
     }
-  }, [send, isComposing, isSending]);
+  }, [send, isComposing, isSending, isOverLimit]);
 
   const handleModelSelect = useCallback((modelId: string) => {
     selectModel?.(modelId);
@@ -87,7 +91,7 @@ const ChattingInputContainer = memo(function ChattingInputContainer({
     <div
       className={[
         // 컨테이너 배경/테두리/라운드
-        "w-full rounded-3xl border border-white/15 bg-background p-3",
+        "w-full rounded-3xl border border-white/15 bg-surface-2 p-3",
         // 내부 레이아웃
         "flex flex-col",
       ].join(" ")}
@@ -141,39 +145,58 @@ const ChattingInputContainer = memo(function ChattingInputContainer({
           </svg>
         </button>
 
-        {/* 우측: 전송 버튼 — 입력 있으면 노란색 활성화 */}
-        <button
-          type="button"
-          onClick={send}
-          disabled={!hasText || isSending}
-          aria-disabled={!hasText || isSending}
-          aria-label={isSending ? "전송 중..." : "Send"}
-          className={[
-            "grid place-items-center rounded-full transition",
-            // 크기: 반응형
-            "size-9",
-            // 여백: 반응형
-            "mx-2",
-            // 활성/비활성 스타일
-            hasText && !isSending
-              ? "bg-yellow-400 hover:bg-yellow-300 active:scale-[0.98] text-black"
-              : "bg-foreground/10 opacity-40 cursor-not-allowed",
-          ].join(" ")}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            className="size-5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.8}
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        <div className="flex items-center justify-between">
+          {/* 중앙: 글자 수 표시 */}
+          <div className="flex justify-center">
+            <div className="flex items-center">
+              {isOverLimit && (
+                <span className="text-xs text-red-400 mr-1">
+                  (800자 초과)
+                </span>
+              )}
+              <span className={[
+                "text-sm transition-colors",
+                isOverLimit ? "text-red-400" : "text-foreground/60"
+              ].join(" ")}>
+                {value.length}/{MAX_LENGTH}
+              </span>
+            </div>
+          </div>
+  
+          {/* 우측: 전송 버튼 — 입력 있으면 노란색 활성화 */}
+          <button
+            type="button"
+            onClick={send}
+            disabled={!hasText || isSending || isOverLimit}
+            aria-disabled={!hasText || isSending || isOverLimit}
+            aria-label={isSending ? "전송 중..." : isOverLimit ? "글자 수 초과" : "Send"}
+            className={[
+              "grid place-items-center rounded-full transition",
+              // 크기: 반응형
+              "size-9",
+              // 여백: 반응형
+              "mx-2",
+              // 활성/비활성 스타일
+              hasText && !isSending && !isOverLimit
+                ? "bg-yellow-400 hover:bg-yellow-300 active:scale-[0.98] text-black"
+                : "bg-foreground/10 opacity-40 cursor-not-allowed",
+            ].join(" ")}
           >
-            <path d="M22 2L11 13" />
-            <path d="M22 2l-7 20-4-9-9-4 20-7z" />
-          </svg>
-        </button>
-      </div>
+            <svg
+              viewBox="0 0 24 24"
+              className="size-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M22 2L11 13" />
+              <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+            </svg>
+          </button>
+        </div>
+        </div>
 
       {/* 모델 선택 모달 */}
       <ModelSelectorModal

@@ -29,16 +29,13 @@ export const useLocalMCPState = (workspaceId: string | null, initialMcps: mcpInf
       if (!workspaceId || workspaceId.startsWith('new-')) return;
       
       try {
-        console.log('🔄 MCP 상태 서버 동기화:', { workspaceId, mcps });
-        console.log('📤 API 요청을 보냅니다! (debounce 800ms 후)');
         await updateMcpsMutation.mutateAsync({
           workspaceId,
           data: { mcps }
         });
         setHasUnsavedChanges(false);
-        console.log('✅ MCP 상태 서버 동기화 완료');
       } catch (error) {
-        console.error('❌ MCP 상태 서버 동기화 실패:', error);
+        console.error('MCP 상태 동기화 실패:', error);
         // 실패 시 이전 상태로 롤백
         setLocalMcps(memoizedInitialMcps);
       }

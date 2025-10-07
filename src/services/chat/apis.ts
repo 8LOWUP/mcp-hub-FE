@@ -38,17 +38,25 @@ export const workspacesApi = {
 
   // 워크스페이스 생성
   createWorkspace: async (data: postWorkspaceCreateRequestBody): Promise<postWorkspaceCreateResponse> => {
-    console.log('🌐 워크스페이스 생성 API 호출:', API_ENDPOINTS.WORKSPACES.CREATE);
-    console.log('📤 요청 데이터:', JSON.stringify(data, null, 2));
+    console.log('📡 API 요청 시작:', API_ENDPOINTS.WORKSPACES.CREATE);
+    console.log('📤 전송할 데이터:', JSON.stringify(data, null, 2));
+    console.log('📤 데이터 타입 확인:', {
+      llmId: typeof data.llmId,
+      mcps: typeof data.mcps,
+      mcpsIsArray: Array.isArray(data.mcps),
+      mcpsLength: data.mcps?.length,
+      chatMessage: typeof data.chatMessage
+    });
     
     try {
       const response = await axiosInstance.post(API_ENDPOINTS.WORKSPACES.CREATE, data);
-      console.log('📡 워크스페이스 생성 API 응답:', response.data);
+      console.log('✅ API 응답 성공:', response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ 워크스페이스 생성 API 에러:');
+      console.error('❌ API 요청 실패:');
       console.error('  - 상태 코드:', error.response?.status);
       console.error('  - 에러 메시지:', error.response?.data);
+      console.error('  - 요청 URL:', API_ENDPOINTS.WORKSPACES.CREATE);
       console.error('  - 요청 데이터:', JSON.stringify(data, null, 2));
       throw error;
     }

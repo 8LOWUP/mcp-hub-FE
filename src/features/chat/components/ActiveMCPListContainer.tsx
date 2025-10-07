@@ -7,7 +7,6 @@ import { useWorkspaceDetail } from "@/hooks/chat/useWorkspaces";
 import { useLocalMCPState } from "@/hooks/chat/useLocalMCPState";
 import { useLoginStore } from "@/store/login/login-store";
 import ActiveMCPCard from "./ActiveMCPCard";
-import type { WorkspaceSummary } from "@/types/chat/chat-type";
 
 const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
   const { currentWorkspaceId } = useCurrentWorkspace();
@@ -19,17 +18,11 @@ const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
   const serverMcps = useMemo(() => workspaceDetail?.mcps ?? [], [workspaceDetail?.mcps]);
   
   // 로컬 MCP 상태 관리 (debounce + 강제 동기화)
-  const { localMcps, hasUnsavedChanges, toggleMcp, isSyncing } = useLocalMCPState(
+  const { localMcps, toggleMcp, isSyncing } = useLocalMCPState(
     currentWorkspaceId,
     serverMcps
   );
 
-  // 현재 선택된 워크스페이스 ID 콘솔 출력
-  console.log('🏢 현재 선택된 워크스페이스 ID:', currentWorkspaceId);
-  console.log('📊 워크스페이스 상세 정보:', workspaceDetail);
-  console.log('🔧 서버 MCP 목록:', serverMcps);
-  console.log('🔧 로컬 MCP 목록:', localMcps);
-  console.log('💾 저장되지 않은 변경사항:', hasUnsavedChanges);
 
   const toggleMcpActive = (mcpId: string, next: boolean) => {
     if (!currentWorkspaceId || currentWorkspaceId.startsWith('new-')) return;

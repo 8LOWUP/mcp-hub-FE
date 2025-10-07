@@ -47,7 +47,7 @@ export default function ModelSelectorModal({
           <div className="flex flex-col gap-1">
             {availableModels.map((model) => (
             <button
-              key={model.id}
+              key={model.name}
               onClick={() => {
                 if (!model.isAvailable) return;
                 // 즉시 반영: setState 비동기 반영을 기다리지 않고 직접 전달
