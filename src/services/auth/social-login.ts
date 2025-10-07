@@ -221,7 +221,7 @@ export class SocialLoginService {
   }
 
   /**
-   * 토큰 갱신   TODO: 리프레쉬 토큰 API 고쳐지면 수정해야함
+   * 토큰 갱신 (수동 호출용)
    */
   static async refreshAccessToken(): Promise<boolean> {
     const { refreshToken, setTokens, setError } = useLoginStore.getState();
@@ -232,16 +232,19 @@ export class SocialLoginService {
     }
 
     try {
+      console.log('🔄 수동 토큰 갱신 시도...');
       const response = await apiService.auth.reissueToken();
       
-      if (response.success && response.data) {
-        setTokens(response.data.accessToken, refreshToken);
+      if (response.success && response.result?.accessToken) {
+        setTokens(response.result.accessToken, refreshToken);
+        console.log('✅ 수동 토큰 갱신 성공');
         return true;
       }
       
+      console.error('❌ 토큰 갱신 응답이 올바르지 않습니다:', response);
       return false;
     } catch (error: any) {
-      console.error('토큰 갱신 오류:', error);
+      console.error('❌ 수동 토큰 갱신 오류:', error);
       setError('토큰 갱신에 실패했습니다.');
       return false;
     }

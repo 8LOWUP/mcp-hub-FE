@@ -4,51 +4,15 @@ import { useState } from "react";
 import BaseModal from "./BaseModal";
 import clsx from "clsx";
 
-type Model = {
-  id: string;
-  name: string;
-  provider: string;
-  description: string;
-  isAvailable: boolean;
-};
-
-const MODELS: Model[] = [
-  {
-    id: "gpt-4",
-    name: "GPT-4",
-    provider: "OpenAI",
-    description: "가장 강력한 GPT-4 모델",
-    isAvailable: true,
-  },
-  {
-    id: "gpt-4-turbo",
-    name: "GPT-4 Turbo",
-    provider: "OpenAI", 
-    description: "빠르고 효율적인 GPT-4 Turbo",
-    isAvailable: true,
-  },
-  {
-    id: "gpt-3.5-turbo",
-    name: "GPT-3.5 Turbo",
-    provider: "OpenAI",
-    description: "빠르고 경제적인 GPT-3.5",
-    isAvailable: true,
-  },
-  {
-    id: "claude-3-opus",
-    name: "Claude 3 Opus",
-    provider: "Anthropic",
-    description: "Anthropic의 최고 성능 모델",
-    isAvailable: false,
-  },
-];
-
 type ModelSelectorModalProps = {
   isOpen: boolean;
   onClose: () => void;
   currentModel: string;
   onModelSelect: (modelId: string) => void;
   anchorRect?: DOMRect | null;
+  availableModels?: Array<{ id: string; name: string; provider: string; description: string; isAvailable: boolean }>;
+  isLoading?: boolean;
+  error?: any;
 };
 
 export default function ModelSelectorModal({
@@ -57,6 +21,9 @@ export default function ModelSelectorModal({
   currentModel,
   onModelSelect,
   anchorRect,
+  availableModels = [],
+  isLoading = false,
+  error = null,
 }: ModelSelectorModalProps) {
   const [selectedModel, setSelectedModel] = useState(currentModel);
 
@@ -68,8 +35,17 @@ export default function ModelSelectorModal({
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} anchorRect={anchorRect ?? null} placement="top">
       <div className="bg-surface-2 rounded-2xl z-50 p-2">
-        <div className="flex flex-col gap-1">
-          {MODELS.map((model) => (
+        {isLoading ? (
+          <div className="p-4 text-center text-sm text-foreground/70">
+            모델 목록을 불러오는 중...
+          </div>
+        ) : error ? (
+          <div className="p-4 text-center text-sm text-red-500">
+            모델 목록을 불러올 수 없습니다.
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1">
+            {availableModels.map((model) => (
             <button
               key={model.id}
               onClick={() => {
@@ -97,8 +73,9 @@ export default function ModelSelectorModal({
                 </div>
               </div>
             </button>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </BaseModal>
   );

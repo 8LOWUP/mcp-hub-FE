@@ -1,22 +1,35 @@
 // features/chat/components/ChattingInputContainer.tsx
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo, memo } from "react";
 import { useModalStore } from "@/features/chat/modal/modal-store";
 import ModelSelectorModal from "@/features/chat/modal/ModelSelectorModal";
 
-export default function ChattingInputContainer({
+const ChattingInputContainer = memo(function ChattingInputContainer({
   onSend,
+  isSending = false,
+  availableModels = [],
+  selectedModel,
+  modelsLoading = false,
+  selectModel,
 }: {
-  onSend?: (text: string) => void;
+  onSend?: (text: string, modelId?: string) => void;
+  isSending?: boolean;
+  availableModels?: any[];
+  selectedModel?: any;
+  modelsLoading?: boolean;
+  selectModel?: (id: string) => void;
 }) {
   const [value, setValue] = useState("");
-  const [currentModel, setCurrentModel] = useState("GPT-4");
+  const [isComposing, setIsComposing] = useState(false); // 한글 입력 중인지 확인
   const hasText = value.trim().length > 0;
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   
   const { openModelSelectorModal, modelSelectorModal, closeModelSelectorModal } = useModalStore();
   const modelBtnRef = useRef<HTMLButtonElement | null>(null);
+  
+  // 현재 선택된 모델 이름 (메모이제이션)
+  const currentModel = useMemo(() => selectedModel?.name || 'GPT-5', [selectedModel?.name]);
 
   // 자동 높이 조절
   useEffect(() => {
@@ -26,23 +39,49 @@ export default function ChattingInputContainer({
     ta.style.height = `${ta.scrollHeight}px`;
   }, [value]);
 
-  const send = () => {
+  const send = useCallback(() => {
     const v = value.trim();
-    if (!v) return;
-    onSend?.(v);
+    
+    if (!v || isComposing || isSending) {
+      return; // 한글 입력 중이거나 전송 중이면 전송하지 않음
+    }
+    
+    // 현재 선택된 모델 ID 사용
+    const modelId = selectedModel?.id || 'GPT';
+    onSend?.(v, modelId);
     setValue("");
-  };
+  }, [value, isComposing, isSending, onSend, selectedModel?.id]);
 
-  const handleModelSelect = (modelId: string) => {
-    const modelNames: Record<string, string> = {
-      "gpt-4": "GPT-4",
-      "gpt-4-turbo": "GPT-4 Turbo", 
-      "gpt-3.5-turbo": "GPT-3.5 Turbo",
-      "claude-3-opus": "Claude 3 Opus",
-    };
-    setCurrentModel(modelNames[modelId] || "GPT-4");
+  // 한글 입력 시작
+  const handleCompositionStart = useCallback(() => {
+    setIsComposing(true);
+  }, []);
+
+  // 한글 입력 종료
+  const handleCompositionEnd = useCallback(() => {
+    setIsComposing(false);
+  }, []);
+
+  // 키보드 이벤트 처리 (한글 입력 고려)
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (!isComposing && !isSending) { // 한글 입력 중이 아니고 전송 중이 아니면 전송
+        send();
+      }
+    }
+  }, [send, isComposing, isSending]);
+
+  const handleModelSelect = useCallback((modelId: string) => {
+    selectModel?.(modelId);
     closeModelSelectorModal();
-  };
+  }, [selectModel, closeModelSelectorModal]);
+
+  const handleModelButtonClick = useCallback(() => {
+    const rect = modelBtnRef.current?.getBoundingClientRect();
+    if (rect) openModelSelectorModal(currentModel.toLowerCase().replace(/\s+/g, '-'), rect);
+  }, [openModelSelectorModal, currentModel]);
+
 
   return (
     <div
@@ -57,12 +96,9 @@ export default function ChattingInputContainer({
         ref={textareaRef}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            send();
-          }
-        }}
+        onKeyDown={handleKeyDown}
+        onCompositionStart={handleCompositionStart}
+        onCompositionEnd={handleCompositionEnd}
         placeholder="메시지를 입력하세요…"
         rows={1}
         className={[
@@ -80,14 +116,11 @@ export default function ChattingInputContainer({
       />
 
       <div className="flex w-full items-center justify-between">
-        {/* 좌측: 모달(모델 선택) 버튼 — 화살표 아이콘 */}
+        {/* 좌측: 모델 선택 버튼 */}
         <button
           type="button"
           ref={modelBtnRef}
-          onClick={() => {
-            const rect = modelBtnRef.current?.getBoundingClientRect();
-            if (rect) openModelSelectorModal(currentModel.toLowerCase().replace(/\s+/g, '-'), rect);
-          }}
+          onClick={handleModelButtonClick}
           aria-label="모델 선택 열기"
           className="flex items-center cursor-pointer gap-1 rounded-xl ml-1 px-3 pr-2 py-1 hover:bg-surface-4 transition text-accent"
         >
@@ -112,9 +145,9 @@ export default function ChattingInputContainer({
         <button
           type="button"
           onClick={send}
-          disabled={!hasText}
-          aria-disabled={!hasText}
-          aria-label="Send"
+          disabled={!hasText || isSending}
+          aria-disabled={!hasText || isSending}
+          aria-label={isSending ? "전송 중..." : "Send"}
           className={[
             "grid place-items-center rounded-full transition",
             // 크기: 반응형
@@ -122,7 +155,7 @@ export default function ChattingInputContainer({
             // 여백: 반응형
             "mx-2",
             // 활성/비활성 스타일
-            hasText
+            hasText && !isSending
               ? "bg-yellow-400 hover:bg-yellow-300 active:scale-[0.98] text-black"
               : "bg-foreground/10 opacity-40 cursor-not-allowed",
           ].join(" ")}
@@ -149,7 +182,12 @@ export default function ChattingInputContainer({
         currentModel={modelSelectorModal.currentModel}
         onModelSelect={handleModelSelect}
         anchorRect={modelSelectorModal.anchorRect as DOMRect | null}
+        availableModels={availableModels}
+        isLoading={modelsLoading}
+        error={null}
       />
     </div>
   );
-}
+});
+
+export default ChattingInputContainer;
