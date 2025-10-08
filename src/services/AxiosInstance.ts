@@ -1,3 +1,4 @@
+//AxiosInstance.ts
 import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { LOCAL_STORAGE_KEY, PUBLIC_PATHS, API_BASE_URL } from "../constants/apis/key";
 import { useLoginStore } from "../store/login/login-store";
