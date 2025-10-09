@@ -94,3 +94,38 @@ export type patchMcpReviewResponse = CommonResponse<number>; // result = reviewI
 
 // ✅ 리뷰 삭제 (DELETE /mcps/review/{reviewId})
 export type deleteMcpReviewResponse = CommonResponse<number>; // result = reviewId
+
+/* -------------------------------------------------------------------------- */
+/* ✅ MCP 토큰 등록 / 변경 (POST /workspaces/mcps/token/{platformId})          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * ✅ Request Body
+ * 사용자의 MCP 토큰 등록 또는 변경 요청
+ */
+export type postMcpTokenRequestBody = {
+    token: string;
+};
+
+/**
+ * ✅ Response Body
+ * 200: 성공
+ * 400: 유저가 저장하지 않은 MCP에 토큰 저장 시도
+ */
+export type postMcpTokenResponse = CommonResponse<{
+    platformId: string;
+}>;
+
+/* -------------------------------------------------------------------------- */
+/* ✅ MCP 토큰 존재 여부 확인 (GET /workspaces/mcps/token/check/{mcpId})       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * ✅ Response Body
+ * 200: 요청 성공 — 토큰이 존재하는지 여부 확인
+ * 400: 유저가 저장하지 않은 MCP에 토큰 접근 시도 (이 경우도 result는 동일 구조)
+ */
+export type getMcpTokenCheckResponse = CommonResponse<{
+    platformId: string;
+    isTokenExist: boolean;
+}>;

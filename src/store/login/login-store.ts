@@ -22,6 +22,7 @@ export interface LoginState {
   isLoading: boolean;
   error: string | null;
 
+
   // 액션
   setTokens: (accessToken: string, refreshToken: string) => void;
   setUser: (user: User) => void;
@@ -30,6 +31,7 @@ export interface LoginState {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearError: () => void;
+
 }
 
 export const useLoginStore = create<LoginState>()(
@@ -42,6 +44,7 @@ export const useLoginStore = create<LoginState>()(
       refreshToken: null,
       isLoading: false,
       error: null,
+
 
       // 토큰 설정
       setTokens: (accessToken: string, refreshToken: string) => {
@@ -104,5 +107,6 @@ export const useLoginStore = create<LoginState>()(
         refreshToken: state.refreshToken,
       }),
     }
-  )
+      )
+
 );
