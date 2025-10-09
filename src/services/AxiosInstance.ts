@@ -53,7 +53,7 @@ const getAccessToken = (): string | null => {
 axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         // 인증이 필요하지 않은 API 경로들
-        const isPublicPath = PUBLIC_PATHS.some(path => config.url?.includes(path));
+        const isPublicPath = PUBLIC_PATHS.some(path => config.url === path);
         
         // 공개 API가 아닌 경우에만 Authorization 헤더 추가
         if (!isPublicPath) {
@@ -87,24 +87,25 @@ axiosInstance.interceptors.response.use(
     (error) => {
         console.error("❌ API 응답 오류:", error);
         
-        // 401 Unauthorized 에러 처리
-        if (error.response?.status === 401) {
-            console.warn("🔒 인증 토큰이 만료되었습니다. 로그인이 필요합니다.");
-            
-            // Zustand 스토어에서 로그아웃 처리
-            const { logout } = useLoginStore.getState();
-            logout();
-            
-            // localStorage에서도 토큰 제거 (fallback)
-            removeLocalStorageItem(LOCAL_STORAGE_KEY.accessToken);
-            removeLocalStorageItem(LOCAL_STORAGE_KEY.refreshToken);
-            removeLocalStorageItem(LOCAL_STORAGE_KEY.user);
-            
-            // 로그인 페이지로 리다이렉트 (Next.js router 사용)
-            if (typeof window !== 'undefined') {
-                window.location.href = '/login';
-            }
-        }
+        // // 401 Unauthorized 에러 처리 ->잠깐 비활성화
+        // if (error.response?.status === 401) {
+        //     console.warn("🔒 인증 토큰이 만료되었습니다. 로그인이 필요합니다.");
+        //
+        //     // Zustand 스토어에서 로그아웃 처리
+        //     const { logout } = useLoginStore.getState();
+        //     logout();
+        //
+        //     // localStorage에서도 토큰 제거 (fallback)
+        //     removeLocalStorageItem(LOCAL_STORAGE_KEY.accessToken);
+        //     removeLocalStorageItem(LOCAL_STORAGE_KEY.refreshToken);
+        //     removeLocalStorageItem(LOCAL_STORAGE_KEY.user);
+        //
+        //     // 로그인 페이지로 리다이렉트 (Next.js router 사용)
+        //     if (typeof window !== 'undefined') {
+        //         window.location.href = '/login';
+        //     }
+        // }
+        console.error("❌ [401] Unauthorized - 디버깅 중 리다이렉트 비활성화됨");
         
         // 403 Forbidden 에러 처리
         if (error.response?.status === 403) {
