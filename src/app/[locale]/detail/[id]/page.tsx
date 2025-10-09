@@ -2,6 +2,7 @@
 "use client";
 
 import { use } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import McpAbout from "@/features/detail/components/McpAbout";
 import MarketTools from "@/features/detail/components/McpTool";
@@ -10,7 +11,6 @@ import McpDetails from "@/features/detail/components/McpDetails";
 import McpHeader from "@/features/detail/components/McpHeader";
 import ReviewList from "@/features/detail/components/ReviewList";
 import ReviewForm from "@/features/detail/components/ReviewForm";
-
 import { useMarketDetail } from "@/hooks/detail/useMarketDetail";
 import { useMarketReviews } from "@/hooks/detail/useReview";
 import { useLoginStore } from "@/store/login/login-store";
@@ -21,17 +21,23 @@ interface PageProps {
 
 export default function MarketDetailPage({ params }: PageProps) {
     const { id } = use(params);
+    const router = useRouter();
+    const pathname = usePathname(); // ✅ 현재 경로 예: /ko/detail/12
+    const locale = pathname.split("/")[1] || "en"; // ✅ locale 추출
+
     const mcpId = Number(id);
 
-    // ✅ MCP 상세
     const { data: detail, isLoading: loadingDetail, error } = useMarketDetail(mcpId);
-
-    // ✅ 리뷰 목록
     const { data: reviewData, isLoading: loadingReviews } = useMarketReviews(mcpId, {
         page: 0,
         size: 10,
         sort: "createdAt,DESC",
     });
+
+    // ✅ 채팅 페이지로 이동
+    const handleGoToChat = () => {
+        router.push(`/${locale}/chat`); // 예: /ko/chat
+    };
 
     if (loadingDetail) return <div className="pt-20 text-center">Loading...</div>;
     if (error || !detail) return <div className="pt-20 text-center">데이터 없음</div>;
@@ -43,26 +49,23 @@ export default function MarketDetailPage({ params }: PageProps) {
                     <McpHeader data={detail} />
 
                     <div className="block md:hidden">
-                        <PrimaryButton additionalClassName="w-full py-2 text-sm">
+                        <PrimaryButton
+                            additionalClassName="w-full py-2 text-sm"
+                            onClick={handleGoToChat}
+                        >
                             Go to Chat
                         </PrimaryButton>
                     </div>
 
                     <McpAbout about={detail.description} />
-
                     <MarketTools data={detail} />
 
-                    {/* ✅ 리뷰 목록 */}
                     {loadingReviews ? (
                         <div className="text-center text-gray-400">리뷰 불러오는 중...</div>
                     ) : (
-                        <ReviewList
-                            reviews={reviewData?.content ?? []}
-                            mcpId={mcpId} // 🔑 mcpId 전달
-                        />
+                        <ReviewList reviews={reviewData?.content ?? []} mcpId={mcpId} />
                     )}
 
-                    {/* ✅ 리뷰 작성 (조건부 렌더링) */}
                     {useLoginStore.getState().isLoggedIn ? (
                         reviewData?.content.some(r => r.mine) ? (
                             <p className="text-gray-400 text-sm">
@@ -81,15 +84,15 @@ export default function MarketDetailPage({ params }: PageProps) {
                 <aside className="flex flex-col gap-4 md:w-2/6">
                     <div className="md:mt-10 md:sticky md:top-30 flex flex-col gap-4">
                         <div className="hidden md:flex justify-center w-full">
-                            <PrimaryButton additionalClassName="w-full py-3 text-base transition transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg rounded-full">
+                            <PrimaryButton
+                                additionalClassName="w-full py-3 text-base transition transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg rounded-full"
+                                onClick={handleGoToChat}
+                            >
                                 Go to Chat
                             </PrimaryButton>
                         </div>
 
                         <McpUrlCopy url={detail.requestUrl ?? undefined} />
-
-                        {/*<MarketConnectionPlatforms 삭제*/}
-
                         <McpDetails data={detail} />
                     </div>
                 </aside>
