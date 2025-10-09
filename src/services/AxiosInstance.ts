@@ -53,8 +53,8 @@ const getAccessToken = (): string | null => {
 axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         // 인증이 필요하지 않은 API 경로들
-        const isPublicPath = PUBLIC_PATHS.some(path => config.url === path);
-        
+        const isPublicPath = PUBLIC_PATHS.some(path => config.url?.includes(path));
+
         // 공개 API가 아닌 경우에만 Authorization 헤더 추가
         if (!isPublicPath) {
             // 토큰 가져오기 (Zustand 스토어 우선, localStorage fallback)

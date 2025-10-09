@@ -1,4 +1,3 @@
-// src/types/upload/upload-types.ts
 import { CommonResponse } from "@/types/common";
 
 /* -------------------------------------------------------------------------- */
@@ -6,95 +5,118 @@ import { CommonResponse } from "@/types/common";
 /* -------------------------------------------------------------------------- */
 
 /**
- * Presigned URL 발급 요청 파라미터
- * - category: 파일 업로드 카테고리 (예: "mcp", "profile" 등)
- * - file: 업로드할 실제 파일 객체
+ * Presigned URL 요청용 파라미터
+ * - 서버에 전달할 정보 (파일 이름만 전송)
+ */
+export interface PresignedUrlRequest {
+    /** 업로드할 카테고리 */
+    category: string;
+
+    /** 업로드할 파일 이름 */
+    fileName: string;
+}
+
+/**
+ * 실제 파일 업로드 요청 (프론트 내부 로직용)
+ * - Presigned URL 요청 + 실제 파일 객체 포함
  */
 export interface FileUploadRequest {
+    /** 업로드할 카테고리 */
     category: string;
+
+    /** 실제 업로드할 파일 객체 */
     file: File;
 }
 
 /**
  * Presigned URL 응답 구조 (Swagger 예시 기반)
- * {
- *   "timestamp": "2025-10-08T12:10:10.886Z",
- *   "code": "SUCCESS",
- *   "message": "성공",
- *   "result": {
- *     "url": "https://s3.ap-northeast-2.amazonaws.com/bucket-name/file.png?..."
- *   }
- * }
  */
 export interface FileUploadResult {
-    /** Presigned S3 업로드 URL */
+    /** S3 업로드용 PreSigned URL */
     url: string;
 }
 
 /**
- * S3 업로드 완료 후 프론트에서 사용하는 실제 업로드 결과 타입
- * (Presigned URL에서 '?' 이전 부분만 추출)
+ * 최종 업로드 결과 응답
  */
 export type FileUploadResponse = CommonResponse<FileUploadResult>;
 
 /* -------------------------------------------------------------------------- */
-/* 🧩 MCP 메타데이터 관련                                                     */
+/* 🧩 MCP 메타데이터 관련 (Swagger: /mcps/dashboard/meta, /mcps/dashboard/publish) */
 /* -------------------------------------------------------------------------- */
 
 /**
- * MCP의 Tool 상세 정보
- * - MCP 안에서 제공되는 개별 도구/명령어를 정의
+ * MCP의 개별 툴 정보 구조
  */
 export interface McpTool {
-    /** 도구 이름 */
+    /** MCP 툴 이름 */
     name: string;
-    /** 도구 설명 */
+
+    /** MCP 툴 내용 */
     content: string;
 }
 
 /**
- * MCP 메타데이터 구조 (Swagger: /mcps/dashboard/meta & /publish)
+ * MCP 메타데이터 구조
+ * - Swagger: McpUploadDataRequest 기반
+ * - 실제 multipart/form-data 내 "meta" JSON 객체
  */
 export interface McpMeta {
-    /** MCP ID (신규일 경우 0) */
-    mcpId: number;
+    /** MCP ID (수정/등록 대상 ID) */
+    mcpId?: number;
+
     /** MCP 이름 */
-    name: string;
+    name?: string;
+
     /** MCP 설명 */
-    description: string;
+    description?: string;
+
     /** 카테고리 ID */
-    categoryId: number;
+    categoryId?: number;
+
     /** 라이선스 ID */
-    licenseId: number;
-    /** 소스코드 URL (GitHub 등) */
-    sourceUrl: string;
-    /** MCP 로고 / 대표 이미지 URL */
-    imageUrl: string;
-    /** 연결되는 플랫폼 이름 (예: Notion, Slack 등) */
-    platformName: string;
-    /** MCP 요청 URL (백엔드 API endpoint) */
-    requestUrl: string;
+    licenseId?: number;
+
+    /** 소스 코드 / 참조 URL */
+    sourceUrl?: string;
+
+    /** 대표 이미지 URL */
+    imageUrl?: string;
+
+    /** 플랫폼 이름 */
+    platformName?: string;
+
+    /** 요청 URL (예: API 엔드포인트) */
+    requestUrl?: string;
+
     /** 개발자 이름 */
-    developerName: string;
-    /** API Key 필요 여부 */
-    isKeyRequired: boolean;
-    /** MCP에 포함된 도구 목록 */
-    tools: McpTool[];
+    developerName?: string;
+
+    /** 키가 필요한 MCP 여부 */
+    isKeyRequired?: boolean;
+
+    /** MCP 툴 리스트 */
+    tools?: McpTool[];
 }
 
 /**
  * MCP 메타데이터 저장/배포 요청 구조
- * - Swagger 기준: PATCH /mcps/dashboard/meta & /publish
+ * - 실제 전송 형태: multipart/form-data
+ * - file(binary) + meta(JSON)
  */
-export interface McpMetaRequest {
-    /** 파일 이름 (옵션, 현재 빈 문자열로 전달) */
-    file: string;
-    /** MCP 메타데이터 */
+export interface McpMetaRequestFormData {
+    /** 업로드할 MCP 관련 파일 (binary) */
+    file: File;
+
+    /**
+     * MCP 메타데이터 (FormData 전송 시 JSON.stringify(meta) 형태로 직렬화됨)
+     * 실제로는 multipart/form-data의 JSON 파트로 전송됨
+     */
     meta: McpMeta;
 }
 
 /**
- * MCP 메타데이터 저장/배포 응답 구조
- * - 서버에서는 CommonResponse<number> 형태로 ID 반환
+ * MCP 메타데이터 관련 응답 구조
+ * - Swagger의 BaseResponseLong 기반
  */
 export type McpMetaResponse = CommonResponse<number>;

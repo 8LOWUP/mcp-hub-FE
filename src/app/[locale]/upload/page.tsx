@@ -13,11 +13,7 @@ import SourceCodeURLInput from "@/features/upload/components/SourceCodeURLInput"
 import LicenseInput from "@/features/upload/components/LicenseInput";
 import UploadIcon from "@/features/upload/components/UploadIcon";
 
-import {
-    useUploadFile,
-    useSaveMcpMeta,
-    usePublishMcp,
-} from "@/hooks/upload/useMcpUpload";
+import { useSaveMcpMeta, usePublishMcp } from "@/hooks/upload/useMcpUpload";
 
 export default function MCPUploadPage() {
     /* ----------------------------- Ref 정의 ----------------------------- */
@@ -38,53 +34,36 @@ export default function MCPUploadPage() {
     const [message, setMessage] = useState<string | null>(null);
 
     /* ----------------------------- Hooks ----------------------------- */
-    const uploadFileMutation = useUploadFile();
     const saveMcpMetaMutation = useSaveMcpMeta();
     const publishMcpMutation = usePublishMcp();
 
     /* ----------------------------- 파일 선택 ----------------------------- */
     const handleFileSelect = (selectedFile: File | null) => {
         if (!selectedFile) return;
+
         setFile(selectedFile);
+        console.log("📁 파일 선택됨:", selectedFile.name, selectedFile.type, selectedFile.size);
     };
 
     /* ----------------------------- 공통 메타데이터 생성 ----------------------------- */
-    const buildMetaRequest = async () => {
-        let imageUrl = "";
-
-        // 1️⃣ 파일 업로드 (있을 경우)
-        if (file) {
-            const uploadRes = await uploadFileMutation.mutateAsync({
-                category: "mcp",
-                file,
-            });
-
-            // ✅ 변경됨: code 검사 및 안전 가드 추가
-            if (uploadRes.code !== "SUCCESS" || !uploadRes.result?.url) {
-                throw new Error(uploadRes.message || "파일 업로드 실패");
-            }
-
-            imageUrl = uploadRes.result.url;
-        }
-
-        // 2️⃣ MCP 메타 데이터 생성
-        return {
-            file: "",
-            meta: {
-                mcpId: 0,
-                name: refs.mcpNameRef.current?.value || "",
-                description: refs.descriptionRef.current?.value || "",
-                categoryId: 0,
-                licenseId: 0,
-                sourceUrl: refs.sourceCodeURLRef.current?.value || "",
-                imageUrl,
-                platformName: refs.connectionPlatformRef.current?.value || "",
-                requestUrl: refs.serverURLRef.current?.value || "",
-                developerName: refs.developerNameRef.current?.value || "",
-                isKeyRequired: false,
-                tools: [],
-            },
+    const buildMetaData = () => {
+        const meta = {
+            mcpId: 0,
+            name: refs.mcpNameRef.current?.value || "",
+            description: refs.descriptionRef.current?.value || "",
+            categoryId: 0,
+            licenseId: 0,
+            sourceUrl: refs.sourceCodeURLRef.current?.value || "",
+            imageUrl: "", // ✅ 실제 파일로 전달되므로 비워둠
+            platformName: refs.connectionPlatformRef.current?.value || "",
+            requestUrl: refs.serverURLRef.current?.value || "",
+            developerName: refs.developerNameRef.current?.value || "",
+            isKeyRequired: false,
+            tools: [],
         };
+
+        console.log("🧩 생성된 MCP 메타데이터:", meta);
+        return meta;
     };
 
     /* ----------------------------- MCP 메타데이터 저장 ----------------------------- */
@@ -93,17 +72,26 @@ export default function MCPUploadPage() {
             setError(null);
             setMessage("Saving MCP metadata...");
 
-            const payload = await buildMetaRequest();
-            const res = await saveMcpMetaMutation.mutateAsync(payload);
+            const meta = buildMetaData();
+            const fileToSend = file || new File([], "empty.txt"); // ✅ multipart 유지용 빈 파일
 
-            // ✅ 변경됨: code 검사
-            if (res.code !== "SUCCESS") {
-                throw new Error(res.message || "메타데이터 저장 실패");
-            }
+            console.log("📦 [SAVE] 전송 준비 완료:", {
+                file: fileToSend.name,
+                meta,
+            });
+
+            const res = await saveMcpMetaMutation.mutateAsync({
+                file: fileToSend,
+                meta,
+            });
+
+            console.log("📩 [SAVE] 응답 수신:", res);
+
+            if (res.code !== "SUCCESS") throw new Error(res.message || "메타데이터 저장 실패");
 
             setMessage("✅ MCP metadata saved successfully.");
         } catch (err) {
-            console.error(err);
+            console.error("❌ MCP 메타데이터 저장 중 오류:", err);
             setError("❌ Failed to save MCP metadata.");
             setMessage(null);
         }
@@ -115,35 +103,40 @@ export default function MCPUploadPage() {
             setError(null);
             setMessage("Deploying MCP...");
 
-            const payload = await buildMetaRequest();
-            const res = await publishMcpMutation.mutateAsync(payload);
+            const meta = buildMetaData();
+            const fileToSend = file || new File([], "empty.txt");
 
-            // ✅ 변경됨: code 검사
-            if (res.code !== "SUCCESS") {
-                throw new Error(res.message || "배포 실패");
-            }
+            console.log("🚀 [DEPLOY] 전송 준비 완료:", {
+                file: fileToSend.name,
+                meta,
+            });
+
+            const res = await publishMcpMutation.mutateAsync({
+                file: fileToSend,
+                meta,
+            });
+
+            console.log("📩 [DEPLOY] 응답 수신:", res);
+
+            if (res.code !== "SUCCESS") throw new Error(res.message || "배포 실패");
 
             setMessage("🚀 MCP deployed successfully.");
         } catch (err) {
-            console.error(err);
+            console.error("❌ MCP 배포 중 오류:", err);
             setError("❌ Failed to deploy MCP.");
             setMessage(null);
         }
     };
 
     /* ----------------------------- UI ----------------------------- */
-    const isLoading =
-        uploadFileMutation.isPending ||
-        saveMcpMetaMutation.isPending ||
-        publishMcpMutation.isPending;
+    const isLoading = saveMcpMetaMutation.isPending || publishMcpMutation.isPending;
 
     return (
         <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
             <div className="w-full max-w-3xl p-6 bg-surface-1 text-white rounded shadow-lg">
                 <h1 className="text-2xl font-bold mb-2">Upload MCP</h1>
                 <p className="pb-10 text-muted">
-                    Provide the necessary information to share your MCP with the
-                    community.
+                    Provide the necessary information to share your MCP with the community.
                 </p>
 
                 <form className="space-y-4">
@@ -177,16 +170,17 @@ export default function MCPUploadPage() {
 
                     {/* ✅ 파일 업로드 */}
                     <UploadIcon onFileSelect={handleFileSelect} />
+                    {file && (
+                        <p className="text-sm text-green-400 mt-1">
+                            ✅ 선택된 파일: {file.name} ({Math.round(file.size / 1024)} KB)
+                        </p>
+                    )}
 
                     {/* ✅ 상태 메시지 */}
                     <div className="flex justify-end mb-2">
-                        {error && (
-                            <p className="text-red-500 font-semibold text-right">{error}</p>
-                        )}
+                        {error && <p className="text-red-500 font-semibold text-right">{error}</p>}
                         {message && (
-                            <p className="text-green-500 font-semibold text-right">
-                                {message}
-                            </p>
+                            <p className="text-green-500 font-semibold text-right">{message}</p>
                         )}
                     </div>
 
@@ -209,9 +203,7 @@ export default function MCPUploadPage() {
                             disabled={isLoading}
                             onClick={handleDeploy}
                             className={`px-4 py-2 bg-accent rounded text-black w-full sm:w-auto ${
-                                isLoading
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : "hover:bg-accent-hover"
+                                isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-accent-hover"
                             }`}
                         >
                             Deploy
