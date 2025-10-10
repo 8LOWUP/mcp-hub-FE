@@ -3,8 +3,9 @@
 import { useState, DragEvent, ChangeEvent, useRef } from "react";
 import Image from "next/image";
 
-interface UploadIconProps {
-    onFileSelect?: (file: File | null) => void; // ✅ null도 받을 수 있게 수정
+export interface UploadIconProps {
+    /** 파일 선택 시 상위로 전달 (null이면 제거 의미) */
+    onFileSelect?: (file: File | null) => void;
 }
 
 export default function UploadIcon({ onFileSelect }: UploadIconProps) {
@@ -14,36 +15,40 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
 
     const handleFile = (file: File) => {
         if (!file) return;
-        if (!file.type.startsWith("image/")) return alert("이미지 파일만 업로드 가능합니다.");
-        if (file.size > 10 * 1024 * 1024) return alert("10MB 이하만 업로드 가능합니다.");
+        if (!file.type.startsWith("image/")) {
+            alert("이미지 파일만 업로드 가능합니다.");
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            alert("10MB 이하만 업로드 가능합니다.");
+            return;
+        }
 
         const reader = new FileReader();
         reader.onload = () => setPreview(reader.result as string);
         reader.readAsDataURL(file);
 
-        if (onFileSelect) onFileSelect(file);
+        onFileSelect?.(file);
     };
 
     const handleDrop = (e: DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         setDragOver(false);
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            handleFile(e.dataTransfer.files[0]);
-        }
+        const f = e.dataTransfer.files?.[0];
+        if (f) handleFile(f);
     };
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            handleFile(e.target.files[0]);
-        }
+        const f = e.target.files?.[0];
+        if (f) handleFile(f);
     };
 
     const handleRemove = () => {
         setPreview(null);
         if (fileInputRef.current) {
-            fileInputRef.current.value = ""; // ✅ input 초기화
+            fileInputRef.current.value = ""; // input 초기화
         }
-        if (onFileSelect) onFileSelect(null);
+        onFileSelect?.(null);
     };
 
     return (
@@ -51,10 +56,11 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
             <label className="block mb-2 text-lg font-semibold text-white">
                 Upload Icon
             </label>
+
             <div
                 className={`relative border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer p-6 w-full max-w-lg mx-auto
-            ${dragOver ? "border-yellow-400 bg-yellow-50" : "border-gray-600 bg-color-3"}
-          `}
+          ${dragOver ? "border-yellow-400 bg-yellow-50" : "border-gray-600 bg-color-3"}
+        `}
                 onDragOver={(e) => {
                     e.preventDefault();
                     setDragOver(true);
@@ -71,7 +77,7 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
                             height={120}
                             className="rounded-md object-contain"
                         />
-                        {/* 삭제 아이콘 */}
+                        {/* 삭제 버튼 */}
                         <button
                             type="button"
                             onClick={handleRemove}
@@ -105,6 +111,7 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
                         <p className="text-sm text-gray-500">PNG, JPG, GIF up to 10MB</p>
                     </div>
                 )}
+
                 <input
                     type="file"
                     accept="image/png, image/jpeg, image/gif"
