@@ -7,64 +7,47 @@ type ActiveMCPCardProps = {
   id: string;
   name: string;
   active?: boolean;         // 토글 상태
-  isLoading?: boolean;      // 로딩 상태
+  selected?: boolean;       // 선택 상태
+  onSelect?: (id: string) => void;
   onToggle?: (active: boolean) => void;
 };
 
 export default function ActiveMCPCard({
-  id,
   name,
   active = false,
-  isLoading = false,
   onToggle,
 }: ActiveMCPCardProps) {
   const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();                // 카드 클릭으로 전파 방지
     onToggle?.(e.target.checked);
   };
 
   return (
     <div
       className={[
-        "flex items-center justify-between w-full px-3 py-2 rounded-lg",
-        isLoading ? "opacity-50 pointer-events-none" : ""
+        "flex items-center justify-between w-full px-3 py-2",
+        "transition-colors",
       ].join(" ")}
     >
       {/* 좌측: 아이콘 + 이름 */}
-      <div className="flex items-center gap-2">
-        {active ? (
-          <TbCloudCheck className="text-accent text-lg" />
-        ) : (
-          <TbCloudX className="text-secondary text-lg" />
-        )}
-        <div className="flex flex-col">
-          <h3 className="text-sm font-medium text-foreground">{name}</h3>
-          <p className="text-xs text-foreground/60">
-            {active ? "활성화됨" : "비활성화됨"}
-          </p>
-        </div>
+      <div className="flex text-2xl justify-center items-end gap-2">
+        {active ? <TbCloudCheck className="text-accent"/> : <TbCloudX className="text-secondary"/> }
+        <h3 className="text-sm text-foreground">{name}</h3>
       </div>
 
       {/* 우측: 토글 버튼 */}
-      <label 
-        className="relative inline-flex items-center cursor-pointer"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <label className="relative inline-flex items-center cursor-pointer">
         <input
           type="checkbox"
           className="sr-only peer"
           checked={active}
           onChange={handleToggle}
-          disabled={isLoading}
         />
-        <div className={[
-          "w-10 h-5 rounded-full transition-all duration-300 ease-in-out",
-          active ? "bg-accent shadow-lg shadow-accent/25" : "bg-gray-600",
-          isLoading ? "opacity-50" : ""
-        ].join(" ")}></div>
+        <div className="w-10 h-5 bg-gray-600 rounded-full peer peer-checked:bg-yellow-400 transition-colors"></div>
         <div
           className={[
-            "absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white shadow-lg transition-all duration-300 ease-in-out",
-            active ? "translate-x-5 shadow-accent/20" : "translate-x-0",
+            "absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform",
+            active ? "translate-x-5" : "translate-x-0",
           ].join(" ")}
         ></div>
       </label>

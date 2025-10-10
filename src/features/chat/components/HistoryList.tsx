@@ -1,12 +1,19 @@
 "use client";
 
-import { useWorkspaces } from "@/hooks/chat/useWorkspaces";
+import { useEffect } from "react";
+import { useChatStore } from "@/store/chat/chat-store";
 import HistoryCard from "./HistoryCard";
-import { memo } from "react";
-import type { WorkspaceSummary } from "@/types/chat/chat-type";
 
-const HistoryList = memo(function HistoryList({ isSending = false }: { isSending?: boolean }) {
-  const { data: workspaces = [], isLoading: loadingList, error } = useWorkspaces() as { data: WorkspaceSummary[], isLoading: boolean, error: any };
+export default function HistoryList() {
+  const workspaces = useChatStore((s) => s.workspaces);
+  const loadingList = useChatStore((s) => s.loadingList);
+  const loadWorkspaceList = useChatStore((s) => s.loadWorkspaceList);
+
+  useEffect(() => {
+    if (!workspaces || workspaces.length === 0) {
+      loadWorkspaceList();
+    }
+  }, [loadWorkspaceList, workspaces.length]);
 
   return (
     <>
@@ -15,12 +22,7 @@ const HistoryList = memo(function HistoryList({ isSending = false }: { isSending
         {loadingList && (
           <div className="text-sm text-foreground/60 py-2">불러오는 중…</div>
         )}
-        {error && (
-          <div className="text-sm text-red-500 py-2">
-            워크스페이스를 불러오는데 실패했습니다.
-          </div>
-        )}
-        {!loadingList && !error && workspaces.length === 0 && (
+        {!loadingList && workspaces.length === 0 && (
           <div className="text-sm text-foreground/60 py-2">
             아직 대화가 없어요. <span className="underline">New Chat</span>을 눌러 시작해보세요!
           </div>
@@ -28,24 +30,19 @@ const HistoryList = memo(function HistoryList({ isSending = false }: { isSending
       </div>
 
       <ul className="flex flex-col w-full h-full overflow-y-auto">
-        {workspaces.map((w) => {
-          const description = formatTime(w.createdAt);
-          
-          return (
-            <li key={w.workspaceId}>
-              <HistoryCard
-                title={w.title}
-                description={description}
-                workspaceId={w.workspaceId}
-                isSending={isSending}
-              />
-            </li>
-          );
-        })}
+        {workspaces.map((w) => (
+          <li key={w.workspaceId}>
+            <HistoryCard
+              title={w.title}
+              description={formatTime(w.createdAt)}
+              workspaceId={w.workspaceId}
+            />
+          </li>
+        ))}
       </ul>
     </>
   );
-});
+}
 
 function formatTime(iso: string) {
   try {
@@ -60,5 +57,3 @@ function formatTime(iso: string) {
     return iso;
   }
 }
-
-export default HistoryList;

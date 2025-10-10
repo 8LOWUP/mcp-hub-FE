@@ -1,9 +1,7 @@
 "use client";
 
+import { useChatStore } from "@/store/chat/chat-store";
 import { useModalStore } from "./modal-store";
-import { useDeleteWorkspace } from "@/hooks/chat/useWorkspaces";
-import { useCurrentWorkspace } from "@/contexts/CurrentWorkspaceContext";
-import { useQueryClient } from '@tanstack/react-query';
 import BaseModal from "./BaseModal";
 import ConfirmModal from "./ConfirmModal";
 import clsx from "clsx";
@@ -24,10 +22,8 @@ export default function HistoryMenuModal({
   title,
   anchorRect,
 }: HistoryMenuModalProps) {
-  const deleteWorkspaceMutation = useDeleteWorkspace();
-  const { currentWorkspaceId, openWorkspace } = useCurrentWorkspace();
+  const deleteWorkspace = useChatStore((s) => s.deleteWorkspace);
   const startEditTitle = useModalStore((s) => s.startEditTitle);
-  const queryClient = useQueryClient();
   const { openConfirmModal, confirmModal, closeConfirmModal } = useModalStore();
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
@@ -48,45 +44,8 @@ export default function HistoryMenuModal({
       cancelText: "취소",
       isDestructive: true,
       onConfirm: () => {
-        
-        // 임시 워크스페이스인지 확인
-        const isTemporary = workspaceId.startsWith('new-');
-        
-        if (isTemporary) {
-          // 임시 워크스페이스는 React Query 캐시에서 제거
-          
-          // React Query 캐시에서 임시 워크스페이스 제거
-          queryClient.setQueryData(['workspaces'], (oldData: any) => {
-            if (!oldData) return oldData;
-            return {
-              ...oldData,
-              result: (oldData.result || []).filter((w: any) => w.workspaceId !== workspaceId)
-            };
-          });
-          
-          // 현재 선택된 워크스페이스가 삭제된 워크스페이스라면
-          if (currentWorkspaceId === workspaceId) {
-            openWorkspace('new-temp');
-          }
-          
-          onClose();
-        } else {
-          // 실제 워크스페이스는 서버에서 삭제
-          deleteWorkspaceMutation.mutate(workspaceId, {
-            onSuccess: () => {
-              // 현재 선택된 워크스페이스가 삭제된 워크스페이스라면
-              if (currentWorkspaceId === workspaceId) {
-                openWorkspace('new-temp');
-              }
-              
-              onClose();
-            },
-            onError: (error) => {
-              console.error('워크스페이스 삭제 실패:', error);
-              // 에러 발생 시 모달은 닫지 않음
-            }
-          });
-        }
+        deleteWorkspace(workspaceId);
+        onClose();
       },
     });
   };
@@ -115,15 +74,13 @@ export default function HistoryMenuModal({
           </button>
           <button
             onClick={handleDelete}
-            disabled={deleteWorkspaceMutation.isPending}
             className={clsx(
               "w-full text-left bg-surface-3 rounded-b-sm",
               "hover:bg-red-500/10 text-red-400",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
               isSmallScreen ? "px-4 py-3 text-base" : "px-3 py-2 text-sm"
             )}
           >
-            {deleteWorkspaceMutation.isPending ? "삭제 중..." : "워크스페이스 삭제하기"}
+            워크스페이스 삭제하기
           </button>
         </div>
       </div>

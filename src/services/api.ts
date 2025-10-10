@@ -10,7 +10,6 @@ import type {
   SignupRequest,
   McpUploadRequest,
   McpUpdateRequest,
-  ReissueTokenResponse,
 } from '../types/api';
 
 // 인증 관련 API (실제 스웨거 기반)
@@ -44,12 +43,8 @@ export const authApi = {
   },
 
   // 토큰 재발급
-  reissueToken: async (refreshToken: string): Promise<ApiResponse<ReissueTokenResponse>> => {
-    console.log('[authApi.reissueToken] Using POST with params:', { refreshToken });
-
-    const response = await axiosInstance.post(API_ENDPOINTS.MEMBERS.AUTH_TOKEN_REISSUE, null, {
-      params: { refreshToken },
-    });
+  reissueToken: async (): Promise<ApiResponse<{ accessToken: string }>> => {
+    const response = await axiosInstance.post(API_ENDPOINTS.MEMBERS.AUTH_TOKEN_REISSUE);
     return response.data;
   },
 

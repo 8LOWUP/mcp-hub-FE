@@ -205,21 +205,23 @@ export class SocialLoginService {
     
     try {
       setLoading(true);
-      // 1) 백엔드에 로그아웃 요청을 먼저 시도 (refreshToken 전달)
+      // 1) 로컬 스토리지/상태 우선 정리
       const tokenToRevoke = refreshToken ?? undefined;
+      logout();
+
+      // 2) 백엔드에 로그아웃 요청 (refreshToken 전달)
       await apiService.auth.logout(tokenToRevoke);
+      
     } catch (error: any) {
       console.error('로그아웃 오류:', error);
       setError('로그아웃 중 오류가 발생했습니다.');
     } finally {
-      // 2) 이후 로컬 스토리지/상태 정리
-      logout();
       setLoading(false);
     }
   }
 
   /**
-   * 토큰 갱신 (수동 호출용)
+   * 토큰 갱신   TODO: 리프레쉬 토큰 API 고쳐지면 수정해야함
    */
   static async refreshAccessToken(): Promise<boolean> {
     const { refreshToken, setTokens, setError } = useLoginStore.getState();
@@ -230,19 +232,16 @@ export class SocialLoginService {
     }
 
     try {
-      console.log('🔄 수동 토큰 갱신 시도...');
       const response = await apiService.auth.reissueToken();
       
-      if (response.success && response.result?.accessToken) {
-        setTokens(response.result.accessToken, refreshToken);
-        console.log('✅ 수동 토큰 갱신 성공');
+      if (response.success && response.data) {
+        setTokens(response.data.accessToken, refreshToken);
         return true;
       }
       
-      console.error('❌ 토큰 갱신 응답이 올바르지 않습니다:', response);
       return false;
     } catch (error: any) {
-      console.error('❌ 수동 토큰 갱신 오류:', error);
+      console.error('토큰 갱신 오류:', error);
       setError('토큰 갱신에 실패했습니다.');
       return false;
     }

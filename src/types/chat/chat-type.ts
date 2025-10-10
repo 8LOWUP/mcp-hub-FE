@@ -44,25 +44,25 @@ export type getWorkspaceHistory = CommonResponse<WorkspaceSummary[]>
 
 //워크 스페이스 생성
 export type mcpInfo = {
-  id? : string,
-  active? : boolean
-};
+  id : string,
+  active : boolean
+}
 
 export type postWorkspaceCreateRequestBody = {
 	llmId: string,
 	mcps : mcpInfo[],
-	chatMessage: string
+	chatRequest: string
 }
 
-export type postWorkspaceCreateResponse = CommonResponse<{
+export type postWorkspaceCreateResponse= {
   userId : string
   workspaceId : string
   llmId : string
   mcps : mcpInfo[]
-  chatResponse : {}
+  chatResponse : string
   title : string
   createdAt : string
-}>
+}
 
 // 워크 스페이스 조회
 export type chatDetail = {
@@ -82,7 +82,8 @@ export type getWorkspaceResponse = CommonResponse<{
 	llmId : string,
 	userId : string,
 	title : string,
-	mcps : mcpInfo[]
+	mcps : mcpInfo[],	  
+	chats : chatDetail[]
 }>
 
 // 워크 스페이스 제목 수정
@@ -93,7 +94,7 @@ export type patchWorkspaceTitleEditRequestBody = {
 export type patchWorkspaceTitleEditResponse = CommonResponse<{
   workspaceId : string
   title : string
-  updatedAt : string
+  updateAt : string
 }>
 
 // 워크스페이스 MCP 활성화 수정
@@ -107,46 +108,8 @@ export type patchMCPActiveEditResponse = CommonResponse<string>
 export type deleteWorkspaceResponse = CommonResponse<string>
 
 // 워크스페이스 채팅
-export type ChatLogItem = {
-  chatMessage: string;
-  isRequest: boolean;
-  createdAt: string;
-}
-
-export type SortInfo = {
-  empty: boolean;
-  sorted: boolean;
-  unsorted: boolean;
-}
-
-export type PageableInfo = {
-  offset: number;
-  sort: SortInfo;
-  paged: boolean;
-  pageNumber: number;
-  pageSize: number;
-  unpaged: boolean;
-}
-
-export type ChatLogPage = {
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  content: ChatLogItem[];
-  number: number;
-  sort: SortInfo;
-  numberOfElements: number;
-  pageable: PageableInfo;
-  first: boolean;
-  last: boolean;
-  empty: boolean;
-}
-
-export type getWorkspaceChattingLogResponse = CommonResponse<ChatLogPage>
-
-export type postSendWorkspaceChatRequestBody = {
+export type postWorkspaceChattingRequestBody = {
   chatMessage : string
-  llmId? : string
 }
 
 export type postWorkspaceChattingResponse = CommonResponse<{
@@ -155,30 +118,32 @@ export type postWorkspaceChattingResponse = CommonResponse<{
 }>
 
 // LLM 전체 리스트 조회
-export type getAllLLMListResponse = {
-  code: string;
-  timestamp: string;
-  message: string;
-  llmList: LLMInfo[];
-}
+export type getAllLLMListResponse = CommonResponse<{
+  llmId : string
+  modelName : string
+  llmProvider : string
+}>
 
-// 사용자 LLM 토큰 조회
-export type getLLMTokenCheckResponse = CommonResponse<LLMTokenInfo[]>
+// LLM 토큰 전체 조회
+export type getLLMTokenCheckResponse = CommonResponse<{
+  llmId : string
+  token : string
+}>
 
 // LLM 토큰 입력
 export type postSettingLLMTokenRequestBody = {
   llmId : string
-  llmToken : string
+  token : string
 }
 
 export type postSettingLLMTokenResponse = CommonResponse<{
-  llmToken : string
+  llmId : string
 }>
 
 // LLM 토큰 수정
 export type patchLLMTokenRequestBody = {
   llmId : string
-  llmToken : string
+  token : string
 }
 
 export type patchLLMTokenResponse = CommonResponse<{
@@ -209,29 +174,6 @@ export type getMCPTokenExistCheckResponse = CommonResponse<{
   platformId : string
   isTokenExist : boolean
 }>
-
-// LLM 관련 API 타입들
-export type LLMInfo = {
-  llmId: string;
-  modelName: string;
-  llmProvider: string;
-}
-
-export type LLMTokenInfo = {
-  llmId: string;
-  token: string;
-}
-
-// MCP 관련 API 타입들
-export type MCPTokenInfo = {
-  mcpId: string;
-  token: string;
-}
-
-export type MCPTokenExistInfo = {
-  platformId: string;
-  isTokenExist: boolean;
-}
 
 // ===== Local UI/Store types for chat page =====
 export type MessagesByWorkspace = Record<string, Message[]>;

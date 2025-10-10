@@ -1,37 +1,32 @@
 "use client";
 
-import { useCurrentWorkspace } from "@/contexts/CurrentWorkspaceContext";
-import { useUpdateWorkspaceTitle, useDeleteWorkspace } from "@/hooks/chat/useWorkspaces";
+import { useChatStore } from "@/store/chat/chat-store";
 import { useModalStore } from "@/features/chat/modal/modal-store";
 import HistoryMenuModal from "@/features/chat/modal/HistoryMenuModal";
 import clsx from "clsx";
-import { useEffect, useRef, useState, memo, useCallback, useMemo } from "react";
-import type { WorkspaceSummary } from "@/types/chat/chat-type";
+import { useEffect, useRef, useState } from "react";
 
 type HistoryCardProps = {
   title: string;
   description?: string;
   workspaceId: string;
   onMenuClick?: () => void;
-  isSending?: boolean;
 };
 
-const HistoryCard = memo(function HistoryCard({
+export default function HistoryCard({
   title,
   description,
   workspaceId,
   onMenuClick,
-  isSending,
 }: HistoryCardProps) {
-  const { openWorkspace, currentWorkspaceId } = useCurrentWorkspace();
-  const isSelected = currentWorkspaceId === workspaceId;
-
+  const currentWorkspaceId = useChatStore((s) => s.currentWorkspaceId);
+  const openWorkspace = useChatStore((s) => s.openWorkspace);
+  const startNewChat = useChatStore((s) => s.startNewChat);
+  const selected = currentWorkspaceId === workspaceId;
   
-  const modalStore = useModalStore();
-  const { openHistoryMenuModal, historyMenuModal, closeHistoryMenuModal, editTargetWorkspaceId, clearEditTitle } = modalStore;
+  const { openHistoryMenuModal, historyMenuModal, closeHistoryMenuModal, editTargetWorkspaceId, clearEditTitle } = useModalStore();
   const menuBtnRef = useRef<HTMLButtonElement | null>(null);
-  const updateTitleMutation = useUpdateWorkspaceTitle();
-  const deleteWorkspaceMutation = useDeleteWorkspace();
+  const renameWorkspace = useChatStore((s) => s.renameWorkspace);
   const [editing, setEditing] = useState(false);
   const [titleInput, setTitleInput] = useState(title);
 
@@ -39,23 +34,16 @@ const HistoryCard = memo(function HistoryCard({
     typeof window !== "undefined" &&
     window.dispatchEvent(new CustomEvent(name));
 
-  const handleClick = useCallback(() => {
-    console.log('🖱️ HistoryCard 클릭 이벤트 발생 - isSending:', isSending, 'workspaceId:', workspaceId);
-    
-    // 전송 중이면 클릭 무시
-    if (isSending) {
-      return;
-    }
-    
+  const handleClick = () => {
     openWorkspace(workspaceId);
 
     // 모바일/태블릿이면 드로어 닫기
     if (window.innerWidth < 1024) {
       emit("chat:close-drawers");
     }
-  }, [workspaceId, openWorkspace, isSending]);
+  };
 
-  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+  const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
     const rect = {
       top: e.clientY,
@@ -64,7 +52,7 @@ const HistoryCard = memo(function HistoryCard({
       height: 0,
     } as DOMRect as any;
     openHistoryMenuModal(workspaceId, title, rect);
-  }, [workspaceId, title, openHistoryMenuModal]);
+  };
 
 
   return (
@@ -73,13 +61,12 @@ const HistoryCard = memo(function HistoryCard({
         onClick={handleClick}
         tabIndex={0}
         role="button"
-        aria-pressed={isSelected}
+        aria-pressed={selected}
         className={clsx(
-          "group w-full text-left rounded-lg px-5 py-5 flex flex-col gap-3 transition-all duration-300 ease-in-out",
+          "group w-full text-left rounded-lg px-5 py-5 flex flex-col gap-3 transition-all duration-300 ease-in-out cursor-pointer",
           "text-foreground",
-          isSelected ? "bg-surface-3" : "bg-surface-2",
-          isSelected && "ring-1 ring-inset ring-accent",
-          isSending && !isSelected ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+          selected ? "bg-surface-3" : "bg-surface-2",
+          selected && "ring-1 ring-inset ring-accent"
         )}
       >
         {/* 왼쪽 강조 바 */}
@@ -88,7 +75,7 @@ const HistoryCard = memo(function HistoryCard({
           className={clsx(
             "absolute left-0 top-0 h-full bg-accent rounded-l-lg",
             "transition-[width,opacity] duration-300 ease-in-out",
-            isSelected ? "w-1 opacity-100" : "w-0 opacity-0"
+            selected ? "w-1 opacity-100" : "w-0 opacity-0"
           )}
         />
         {editing || editTargetWorkspaceId === workspaceId ? (
@@ -97,12 +84,7 @@ const HistoryCard = memo(function HistoryCard({
             onChange={(e) => setTitleInput(e.target.value)}
             onBlur={() => {
               const v = titleInput.trim();
-              if (v && v !== title) {
-                updateTitleMutation.mutate({
-                  workspaceId,
-                  data: { title: v }
-                });
-              }
+              if (v && v !== title) renameWorkspace(workspaceId, v);
               setEditing(false);
               clearEditTitle();
             }}
@@ -133,7 +115,7 @@ const HistoryCard = memo(function HistoryCard({
           <p
             className={clsx(
               "text-sm truncate transition-colors duration-300",
-              isSelected ? "text-foreground/80" : "text-foreground/60"
+              selected ? "text-foreground/80" : "text-foreground/60"
             )}
           >
             {description}
@@ -145,10 +127,10 @@ const HistoryCard = memo(function HistoryCard({
       <button
         type="button"
         ref={menuBtnRef}
-        onClick={useCallback(() => {
+        onClick={() => {
           const rect = menuBtnRef.current?.getBoundingClientRect();
           if (rect) openHistoryMenuModal(workspaceId, title, rect);
-        }, [workspaceId, title, openHistoryMenuModal])}
+        }}
         aria-label="히스토리 카드 메뉴 열기"
         className="absolute right-2 top-1/2 -translate-y-1/2 p-2 mb-6 rounded-full hover:bg-white/10 transition-colors"
       >
@@ -169,28 +151,4 @@ const HistoryCard = memo(function HistoryCard({
       />
     </div>
   );
-}, (prevProps, nextProps) => {
-  const titleChanged = prevProps.title !== nextProps.title;
-  const descriptionChanged = prevProps.description !== nextProps.description;
-  const workspaceIdChanged = prevProps.workspaceId !== nextProps.workspaceId;
-  const isSendingChanged = prevProps.isSending !== nextProps.isSending;
-  
-  const isEqual = !titleChanged && !descriptionChanged && !workspaceIdChanged && !isSendingChanged;
-  
-  if (!isEqual) {
-    console.log('🔄 HistoryCard props 변경됨:', {
-      workspaceId: nextProps.workspaceId,
-      title: nextProps.title.substring(0, 20),
-      changes: {
-        title: titleChanged,
-        description: descriptionChanged,
-        workspaceId: workspaceIdChanged,
-        isSending: isSendingChanged
-      }
-    });
-  }
-  
-  return isEqual;
-});
-
-export default HistoryCard;
+}

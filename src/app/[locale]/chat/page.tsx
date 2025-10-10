@@ -6,7 +6,6 @@ import ActiveMCPContainer from "@/features/chat/components/ActiveMCPContainer";
 import ChattingWindowContainer from "@/features/chat/components/ChattingWindowContainer";
 import HistoryContainer from "@/features/chat/components/HistoryContainer";
 import { useTranslations } from "next-intl";
-import { useModelManager } from "@/hooks/chat/useModelManager";
 
 export default function ChatPage() {
   const t = useTranslations("ChatPage");
@@ -14,9 +13,6 @@ export default function ChatPage() {
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
   const anyOpen = leftOpen || rightOpen;
-
-  // 🔹 모델 매니저를 최상위에서 한 번만 호출
-  const { availableModels, selectedModel, isLoading: modelsLoading, selectModel } = useModelManager();
 
   // ✅ lg 브레이크포인트에 맞춰 open 상태 자동 동기화
   useEffect(() => {
@@ -104,12 +100,7 @@ export default function ChatPage() {
             "lg:translate-x-0", // ← 만약 lg에서 안 밀리게 하려면 이 줄 추가
           ].join(" ")}
         >
-          <ChattingWindowContainer 
-            availableModels={availableModels}
-            selectedModel={selectedModel}
-            modelsLoading={modelsLoading}
-            selectModel={selectModel}
-          />
+          <ChattingWindowContainer />
         </section>
 
         {/* 우 패널 */}

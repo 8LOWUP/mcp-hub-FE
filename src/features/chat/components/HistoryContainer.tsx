@@ -2,10 +2,10 @@
 
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import HistoryList from "./HistoryList";
-import { useCurrentWorkspace } from "@/contexts/CurrentWorkspaceContext";
+import { useChatStore } from "@/store/chat/chat-store";
 
 const HistoryContainer = () => {
-  const { startNewChat, isSending } = useCurrentWorkspace();
+  const startNewChat = useChatStore((s) => s.startNewChat);
   const emit = (name: string) =>
     typeof window !== "undefined" &&
     window.dispatchEvent(new CustomEvent(name));
@@ -20,10 +20,10 @@ const HistoryContainer = () => {
 
   return (
     <div className="w-70 flex flex-col justify-between h-full p-4 pt-0">
-      <HistoryList isSending={isSending} />
+      <HistoryList />
       <PrimaryButton
         additionalClassName="start-0 w-full mt-4"
-        onClick={startNewChatWithClose}
+        onClick={startNewChatWithClose} // ✅ 새 대화 시작 + 드로어 닫기
       >
         + New Chat
       </PrimaryButton>
