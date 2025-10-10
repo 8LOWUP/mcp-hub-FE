@@ -1,4 +1,3 @@
-// src/features/profiles/components/modals/EditProfileModal.tsx
 "use client";
 
 import React from "react";
@@ -64,15 +63,19 @@ const EditProfileModal: React.FC<Props> = ({
             }
         >
             <div className="space-y-4">
+                {/* ✅ 이메일은 수정 불가 (readOnly + 회색처리) */}
                 <div>
                     <label className="block text-body3 mb-1">Email</label>
                     <input
-                        className="w-full rounded-xl border border-contrast bg-surface-1 px-3 py-2"
+                        className="w-full rounded-xl border border-contrast bg-surface-1 px-3 py-2 text-gray-400 cursor-not-allowed focus:outline-none focus:ring-0 focus:border-contrast"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        readOnly
                         placeholder="you@example.com"
                     />
                 </div>
+
+
+                {/* 닉네임은 수정 가능 */}
                 <div>
                     <label className="block text-body3 mb-1">Nickname</label>
                     <input
