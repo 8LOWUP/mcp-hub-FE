@@ -1,3 +1,4 @@
+//AxiosInstance.ts
 import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { LOCAL_STORAGE_KEY, PUBLIC_PATHS, API_BASE_URL } from "@/constants/apis/key";
 import { useLoginStore } from "@/store/login/login-store";
@@ -144,35 +145,24 @@ const isTokenExpired = (token: string): boolean => {
  * ================================ */
 axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        // ✅ 강제 로그아웃 직후 첫 요청은 Authorization 차단
-        if (typeof window !== "undefined" && sessionStorage.getItem("BLOCK_AUTH_ONCE") === "1") {
-            delete (config.headers as any).Authorization;
-            sessionStorage.removeItem("BLOCK_AUTH_ONCE");
-            return config;
+        // ✅ PUBLIC_PATHS와 정확히 일치하는 경우만 공개 API로 간주
+        let isPublicPath = PUBLIC_PATHS.some(path => config.url === path);
+
+        // ✅ /mcps/dashboard/meta는 강제로 인증 필요하도록 예외 처리
+        if (config.url?.includes("/mcps/dashboard/meta")) {
+            isPublicPath = false;
         }
 
-        const url = config.url || "";
-        const method = (config.method || "get").toLowerCase();
-
-        const isPublicPath = PUBLIC_PATHS.some((path) => url.startsWith(path));
-
-        // ✅ (수정됨) /mcps/ 및 /workspaces/는 GET 포함 전부 인증 필요
-        const needsAuthForDomain =
-            url.includes("/mcps/") || url.includes("/workspaces/");
-
-        const requireAuth = !isPublicPath || needsAuthForDomain;
-
-        if (process.env.NODE_ENV !== "production") {
-            console.log("🔍 API 경로 체크:", {
-                url,
-                method: method.toUpperCase(),
-                isPublicPath,
-                needsAuthForDomain,
-                matchedPublicPath: PUBLIC_PATHS.find((p) => url.startsWith(p)),
-            });
+        // ✅ 요청 본문이 FormData인 경우 Content-Type 자동 변경
+        if (config.data instanceof FormData) {
+            delete config.headers["Content-Type"];
+            // 👉 axios가 boundary 포함된 multipart 헤더를 자동으로 세팅하게 둡니다.
+            console.log("📎 FormData 감지됨 → multipart/form-data로 전송");
         }
 
-        if (requireAuth) {
+
+        // 인증이 필요한 API면 Authorization 헤더 추가
+        if (!isPublicPath) {
             const accessToken = getAccessToken();
             if (accessToken) {
                 (config.headers as any).Authorization = `Bearer ${accessToken}`;
@@ -184,16 +174,6 @@ axiosInstance.interceptors.request.use(
             }
         } else if (process.env.NODE_ENV !== "production") {
             console.log("✅ 공개 API, Authorization 헤더 제외:", url);
-        }
-
-        if (url.includes("/mcps") && process.env.NODE_ENV !== "production") {
-            console.log("🔧 MCP 요청 상세:", {
-                url,
-                method: method.toUpperCase(),
-                headers: config.headers,
-                data: config.data,
-                params: config.params,
-            });
         }
 
         return config;
