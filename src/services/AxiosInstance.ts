@@ -226,9 +226,10 @@ axiosInstance.interceptors.response.use(
 
                 if (response.code === 'COMMON200' && response.result?.accessToken) {
                     const newAccessToken = response.result.accessToken;
+                    const newRefreshToken = response.result.refreshToken;
                     
                     // 새 토큰 저장
-                    setTokens(newAccessToken, refreshToken);
+                    setTokens(newAccessToken, newRefreshToken);
                     
                     console.log("✅ 토큰 갱신 성공! 대기 중인 요청들을 재시도합니다.");
                     
