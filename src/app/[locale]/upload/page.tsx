@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-
+import { useSearchParams } from "next/navigation"; // ✅ 추가
+import { CATEGORY_MAP, LICENSE_MAP } from "@/constants/upload/constants";
 import MCPNameInput from "@/features/upload/components/McpNameInput";
 import DescriptionInput from "@/features/upload/components/DescriptionInput";
 import TagsInput from "@/features/upload/components/TagsInput";
@@ -33,6 +34,11 @@ export default function MCPUploadPage() {
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
 
+    /* ----------------------------- 모드 분기 ----------------------------- */
+    const searchParams = useSearchParams();
+    const mcpIdParam = searchParams.get("mcpId"); // URL ?mcpId=123
+    const isEditMode = Boolean(mcpIdParam);
+
     /* ----------------------------- Hooks ----------------------------- */
     const saveMcpMetaMutation = useSaveMcpMeta();
     const publishMcpMutation = usePublishMcp();
@@ -47,14 +53,23 @@ export default function MCPUploadPage() {
 
     /* ----------------------------- 공통 메타데이터 생성 ----------------------------- */
     const buildMetaData = () => {
+        const categoryText = refs.categoryRef.current?.value?.trim().toLowerCase() || "";
+        const licenseText = refs.licenseRef.current?.value?.trim() || "";
+
+        // ✅ 문자열을 number로 매핑
+        const categoryId = CATEGORY_MAP[categoryText] ?? 0;
+        const licenseId = LICENSE_MAP[licenseText] ?? 0;
+
+        // ✅ 신규 업로드 시에는 mcpId를 넣지 않고, 수정 모드면 포함
         const meta = {
-            mcpId: 0,
+            ...(isEditMode ? { mcpId: Number(mcpIdParam) } : {}),
+
             name: refs.mcpNameRef.current?.value || "",
             description: refs.descriptionRef.current?.value || "",
-            categoryId: 0,
-            licenseId: 0,
+            categoryId, // ✅ 매핑된 숫자
+            licenseId, // ✅ 매핑된 숫자
             sourceUrl: refs.sourceCodeURLRef.current?.value || "",
-            imageUrl: "", // ✅ 실제 파일로 전달되므로 비워둠
+            imageUrl: "",
             platformName: refs.connectionPlatformRef.current?.value || "",
             requestUrl: refs.serverURLRef.current?.value || "",
             developerName: refs.developerNameRef.current?.value || "",
@@ -70,12 +85,13 @@ export default function MCPUploadPage() {
     const handleSave = async () => {
         try {
             setError(null);
-            setMessage("Saving MCP metadata...");
+            setMessage(isEditMode ? "Updating MCP metadata..." : "Saving MCP metadata...");
 
             const meta = buildMetaData();
             const fileToSend = file || new File([], "empty.txt"); // ✅ multipart 유지용 빈 파일
 
             console.log("📦 [SAVE] 전송 준비 완료:", {
+                mode: isEditMode ? "EDIT" : "NEW",
                 file: fileToSend.name,
                 meta,
             });
@@ -87,9 +103,13 @@ export default function MCPUploadPage() {
 
             console.log("📩 [SAVE] 응답 수신:", res);
 
-            if (res.code !== "SUCCESS") throw new Error(res.message || "메타데이터 저장 실패");
+            // ✅ 여러 성공 코드("SUCCESS", "COMMON200", "200") 허용
+            if (!["SUCCESS", "COMMON200", "200"].includes(res.code)) {
+                throw new Error(res.message || "메타데이터 저장 실패");
+            }
 
-            setMessage("✅ MCP metadata saved successfully.");
+
+            setMessage(isEditMode ? "✅ MCP metadata updated successfully." : "✅ MCP metadata saved successfully.");
         } catch (err) {
             console.error("❌ MCP 메타데이터 저장 중 오류:", err);
             setError("❌ Failed to save MCP metadata.");
@@ -101,12 +121,13 @@ export default function MCPUploadPage() {
     const handleDeploy = async () => {
         try {
             setError(null);
-            setMessage("Deploying MCP...");
+            setMessage(isEditMode ? "Updating and deploying MCP..." : "Deploying MCP...");
 
             const meta = buildMetaData();
             const fileToSend = file || new File([], "empty.txt");
 
             console.log("🚀 [DEPLOY] 전송 준비 완료:", {
+                mode: isEditMode ? "EDIT" : "NEW",
                 file: fileToSend.name,
                 meta,
             });
@@ -120,7 +141,7 @@ export default function MCPUploadPage() {
 
             if (res.code !== "SUCCESS") throw new Error(res.message || "배포 실패");
 
-            setMessage("🚀 MCP deployed successfully.");
+            setMessage(isEditMode ? "🚀 MCP updated & deployed successfully." : "🚀 MCP deployed successfully.");
         } catch (err) {
             console.error("❌ MCP 배포 중 오류:", err);
             setError("❌ Failed to deploy MCP.");
@@ -134,9 +155,14 @@ export default function MCPUploadPage() {
     return (
         <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
             <div className="w-full max-w-3xl p-6 bg-surface-1 text-white rounded shadow-lg">
-                <h1 className="text-2xl font-bold mb-2">Upload MCP</h1>
+                {/* ✅ 신규 / 수정 모드에 따라 제목만 변경 */}
+                <h1 className="text-2xl font-bold mb-2">
+                    {isEditMode ? "Edit MCP" : "Upload MCP"}
+                </h1>
                 <p className="pb-10 text-muted">
-                    Provide the necessary information to share your MCP with the community.
+                    {isEditMode
+                        ? "Update your existing MCP information below."
+                        : "Provide the necessary information to share your MCP with the community."}
                 </p>
 
                 <form className="space-y-4">
@@ -196,7 +222,7 @@ export default function MCPUploadPage() {
                                     : "hover:underline hover:decoration-accent underline-offset-8"
                             }`}
                         >
-                            Storage
+                            {isEditMode ? "Update" : "Storage"}
                         </button>
                         <button
                             type="button"
@@ -206,7 +232,7 @@ export default function MCPUploadPage() {
                                 isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-accent-hover"
                             }`}
                         >
-                            Deploy
+                            {isEditMode ? "Update & Deploy" : "Deploy"}
                         </button>
                     </div>
                 </form>

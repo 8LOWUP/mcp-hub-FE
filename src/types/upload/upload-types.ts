@@ -107,11 +107,6 @@ export interface McpMeta {
 export interface McpMetaRequestFormData {
     /** 업로드할 MCP 관련 파일 (binary) */
     file: File;
-
-    /**
-     * MCP 메타데이터 (FormData 전송 시 JSON.stringify(meta) 형태로 직렬화됨)
-     * 실제로는 multipart/form-data의 JSON 파트로 전송됨
-     */
     meta: McpMeta;
 }
 

@@ -52,15 +52,25 @@ const getAccessToken = (): string | null => {
 // 요청 인터셉터: 매 요청마다 실시간으로 토큰을 확인하고 추가
 axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        // 인증이 필요하지 않은 API 경로들
-        const isPublicPath = PUBLIC_PATHS.some(path => config.url?.includes(path));
-        
-        // 공개 API가 아닌 경우에만 Authorization 헤더 추가
+        // ✅ PUBLIC_PATHS와 정확히 일치하는 경우만 공개 API로 간주
+        let isPublicPath = PUBLIC_PATHS.some(path => config.url === path);
+
+        // ✅ /mcps/dashboard/meta는 강제로 인증 필요하도록 예외 처리
+        if (config.url?.includes("/mcps/dashboard/meta")) {
+            isPublicPath = false;
+        }
+
+        // ✅ 요청 본문이 FormData인 경우 Content-Type 자동 변경
+        if (config.data instanceof FormData) {
+            delete config.headers["Content-Type"];
+            // 👉 axios가 boundary 포함된 multipart 헤더를 자동으로 세팅하게 둡니다.
+            console.log("📎 FormData 감지됨 → multipart/form-data로 전송");
+        }
+
+
+        // 인증이 필요한 API면 Authorization 헤더 추가
         if (!isPublicPath) {
-            // 토큰 가져오기 (Zustand 스토어 우선, localStorage fallback)
             const accessToken = getAccessToken();
-            
-            // 토큰이 존재할 때만 Authorization 헤더 추가
             if (accessToken) {
                 config.headers.Authorization = `Bearer ${accessToken}`;
                 console.log("✅ Authorization 헤더 추가됨:", config.headers.Authorization);
@@ -70,7 +80,7 @@ axiosInstance.interceptors.request.use(
         } else {
             console.log("✅ 공개 API, Authorization 헤더 제외:", config.url);
         }
-        
+
         return config;
     },
     (error) => {
@@ -78,6 +88,7 @@ axiosInstance.interceptors.request.use(
         return Promise.reject(error);
     }
 );
+
 
 // 응답 인터셉터: 401, 400 에러 처리 등
 axiosInstance.interceptors.response.use(
@@ -87,24 +98,24 @@ axiosInstance.interceptors.response.use(
     (error) => {
         console.error("❌ API 응답 오류:", error);
         
-        // 401 Unauthorized 에러 처리
-        if (error.response?.status === 401) {
-            console.warn("🔒 인증 토큰이 만료되었습니다. 로그인이 필요합니다.");
-            
-            // Zustand 스토어에서 로그아웃 처리
-            const { logout } = useLoginStore.getState();
-            logout();
-            
-            // localStorage에서도 토큰 제거 (fallback)
-            removeLocalStorageItem(LOCAL_STORAGE_KEY.accessToken);
-            removeLocalStorageItem(LOCAL_STORAGE_KEY.refreshToken);
-            removeLocalStorageItem(LOCAL_STORAGE_KEY.user);
-            
-            // 로그인 페이지로 리다이렉트 (Next.js router 사용)
-            if (typeof window !== 'undefined') {
-                window.location.href = '/login';
-            }
-        }
+        // // 401 Unauthorized 에러 처리
+        // if (error.response?.status === 401) {
+        //     console.warn("🔒 인증 토큰이 만료되었습니다. 로그인이 필요합니다.");
+        //
+        //     // Zustand 스토어에서 로그아웃 처리
+        //     const { logout } = useLoginStore.getState();
+        //     logout();
+        //
+        //     // localStorage에서도 토큰 제거 (fallback)
+        //     removeLocalStorageItem(LOCAL_STORAGE_KEY.accessToken);
+        //     removeLocalStorageItem(LOCAL_STORAGE_KEY.refreshToken);
+        //     removeLocalStorageItem(LOCAL_STORAGE_KEY.user);
+        //
+        //     // 로그인 페이지로 리다이렉트 (Next.js router 사용)
+        //     if (typeof window !== 'undefined') {
+        //         window.location.href = '/login';
+        //     }
+        // }
         
         // 403 Forbidden 에러 처리
         if (error.response?.status === 403) {
