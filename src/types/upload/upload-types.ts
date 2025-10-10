@@ -32,7 +32,6 @@ export interface FileUploadRequest {
  * Presigned URL 응답 구조 (Swagger 예시 기반)
  */
 export interface FileUploadResult {
-    /** S3 업로드용 PreSigned URL */
     url: string;
 }
 

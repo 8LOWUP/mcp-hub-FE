@@ -16,6 +16,11 @@ import UploadIcon from "@/features/upload/components/UploadIcon";
 
 import { useSaveMcpMeta, usePublishMcp } from "@/hooks/upload/useMcpUpload";
 
+interface McpTool {
+    name: string;
+    content: string;
+}
+
 export default function MCPUploadPage() {
     /* ----------------------------- Ref 정의 ----------------------------- */
     const refs = {
@@ -30,6 +35,7 @@ export default function MCPUploadPage() {
     };
 
     /* ----------------------------- 상태 ----------------------------- */
+    const [tools, setTools] = useState<McpTool[]>([]);
     const [file, setFile] = useState<File | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
@@ -74,7 +80,7 @@ export default function MCPUploadPage() {
             requestUrl: refs.serverURLRef.current?.value || "",
             developerName: refs.developerNameRef.current?.value || "",
             isKeyRequired: false,
-            tools: [],
+            tools,
         };
 
         console.log("🧩 생성된 MCP 메타데이터:", meta);
@@ -139,15 +145,37 @@ export default function MCPUploadPage() {
 
             console.log("📩 [DEPLOY] 응답 수신:", res);
 
-            if (res.code !== "SUCCESS") throw new Error(res.message || "배포 실패");
+            // ✅ 여러 성공 코드 대응
+            const successCodes = ["SUCCESS", "200", "COMMON200"];
+            const isSuccess = successCodes.includes(String(res.code).toUpperCase());
 
-            setMessage(isEditMode ? "🚀 MCP updated & deployed successfully." : "🚀 MCP deployed successfully.");
+            if (!isSuccess) {
+                // 서버가 "요청에 성공하였습니다" 같은 메시지만 주는 경우도 대비
+                const message = res.message || "";
+                if (!/성공/i.test(message)) {
+                    throw new Error(res.message || "배포 실패");
+                }
+            }
+
+            setMessage(
+                isEditMode
+                    ? "🚀 MCP updated & deployed successfully."
+                    : "🚀 MCP deployed successfully."
+            );
+
+            // ✅ 에러 초기화 (성공 시)
+            setError(null);
         } catch (err) {
-            console.error("❌ MCP 배포 중 오류:", err);
+            // ✅ 개발 모드일 때만 콘솔 표시
+            if (process.env.NODE_ENV === "development") {
+                console.error("❌ MCP 배포 중 오류:", err);
+            }
+
             setError("❌ Failed to deploy MCP.");
             setMessage(null);
         }
     };
+
 
     /* ----------------------------- UI ----------------------------- */
     const isLoading = saveMcpMetaMutation.isPending || publishMcpMutation.isPending;
@@ -179,7 +207,8 @@ export default function MCPUploadPage() {
                         ref={refs.serverURLRef}
                         onEnter={() => refs.connectionPlatformRef.current?.focus()}
                     />
-                    <ToolsDescriptionInput />
+                    <ToolsDescriptionInput onChange={setTools} />
+
                     <ConnectionPlatformInput
                         ref={refs.connectionPlatformRef}
                         onEnter={() => refs.developerNameRef.current?.focus()}

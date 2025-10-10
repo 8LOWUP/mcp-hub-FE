@@ -18,10 +18,15 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
         if (!file.type.startsWith("image/")) return alert("이미지 파일만 업로드 가능합니다.");
         if (file.size > 10 * 1024 * 1024) return alert("10MB 이하만 업로드 가능합니다.");
 
-        // 미리보기
-        const reader = new FileReader();
-        reader.onload = () => setPreview(reader.result as string);
-        reader.readAsDataURL(file);
+        // ✅ 미리보기 URL 생성 (이거 빠져서 안 보였던 거!)
+        const previewUrl = URL.createObjectURL(file);
+        setPreview(previewUrl);
+
+        console.log("이미지 생성됨:", {
+            name: file.name,
+            type: file.type,
+            size: `${Math.round(file.size / 1024)}KB`,
+        });
 
         // 상위 훅에 전달
         if (onFileSelect) onFileSelect(file);
