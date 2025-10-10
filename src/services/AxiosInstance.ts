@@ -173,7 +173,7 @@ axiosInstance.interceptors.request.use(
                 console.warn("⚠️ accessToken 없음, Authorization 헤더 미포함");
             }
         } else if (process.env.NODE_ENV !== "production") {
-            console.log("✅ 공개 API, Authorization 헤더 제외:", url);
+            console.log("✅ 공개 API, Authorization 헤더 제외:", config.url);
         }
 
         return config;
