@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
-import { useSearchParams, usePathname } from "next/navigation";
-
+import { useRef, useState } from "react";
+import { useSearchParams } from "next/navigation"; // ✅ 추가
+import { CATEGORY_MAP, LICENSE_MAP } from "@/constants/upload/constants";
 import MCPNameInput from "@/features/upload/components/McpNameInput";
 import DescriptionInput from "@/features/upload/components/DescriptionInput";
 import TagsInput from "@/features/upload/components/TagsInput";
@@ -14,71 +14,254 @@ import SourceCodeURLInput from "@/features/upload/components/SourceCodeURLInput"
 import LicenseInput from "@/features/upload/components/LicenseInput";
 import UploadIcon from "@/features/upload/components/UploadIcon";
 
-import { useUploadForm } from "@/features/upload/hooks/uploadForm";
+import { useSaveMcpMeta, usePublishMcp } from "@/hooks/upload/useMcpUpload";
+
+interface McpTool {
+    name: string;
+    content: string;
+}
 
 export default function MCPUploadPage() {
-    // URL에서 현재 모드 텍스트만 머리표시용으로 사용 (로직은 훅에서 처리)
-    const params = useSearchParams();
-    const pathname = usePathname();
-    const mode = (params.get("mode") ?? "") as "edit" | "";
-    const locale = pathname.split("/")[1] || "en"; // 필요시 쓰세요(지금은 표기만)
+    /* ----------------------------- Ref 정의 ----------------------------- */
+    const refs = {
+        mcpNameRef: useRef<HTMLInputElement>(null),
+        descriptionRef: useRef<HTMLTextAreaElement>(null),
+        categoryRef: useRef<HTMLInputElement>(null),
+        serverURLRef: useRef<HTMLInputElement>(null),
+        connectionPlatformRef: useRef<HTMLInputElement>(null),
+        developerNameRef: useRef<HTMLInputElement>(null),
+        sourceCodeURLRef: useRef<HTMLInputElement>(null),
+        licenseRef: useRef<HTMLInputElement>(null),
+    };
 
-    // 훅: 현재 프로젝트 구현에 맞춰 인자 없이 사용
-    const {
-        refs,
-        error,
-        message,
-        handleDeploy,
-        handleSave,
-        onFileSelect, // ← 아이콘 파일 전달 콜백 (hooks/uploadForm.ts에서 제공)
-    } = useUploadForm();
+    /* ----------------------------- 상태 ----------------------------- */
+    const [tools, setTools] = useState<McpTool[]>([]);
+    const [file, setFile] = useState<File | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [message, setMessage] = useState<string | null>(null);
+
+    /* ----------------------------- 모드 분기 ----------------------------- */
+    const searchParams = useSearchParams();
+    const mcpIdParam = searchParams.get("mcpId"); // URL ?mcpId=123
+    const isEditMode = Boolean(mcpIdParam);
+
+    /* ----------------------------- Hooks ----------------------------- */
+    const saveMcpMetaMutation = useSaveMcpMeta();
+    const publishMcpMutation = usePublishMcp();
+
+    /* ----------------------------- 파일 선택 ----------------------------- */
+    const handleFileSelect = (selectedFile: File | null) => {
+        if (!selectedFile) return;
+
+        setFile(selectedFile);
+        console.log("📁 파일 선택됨:", selectedFile.name, selectedFile.type, selectedFile.size);
+    };
+
+    /* ----------------------------- 공통 메타데이터 생성 ----------------------------- */
+    const buildMetaData = () => {
+        const categoryText = refs.categoryRef.current?.value?.trim().toLowerCase() || "";
+        const licenseText = refs.licenseRef.current?.value?.trim() || "";
+
+        // ✅ 문자열을 number로 매핑
+        const categoryId = CATEGORY_MAP[categoryText] ?? 0;
+        const licenseId = LICENSE_MAP[licenseText] ?? 0;
+
+        // ✅ 신규 업로드 시에는 mcpId를 넣지 않고, 수정 모드면 포함
+        const meta = {
+            ...(isEditMode ? { mcpId: Number(mcpIdParam) } : {}),
+
+            name: refs.mcpNameRef.current?.value || "",
+            description: refs.descriptionRef.current?.value || "",
+            categoryId, // ✅ 매핑된 숫자
+            licenseId, // ✅ 매핑된 숫자
+            sourceUrl: refs.sourceCodeURLRef.current?.value || "",
+            imageUrl: "",
+            platformName: refs.connectionPlatformRef.current?.value || "",
+            requestUrl: refs.serverURLRef.current?.value || "",
+            developerName: refs.developerNameRef.current?.value || "",
+            isKeyRequired: false,
+            tools,
+        };
+
+        console.log("🧩 생성된 MCP 메타데이터:", meta);
+        return meta;
+    };
+
+    /* ----------------------------- MCP 메타데이터 저장 ----------------------------- */
+    const handleSave = async () => {
+        try {
+            setError(null);
+            setMessage(isEditMode ? "Updating MCP metadata..." : "Saving MCP metadata...");
+
+            const meta = buildMetaData();
+            const fileToSend = file || new File([], "empty.txt"); // ✅ multipart 유지용 빈 파일
+
+            console.log("📦 [SAVE] 전송 준비 완료:", {
+                mode: isEditMode ? "EDIT" : "NEW",
+                file: fileToSend.name,
+                meta,
+            });
+
+            const res = await saveMcpMetaMutation.mutateAsync({
+                file: fileToSend,
+                meta,
+            });
+
+            console.log("📩 [SAVE] 응답 수신:", res);
+
+            // ✅ 여러 성공 코드("SUCCESS", "COMMON200", "200") 허용
+            if (!["SUCCESS", "COMMON200", "200"].includes(res.code)) {
+                throw new Error(res.message || "메타데이터 저장 실패");
+            }
+
+
+            setMessage(isEditMode ? "✅ MCP metadata updated successfully." : "✅ MCP metadata saved successfully.");
+        } catch (err) {
+            console.error("❌ MCP 메타데이터 저장 중 오류:", err);
+            setError("❌ Failed to save MCP metadata.");
+            setMessage(null);
+        }
+    };
+
+    /* ----------------------------- MCP 배포 ----------------------------- */
+    const handleDeploy = async () => {
+        try {
+            setError(null);
+            setMessage(isEditMode ? "Updating and deploying MCP..." : "Deploying MCP...");
+
+            const meta = buildMetaData();
+            const fileToSend = file || new File([], "empty.txt");
+
+            console.log("🚀 [DEPLOY] 전송 준비 완료:", {
+                mode: isEditMode ? "EDIT" : "NEW",
+                file: fileToSend.name,
+                meta,
+            });
+
+            const res = await publishMcpMutation.mutateAsync({
+                file: fileToSend,
+                meta,
+            });
+
+            console.log("📩 [DEPLOY] 응답 수신:", res);
+
+            // ✅ 여러 성공 코드 대응
+            const successCodes = ["SUCCESS", "200", "COMMON200"];
+            const isSuccess = successCodes.includes(String(res.code).toUpperCase());
+
+            if (!isSuccess) {
+                // 서버가 "요청에 성공하였습니다" 같은 메시지만 주는 경우도 대비
+                const message = res.message || "";
+                if (!/성공/i.test(message)) {
+                    throw new Error(res.message || "배포 실패");
+                }
+            }
+
+            setMessage(
+                isEditMode
+                    ? "🚀 MCP updated & deployed successfully."
+                    : "🚀 MCP deployed successfully."
+            );
+
+            // ✅ 에러 초기화 (성공 시)
+            setError(null);
+        } catch (err) {
+            // ✅ 개발 모드일 때만 콘솔 표시
+            if (process.env.NODE_ENV === "development") {
+                console.error("❌ MCP 배포 중 오류:", err);
+            }
+
+            setError("❌ Failed to deploy MCP.");
+            setMessage(null);
+        }
+    };
+
+
+    /* ----------------------------- UI ----------------------------- */
+    const isLoading = saveMcpMetaMutation.isPending || publishMcpMutation.isPending;
 
     return (
         <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
             <div className="w-full max-w-3xl p-6 bg-surface-1 text-white rounded shadow-lg">
+                {/* ✅ 신규 / 수정 모드에 따라 제목만 변경 */}
                 <h1 className="text-2xl font-bold mb-2">
-                    {mode === "edit" ? "Edit MCP (Draft)" : "Upload MCP"}
+                    {isEditMode ? "Edit MCP" : "Upload MCP"}
                 </h1>
                 <p className="pb-10 text-muted">
-                    Provide the necessary information to share your MCP with the community.
+                    {isEditMode
+                        ? "Update your existing MCP information below."
+                        : "Provide the necessary information to share your MCP with the community."}
                 </p>
 
-                {/* 제출은 JS로 처리 */}
-                <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                    <MCPNameInput ref={refs.mcpNameRef} onEnter={() => refs.descriptionRef.current?.focus()} />
-                    <DescriptionInput ref={refs.descriptionRef} onEnter={() => refs.serverURLRef.current?.focus()} />
-                    <TagsInput />
-                    <ServerURLInput ref={refs.serverURLRef} onEnter={() => refs.connectionPlatformRef.current?.focus()} />
-                    <ToolsDescriptionInput />
-                    <ConnectionPlatformInput ref={refs.connectionPlatformRef} onEnter={() => refs.developerNameRef.current?.focus()} />
-                    <DeveloperNameInput ref={refs.developerNameRef} onEnter={() => refs.sourceCodeURLRef.current?.focus()} />
-                    <SourceCodeURLInput ref={refs.sourceCodeURLRef} onEnter={() => refs.licenseRef.current?.focus()} />
+                <form className="space-y-4">
+                    <MCPNameInput
+                        ref={refs.mcpNameRef}
+                        onEnter={() => refs.descriptionRef.current?.focus()}
+                    />
+                    <DescriptionInput
+                        ref={refs.descriptionRef}
+                        onEnter={() => refs.serverURLRef.current?.focus()}
+                    />
+                    <TagsInput ref={refs.categoryRef} />
+                    <ServerURLInput
+                        ref={refs.serverURLRef}
+                        onEnter={() => refs.connectionPlatformRef.current?.focus()}
+                    />
+                    <ToolsDescriptionInput onChange={setTools} />
+
+                    <ConnectionPlatformInput
+                        ref={refs.connectionPlatformRef}
+                        onEnter={() => refs.developerNameRef.current?.focus()}
+                    />
+                    <DeveloperNameInput
+                        ref={refs.developerNameRef}
+                        onEnter={() => refs.sourceCodeURLRef.current?.focus()}
+                    />
+                    <SourceCodeURLInput
+                        ref={refs.sourceCodeURLRef}
+                        onEnter={() => refs.licenseRef.current?.focus()}
+                    />
                     <LicenseInput ref={refs.licenseRef} onEnter={() => {}} />
 
-                    {/* 아이콘 업로드 - 파일을 훅으로 전달 */}
-                    <UploadIcon onFileSelect={onFileSelect} />
+                    {/* ✅ 파일 업로드 */}
+                    <UploadIcon onFileSelect={handleFileSelect} />
+                    {file && (
+                        <p className="text-sm text-green-400 mt-1">
+                            ✅ 선택된 파일: {file.name} ({Math.round(file.size / 1024)} KB)
+                        </p>
+                    )}
 
-                    {/* 메시지 */}
+                    {/* ✅ 상태 메시지 */}
                     <div className="flex justify-end mb-2">
                         {error && <p className="text-red-500 font-semibold text-right">{error}</p>}
-                        {message && <p className="text-green-500 font-semibold text-right">{message}</p>}
+                        {message && (
+                            <p className="text-green-500 font-semibold text-right">{message}</p>
+                        )}
                     </div>
 
-                    {/* 버튼 */}
+                    {/* ✅ 버튼 */}
                     <div className="flex justify-end gap-2 mb-2">
                         <button
                             type="button"
-                            onClick={handleSave} // 인자 없이 호출
-                            className="px-4 py-2 rounded text-white w-full decoration-yellow-200 hover:decoration-accent hover:underline underline-offset-10 sm:w-auto"
+                            disabled={isLoading}
+                            onClick={handleSave}
+                            className={`px-4 py-2 rounded text-white w-full sm:w-auto ${
+                                isLoading
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : "hover:underline hover:decoration-accent underline-offset-8"
+                            }`}
                         >
-                            Storage
+                            {isEditMode ? "Update" : "Storage"}
                         </button>
                         <button
                             type="button"
+                            disabled={isLoading}
                             onClick={handleDeploy}
-                            className="px-4 py-2 bg-accent rounded text-black hover:bg-accent-hover w-full sm:w-auto"
+                            className={`px-4 py-2 bg-accent rounded text-black w-full sm:w-auto ${
+                                isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-accent-hover"
+                            }`}
                         >
-                            Deploy
+                            {isEditMode ? "Update & Deploy" : "Deploy"}
                         </button>
                     </div>
                 </form>
