@@ -97,3 +97,13 @@ export interface McpUploadRequest {
 export interface McpUpdateRequest extends Partial<McpUploadRequest> {
   id: string;
 }
+
+export interface ReissueTokenResponse {
+  accessToken: string;
+  refreshToken: string,
+  member: {
+      id: string,
+      email: string,
+      nickname: string
+  };
+}

@@ -53,7 +53,7 @@ export const workspacesApi = {
       console.log('✅ API 응답 성공:', response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ API 요청 실패:');
+      console.error('❌ 워크스페이스 생성 API 요청 실패:');
       console.error('  - 상태 코드:', error.response?.status);
       console.error('  - 에러 메시지:', error.response?.data);
       console.error('  - 요청 URL:', API_ENDPOINTS.WORKSPACES.CREATE);

@@ -1,6 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { LOCAL_STORAGE_KEY, PUBLIC_PATHS, API_BASE_URL } from "../constants/apis/key";
 import { useLoginStore } from "../store/login/login-store";
+import { apiService } from "./api";
 
 // Next.js 환경변수 사용 (환경변수가 있으면 우선 사용, 없으면 constants의 기본값 사용)
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || API_BASE_URL;
@@ -49,17 +50,26 @@ const getAccessToken = (): string | null => {
         return accessToken;
     }
     
-    // localStorage에서 토큰 가져오기 (fallback)
-    const rawAccessToken = getLocalStorageItem(LOCAL_STORAGE_KEY.accessToken);
-    const cleanToken = rawAccessToken?.replace(/^"(.*)"$/, '$1') || null;
+    // localStorage에서 토큰 가져오기 (fallback) - Zustand persist 방식
+    const loginStorage = getLocalStorageItem('login-storage');
+    let fallbackToken = null;
+    
+    if (loginStorage) {
+        try {
+            const parsed = JSON.parse(loginStorage);
+            fallbackToken = parsed?.state?.accessToken || null;
+        } catch (error) {
+            console.error('localStorage 파싱 오류:', error);
+        }
+    }
     
     console.log('🔐 localStorage 토큰 확인:', { 
-        hasLocalStorageToken: !!rawAccessToken, 
-        rawToken: rawAccessToken ? `${rawAccessToken.substring(0, 20)}...` : null,
-        cleanToken: cleanToken ? `${cleanToken.substring(0, 20)}...` : null
+        hasLoginStorage: !!loginStorage,
+        hasFallbackToken: !!fallbackToken,
+        fallbackToken: fallbackToken ? `${fallbackToken.substring(0, 20)}...` : null
     });
     
-    return cleanToken;
+    return fallbackToken;
 };
 
 // JWT 토큰 만료 시간 확인 함수
@@ -202,6 +212,8 @@ axiosInstance.interceptors.response.use(
             try {
                 // 리프레시 토큰으로 새 액세스 토큰 요청
                 const { refreshToken, setTokens } = useLoginStore.getState();
+
+                console.warn("🔄 리프레시 토큰으로 새 액세스 토큰을 요청한 결과:", refreshToken);
                 
                 if (!refreshToken) {
                     throw new Error('리프레시 토큰이 없습니다.');
@@ -210,13 +222,10 @@ axiosInstance.interceptors.response.use(
                 console.log("🔄 리프레시 토큰으로 새 액세스 토큰을 요청합니다...");
                 
                 // 인터셉터 비적용 axios로 재발급 요청 (순환 방지)
-                const plain = axios.create({ baseURL: BASE_URL, headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } });
-                const response = await plain.post('/members/auth/token/reissue', {
-                    params: { refreshToken },
-                });
-                
-                if (response.data.success && response.data.result?.accessToken) {
-                    const newAccessToken = response.data.result.accessToken;
+                const response = await apiService.auth.reissueToken(refreshToken);
+
+                if (response.code === 'COMMON200' && response.result?.accessToken) {
+                    const newAccessToken = response.result.accessToken;
                     
                     // 새 토큰 저장
                     setTokens(newAccessToken, refreshToken);
@@ -241,12 +250,11 @@ axiosInstance.interceptors.response.use(
                 // 리프레시 요청의 응답 상태에 따라 처리 분기
                 const status = (refreshError as any)?.response?.status;
                 if (status === 401 || status === 403) {
+                    
                     // 리프레시 토큰도 유효하지 않음 → 확정 로그아웃 및 스토리지 정리
                     const { logout } = useLoginStore.getState();
                     logout();
-                    removeLocalStorageItem(LOCAL_STORAGE_KEY.accessToken);
-                    removeLocalStorageItem(LOCAL_STORAGE_KEY.refreshToken);
-                    removeLocalStorageItem(LOCAL_STORAGE_KEY.user);
+                    // Zustand persist가 자동으로 localStorage 정리하므로 수동 삭제 불필요
                 } else {
                     // 일시적 오류(400, 404, 5xx, 네트워크 등) → 스토리지 보존
                     console.warn("⚠️ 재발급 실패이지만 토큰은 보존합니다. status:", status);
@@ -260,17 +268,17 @@ axiosInstance.interceptors.response.use(
         
         // 403 Forbidden 에러 처리
         if (error.response?.status === 403) {
-            console.warn("🚫 접근 권한이 없습니다.");
+            console.warn("403 에러가 발생했습니다");
         }
         
         // 404 Not Found 에러 처리
         if (error.response?.status === 404) {
-            console.warn("🔍 요청한 리소스를 찾을 수 없습니다.");
+            console.warn("404 에러가 발생했습니다.");
         }
         
         // 500 Internal Server Error 처리
         if (error.response?.status >= 500) {
-            console.error("🔥 서버 내부 오류가 발생했습니다.");
+            console.error("500번 이상 오류가 발생했습니다. 서버 내부 오류가 발생했습니다.");
         }
         
         return Promise.reject(error);
@@ -279,10 +287,10 @@ axiosInstance.interceptors.response.use(
 
 // API 응답 타입 정의
 export interface ApiResponse<T = any> {
-    success: boolean;
-    data?: T;
-    message?: string;
-    error?: string;
+    result?: T;
+    message: string;
+    code: string;
+    timestamp: string;
 }
 
 // HTTP 메서드별 래퍼 함수들
