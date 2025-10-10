@@ -1,31 +1,26 @@
-// src/features/profiles/deployed/DeployedPage.tsx
 "use client";
 
 import React from "react";
 import { PROFILES_STYLES, PROFILE_GRID_COLS } from "@/features/profiles/constants";
-import { McpItemType } from "@/features/profiles/types"; // 카드 타입
-import { DUMMY_DEPLOYED_LIST, DUMMY_DRAFT_LIST } from "./constants";
+import { McpItemType } from "@/features/profiles/types";
+import { DUMMY_DRAFT_LIST } from "./constants";
 import { DeployedCard, DraftCard } from "./components/cards";
 import DeleteMcpFlowModal from "@/features/profiles/components/modals/DeleteMcpFlowModal";
 
 // ✅ 실데이터 훅 ( /mcps/dashboard 연동 )
 import { useMyUploadedMcps } from "./hooks/useMyUploadedMcps";
+// ✅ 삭제 API 추가
+import { deleteMyUploadedMcp } from "./apis/mcp";
 
 const DeployedPage: React.FC = () => {
-    // 임시저장(Drafts)은 기존 더미 유지
     const [drafts] = React.useState<McpItemType[]>(DUMMY_DRAFT_LIST);
 
-    // ✅ 업로드 MCP: 서버 연동
     const {
-        items,               // McpItemType[] (서버 응답 매핑됨)
+        items,
         isLoading,
         error,
-        pagination,          // { page, size, totalPages, totalElements, isFirst, isLast }
+        pagination,
         setPage,
-        setSize,
-        setSort,
-        setCategory,
-        setSearch,
         refetch,
     } = useMyUploadedMcps({
         page: 0,
@@ -43,21 +38,25 @@ const DeployedPage: React.FC = () => {
     const confirmDelete = async () => {
         if (!targetId) return;
         try {
-            // TODO: 서버 삭제 API 호출 (ex: DELETE /mcps/{id})
-            // await deleteMcp(targetId);
+            // ✅ 서버 삭제 호출
+            const res = await deleteMyUploadedMcp(targetId);
+            console.log("[deleteMyUploadedMcp] ✓", res.message);
 
-            // 서버 삭제 후 최신 목록 다시 가져오기
-            await refetch();
+            // ✅ 마지막 페이지에서 마지막 항목을 삭제한 경우 한 페이지 앞으로 이동
+            if (pagination.isLast && items.length === 1 && (pagination.page ?? 0) > 0) {
+                setPage((pagination.page ?? 1) - 1);
+            } else {
+                await refetch();
+            }
+        } catch (e) {
+            console.error("[deleteMyUploadedMcp] ✗", e);
         } finally {
-            // 통합 모달 내부에서 confirm → done 화면으로 바뀐다면 닫지 않아도 되고,
-            // 현재 구조에선 닫아주는 게 UX 상 자연스러우면 아래 주석 해제
-            // closeDelete();
+            // ✅ UX에 따라 닫기 (현재 구조에서는 닫는 게 자연스러움)
+            closeDelete();
         }
     };
 
-    // Draft 편집 (임시)
     const handleEditDraft = (id: string) => {
-        // TODO: 편집 모달/페이지 이동 로직
         console.log("edit draft:", id);
     };
 
@@ -90,7 +89,6 @@ const DeployedPage: React.FC = () => {
                             ))}
                         </div>
 
-                        {/* 페이지네이션 */}
                         {pagination.totalPages > 1 && (
                             <div className="mt-6 flex items-center justify-center gap-2">
                                 <button
@@ -101,8 +99,8 @@ const DeployedPage: React.FC = () => {
                                     Prev
                                 </button>
                                 <span className="text-sm opacity-70">
-                  {Number(pagination.page ?? 0) + 1} / {pagination.totalPages}
-                </span>
+                                    {Number(pagination.page ?? 0) + 1} / {pagination.totalPages}
+                                </span>
                                 <button
                                     className="px-3 py-2 rounded-md border text-sm"
                                     disabled={pagination.isLast}
@@ -123,7 +121,7 @@ const DeployedPage: React.FC = () => {
                 )}
             </div>
 
-            {/* 임시저장 MCP 섹션 (더미 유지) */}
+            {/* 임시저장 MCP 섹션 */}
             <div className="mt-10">
                 <div className="mb-3">
                     <h2 className="text-title2">임시저장 MCP</h2>
@@ -143,8 +141,12 @@ const DeployedPage: React.FC = () => {
                 )}
             </div>
 
-            {/* 단일 플로우 삭제 모달 (confirm → done) */}
-            <DeleteMcpFlowModal isOpen={!!targetId} onClose={closeDelete} onConfirm={confirmDelete} />
+            {/* 단일 플로우 삭제 모달 */}
+            <DeleteMcpFlowModal
+                isOpen={!!targetId}
+                onClose={closeDelete}
+                onConfirm={confirmDelete}
+            />
         </section>
     );
 };

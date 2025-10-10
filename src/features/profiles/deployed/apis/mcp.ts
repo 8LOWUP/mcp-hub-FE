@@ -1,4 +1,3 @@
-// src/features/profiles/deployed/apis/mcp.ts
 import { axiosInstance } from "@/services/AxiosInstance";
 import {
     McpItemType,
@@ -6,7 +5,9 @@ import {
     PageResponseType,
 } from "@/features/profiles/types/mcps";
 
-/** 서버 응답(raw) 타입 – 필요한 필드만 선언 */
+/* ------------------------------
+ * 서버 응답(raw) 타입
+ * ------------------------------ */
 type ServerDashboardItem = {
     id: number;
     name: string;
@@ -35,7 +36,6 @@ type ServerDashboardPage = {
 
 type DashboardQuery = PageRequestType & {
     category?: string;
-    // sort 예: "publishedDate,desc" (기본값은 아래에서 넣어줌)
 };
 
 /** 서버가 { result: ... }로 감싸도 안전하게 처리 */
@@ -56,10 +56,10 @@ const normalize = <T>(raw: unknown): T => {
     return raw as T;
 };
 
-/** 서버 아이템 → 카드 컴포넌트 아이템으로 변환 */
+/** 서버 아이템 → UI 카드 타입으로 변환 */
 const convertDashboardItemToMcpItem = (it: ServerDashboardItem): McpItemType => ({
-    id: String(it.id),           // number → string
-    title: it.name,              // UI는 title 사용 → name 매핑
+    id: String(it.id),
+    title: it.name,
     name: it.name,
     version: it.version,
     description: it.description,
@@ -67,11 +67,13 @@ const convertDashboardItemToMcpItem = (it: ServerDashboardItem): McpItemType => 
     categoryName: it.categoryName,
     platformName: it.platformName,
     licenseName: it.licenseName,
-    createdAt: it.publishedDate, // createdAt ← publishedDate
-    apiKey: undefined,           // 대시보드 응답엔 없음(모달에서 따로 주입)
+    createdAt: it.publishedDate,
+    apiKey: undefined,
 });
 
-/** GET /mcps/dashboard : 내 업로드 MCP 리스트 조회 */
+/* ------------------------------
+ * GET /mcps/dashboard : 내 업로드 MCP 리스트 조회
+ * ------------------------------ */
 export const fetchMyUploadedMcps = async (
     query: DashboardQuery
 ): Promise<PageResponseType<McpItemType>> => {
@@ -90,4 +92,21 @@ export const fetchMyUploadedMcps = async (
         ...page,
         content: (page.content ?? []).map(convertDashboardItemToMcpItem),
     };
+};
+
+/* ------------------------------
+ * DELETE /mcps/dashboard/{mcpId} : 업로드한 MCP 삭제 (soft delete)
+ * ------------------------------ */
+type ApiEnvelope<T> = {
+    timestamp: string;
+    code: string;
+    message: string;
+    result: T;
+};
+
+export const deleteMyUploadedMcp = async (mcpId: string | number) => {
+    const { data } = await axiosInstance.delete<ApiEnvelope<number>>(
+        `/mcps/dashboard/${mcpId}`
+    );
+    return data; // { message, code, result } 구조
 };
