@@ -1,6 +1,8 @@
+// src/features/profiles/components/page/ProfilePage.tsx
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
 import ProfileHeader from "../header/ProfileHeader";
 import { ProfileCard } from "../card";
 import DeleteMcpFlowModal from "../modals/DeleteMcpFlowModal";
@@ -10,23 +12,18 @@ import { useMyProfile } from "@/hooks/profiles/useMyProfile";
 import { useMyMcps } from "@/features/profiles/hooks/useMyMcps";
 
 const ProfilePage: React.FC = () => {
-    /* ================================
-     * 1) 프로필 & MCP 리스트 로드
-     * ================================ */
     const { profile, isLoading: isProfileLoading, error: profileError } = useMyProfile();
     const {
         list,
         isLoading: isMcpsLoading,
         error: mcpsError,
         fetchList,
+        deleteOne,
         setPage,
         page,
         totalPages,
     } = useMyMcps({ page: 0, size: 12, sort: "createdAt,desc" });
 
-    /* ================================
-     * 2) MCP 삭제 / API Key 관련 로직
-     * ================================ */
     const [targetId, setTargetId] = useState<string | null>(null);
     const [apiFlowId, setApiFlowId] = useState<string | null>(null);
 
@@ -37,35 +34,33 @@ const ProfilePage: React.FC = () => {
 
     const handleOpenDelete = (id: string) => setTargetId(id);
     const handleCloseDelete = () => setTargetId(null);
+
     const handleConfirmDelete = async () => {
         if (!targetId) return;
-        // TODO: 서버 삭제 API 연동 (DELETE /mcps/{id})
+        toast.loading("MCP 삭제 중입니다...", { id: "delete" }); // ✅ 로딩 알림
+        const ok = await deleteOne(targetId);
+        if (ok) {
+            toast.success("MCP가 성공적으로 삭제되었습니다.", { id: "delete" });
+        } else {
+            toast.error("MCP 삭제에 실패했습니다.", { id: "delete" });
+        }
         setTargetId(null);
-        await fetchList();
     };
 
     const handleOpenApiKey = (id: string) => setApiFlowId(id);
     const handleCloseApiKey = () => setApiFlowId(null);
     const handleEditApiKey = async (nextKey: string) => {
-        // TODO: PATCH /mcps/{id}/api-key
         console.log("edit api key:", nextKey);
     };
     const handleDeleteApiKey = async () => {
-        // TODO: DELETE /mcps/{id}/api-key
         console.log("delete api key");
     };
 
-    /* ================================
-     * 3) 파생값 및 상태
-     * ================================ */
     const nickname = profile?.nickname ?? "사용자";
     const email = profile?.email ?? "";
     const isLoading = isProfileLoading || isMcpsLoading;
     const error = profileError || mcpsError;
 
-    /* ================================
-     * 4) 렌더링
-     * ================================ */
     if (isLoading) {
         return (
             <section className={PROFILES_STYLES.PAGE_PADDING}>
@@ -118,7 +113,6 @@ const ProfilePage: React.FC = () => {
                         ))}
                     </section>
 
-                    {/* 페이지네이션 예시 */}
                     {totalPages > 1 && (
                         <div className="mt-6 flex justify-center gap-2">
                             <button
@@ -150,14 +144,12 @@ const ProfilePage: React.FC = () => {
                 </>
             )}
 
-            {/* MCP 삭제 모달 */}
             <DeleteMcpFlowModal
                 isOpen={!!targetId}
                 onClose={handleCloseDelete}
                 onConfirm={handleConfirmDelete}
             />
 
-            {/* API Key 관리 모달 */}
             <ApiKeyFlowModal
                 isOpen={!!apiFlowId}
                 onClose={handleCloseApiKey}

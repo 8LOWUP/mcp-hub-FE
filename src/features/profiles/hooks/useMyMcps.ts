@@ -2,7 +2,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { fetchMyMcps } from "../apis/mcps";
+import { fetchMyMcps, deleteMyMcp } from "../apis/mcps";
 import { McpItemType, PageRequestType } from "../types/mcps";
 
 export const useMyMcps = (initialParams: PageRequestType = { page: 0, size: 12 }) => {
@@ -41,6 +41,23 @@ export const useMyMcps = (initialParams: PageRequestType = { page: 0, size: 12 }
         [page, size, search, sort]
     );
 
+    const deleteOne = useCallback(
+        async (mcpId: string | number) => {
+            try {
+                await deleteMyMcp(mcpId);
+                // 현재 페이지 유지하며 목록 갱신
+                await fetchList();
+                return true;
+            } catch (e: any) {
+                // eslint-disable-next-line no-console
+                console.error("[useMyMcps.deleteOne] error", e);
+                setError(e?.message ?? "삭제에 실패했습니다.");
+                return false;
+            }
+        },
+        [fetchList]
+    );
+
     useEffect(() => {
         fetchList();
     }, [fetchList]);
@@ -59,6 +76,7 @@ export const useMyMcps = (initialParams: PageRequestType = { page: 0, size: 12 }
         setSize,
         setSearch,
         setSort,
-        fetchList, // ✅ 이름 통일
+        fetchList,
+        deleteOne, // ✅ 삭제 노출
     };
 };
