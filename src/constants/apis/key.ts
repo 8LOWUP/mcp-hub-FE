@@ -19,8 +19,8 @@ export const API_ENDPOINTS = {
   },
   // LLM 관련
   LLM: {
-    LIST: '/llm',
-    TOKEN: '/llm/token',
+    LIST: '/workspaces/llm',
+    TOKEN: '/workspaces/llm/token/{llmId}',
   },
   // MCP 관련
   MCP: {
@@ -55,8 +55,13 @@ export const API_ENDPOINTS = {
   // 워크스페이스 관련
   WORKSPACES: {
     LIST: '/workspaces',
+    CREATE: '/workspaces',
     DETAIL: '/workspaces/{workspaceId}',
+    UPDATE_TITLE: '/workspaces/{workspaceId}',
+    UPDATE_MCPS: '/workspaces/{workspaceId}/mcps',
+    DELETE: '/workspaces/{workspaceId}',
     CHATS: '/workspaces/{workspaceId}/chats',
+    CHAT: '/workspaces/{workspaceId}/chats',
     MCPS: '/workspaces/{workspaceId}/mcps',
   },
 } as const;
@@ -67,15 +72,14 @@ export const PUBLIC_PATHS = [
   API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_KAKAO,
   API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_GOOGLE,
   API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_GITHUB,
-  // MCP 공개 정보
+  // MCP 공개 정보 (조회만 공개)
   API_ENDPOINTS.MCP.LIST,
   //API_ENDPOINTS.MCP.DASHBOARD,
   API_ENDPOINTS.MCP.DASHBOARD_CATEGORY,
   API_ENDPOINTS.MCP.DASHBOARD_LICENSE,
   API_ENDPOINTS.MCP.DASHBOARD_PLATFORM,
-  API_ENDPOINTS.MCP.DETAIL,
   API_ENDPOINTS.MCP.REVIEW,
-  // LLM 공개 정보
+  // LLM 공개 정보 (조회만 공개)
   API_ENDPOINTS.LLM.LIST,
   // 사용자 검색
   API_ENDPOINTS.MEMBERS.SEARCH,
