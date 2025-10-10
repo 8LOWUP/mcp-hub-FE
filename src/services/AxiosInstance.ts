@@ -1,4 +1,3 @@
-// src/services/AxiosInstance.ts
 import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { LOCAL_STORAGE_KEY, PUBLIC_PATHS, API_BASE_URL } from "@/constants/apis/key";
 import { useLoginStore } from "@/store/login/login-store";
@@ -9,11 +8,10 @@ import { useLoginStore } from "@/store/login/login-store";
 const RAW_BASE_URL = process.env.NEXT_PUBLIC_API_URL || API_BASE_URL;
 const BASE_URL =
     process.env.NODE_ENV !== "production"
-        ? "/__api" // dev는 동일출처 프록시 경유(CORS 이슈 회피)
+        ? "/__api" // dev는 동일출처 프록시 경유(CORS 회피)
         : (RAW_BASE_URL || "").replace(/\/+$/, "");
 
 if (process.env.NODE_ENV !== "production") {
-    // eslint-disable-next-line no-console
     console.log("[Axios] BASE_URL:", BASE_URL);
 }
 
@@ -22,14 +20,14 @@ if (process.env.NODE_ENV !== "production") {
  * ================================ */
 export const axiosInstance = axios.create({
     baseURL: BASE_URL,
+    withCredentials: true, // ✅ 세션 쿠키 인증 대응 (JWT도 무해)
     headers: {
         Accept: "application/json",
-        // "Content-Type": "application/json", // 객체면 axios가 자동 지정
     },
 });
 
 /* ================================
- * SSR-safe localStorage 유틸
+ * localStorage 유틸
  * ================================ */
 export const getLocalStorageItem = (key: string): string | null => {
     if (typeof window === "undefined") return null;
@@ -41,7 +39,6 @@ export const getLocalStorageItem = (key: string): string | null => {
     }
 };
 
-// 단일 키 or 전체 정리(매개변수 없으면 전체)
 export const removeLocalStorageItem = (key?: string): void => {
     if (typeof window === "undefined") return;
     try {
@@ -51,8 +48,7 @@ export const removeLocalStorageItem = (key?: string): void => {
             localStorage.removeItem(LOCAL_STORAGE_KEY.accessToken);
             localStorage.removeItem(LOCAL_STORAGE_KEY.refreshToken);
             localStorage.removeItem(LOCAL_STORAGE_KEY.user);
-            // ✅ zustand persist 저장 키도 제거(중요)
-            localStorage.removeItem("login-storage");
+            localStorage.removeItem("login-storage"); // Zustand persist 키
         }
     } catch (error) {
         console.error("localStorage 삭제 오류:", error);
@@ -60,7 +56,7 @@ export const removeLocalStorageItem = (key?: string): void => {
 };
 
 /* ================================
- * (중요) 토큰/유저 getter
+ * 토큰 / 유저 Getter
  * ================================ */
 export const getAccessToken = (): string | null => {
     const state = useLoginStore.getState();
@@ -84,11 +80,9 @@ export const getAccessToken = (): string | null => {
 };
 
 export const getStoredUser = (): any | null => {
-    // Zustand 우선
     const { user } = useLoginStore.getState();
     if (user) return user;
 
-    // localStorage fallback
     const raw = getLocalStorageItem(LOCAL_STORAGE_KEY.user);
     if (!raw) return null;
     try {
@@ -98,18 +92,14 @@ export const getStoredUser = (): any | null => {
     }
 };
 
-// ✅ refreshToken getter
 export const getRefreshToken = (): string | null => {
     const state = useLoginStore.getState() as any;
     const fromStore: string | null = state?.refreshToken ?? null;
-
     const raw = getLocalStorageItem(LOCAL_STORAGE_KEY.refreshToken);
     const fromLS = raw?.replace(/^"(.*)"$/, "$1") || null;
-
     return fromStore || fromLS;
 };
 
-// ✅ 인증 상태 완전 정리
 export const clearAuth = (): void => {
     const { hardLogout } = useLoginStore.getState() as any;
     if (typeof hardLogout === "function") {
@@ -122,13 +112,12 @@ export const clearAuth = (): void => {
         removeLocalStorageItem();
     }
     if (typeof window !== "undefined") {
-        // 다음 요청 1회 Authorization 주입 방지 플래그
         sessionStorage.setItem("BLOCK_AUTH_ONCE", "1");
     }
 };
 
 /* ================================
- * (옵션) JWT 만료 체크 - 디버깅용
+ * JWT 만료 체크 (디버깅용)
  * ================================ */
 const isTokenExpired = (token: string): boolean => {
     try {
@@ -146,7 +135,7 @@ const isTokenExpired = (token: string): boolean => {
         return expired;
     } catch (error) {
         console.error("토큰 디코딩 오류:", error);
-        return true; // 디코딩 실패 시 만료로 간주
+        return true;
     }
 };
 
@@ -155,7 +144,7 @@ const isTokenExpired = (token: string): boolean => {
  * ================================ */
 axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        // ✅ 탈퇴/강제 로그아웃 직후 첫 요청은 Authorization 강제 차단
+        // ✅ 강제 로그아웃 직후 첫 요청은 Authorization 차단
         if (typeof window !== "undefined" && sessionStorage.getItem("BLOCK_AUTH_ONCE") === "1") {
             delete (config.headers as any).Authorization;
             sessionStorage.removeItem("BLOCK_AUTH_ONCE");
@@ -165,11 +154,11 @@ axiosInstance.interceptors.request.use(
         const url = config.url || "";
         const method = (config.method || "get").toLowerCase();
 
-        // 공개 경로 판별(더 정교하게)
         const isPublicPath = PUBLIC_PATHS.some((path) => url.startsWith(path));
-        // mcps/workspaces의 비-GET은 항상 인증 필요
+
+        // ✅ (수정됨) /mcps/ 및 /workspaces/는 GET 포함 전부 인증 필요
         const needsAuthForDomain =
-            (url.includes("/mcps/") || url.includes("/workspaces/")) && method !== "get";
+            url.includes("/mcps/") || url.includes("/workspaces/");
 
         const requireAuth = !isPublicPath || needsAuthForDomain;
 
@@ -190,8 +179,6 @@ axiosInstance.interceptors.request.use(
                 if (process.env.NODE_ENV !== "production") {
                     console.log("✅ Authorization 헤더 추가됨:", (config.headers as any).Authorization);
                 }
-                // 필요 시 만료 사전 체크 로그
-                // isTokenExpired(accessToken) && console.warn("⚠️ 만료된 토큰처럼 보임(사전 체크). 서버에서 처리 예정.");
             } else {
                 console.warn("⚠️ accessToken 없음, Authorization 헤더 미포함");
             }
@@ -199,7 +186,6 @@ axiosInstance.interceptors.request.use(
             console.log("✅ 공개 API, Authorization 헤더 제외:", url);
         }
 
-        // MCP 요청 상세 로깅
         if (url.includes("/mcps") && process.env.NODE_ENV !== "production") {
             console.log("🔧 MCP 요청 상세:", {
                 url,
@@ -243,15 +229,14 @@ axiosInstance.interceptors.response.use(
         if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
             console.warn("🔒 401: 토큰 만료로 판단, 재발급 시도");
 
-            // MCP 요청은 자동 재시도/리다이렉트 제외
+            // MCP 요청은 자동 재시도 제외 (직접 다시 호출)
             const isMcpRequest = originalRequest.url?.includes("/mcps");
             if (isMcpRequest) {
-                console.warn("🔄 MCP 401 - 자동 재시도/리다이렉트 생략");
+                console.warn("🔄 MCP 401 - 자동 재시도 생략");
                 return Promise.reject(error);
             }
 
             if (isRefreshing) {
-                if (process.env.NODE_ENV !== "production") console.log("🔄 재발급 대기열 추가");
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
                 })
@@ -271,15 +256,11 @@ axiosInstance.interceptors.response.use(
                 const { refreshToken, setTokens } = useLoginStore.getState();
                 if (!refreshToken) throw new Error("리프레시 토큰이 없습니다.");
 
-                if (process.env.NODE_ENV !== "production") {
-                    console.log("🔄 리프레시 토큰으로 재발급 요청...");
-                }
-
-                // ✅ axios 정석: 본문 없이, params로 전달
                 const plain = axios.create({
                     baseURL: BASE_URL,
                     headers: { Accept: "application/json", "Content-Type": "application/json" },
                 });
+
                 const reissue = await plain.post(
                     "/members/auth/token/reissue",
                     null,
@@ -290,16 +271,9 @@ axiosInstance.interceptors.response.use(
                 const ok = reissue?.data?.success && !!newAccessToken;
                 if (!ok) throw new Error("토큰 갱신 응답이 올바르지 않습니다.");
 
-                // 새 토큰 저장
                 setTokens(newAccessToken, refreshToken);
-
-                if (process.env.NODE_ENV !== "production") {
-                    console.log("✅ 토큰 갱신 성공 → 대기열 재시도");
-                }
-
                 processQueue(null, newAccessToken);
 
-                // 원요청 재시도
                 (originalRequest.headers as any).Authorization = `Bearer ${newAccessToken}`;
                 return axiosInstance(originalRequest);
             } catch (refreshError: any) {
@@ -308,7 +282,6 @@ axiosInstance.interceptors.response.use(
 
                 const status = refreshError?.response?.status;
                 if (status === 401 || status === 403) {
-                    // 리프레시까지 만료 → 확정 로그아웃
                     const { logout } = useLoginStore.getState();
                     logout?.();
                     removeLocalStorageItem();
@@ -325,7 +298,6 @@ axiosInstance.interceptors.response.use(
             }
         }
 
-        // 그 외 상태 처리
         if (error.response?.status === 403) console.warn("🚫 접근 권한이 없습니다.");
         if (error.response?.status === 404) console.warn("🔍 요청한 리소스가 없습니다.");
         if (error.response?.status >= 500) console.error("🔥 서버 내부 오류(5xx)");
@@ -335,7 +307,7 @@ axiosInstance.interceptors.response.use(
 );
 
 /* ================================
- * API 응답 타입 & 래퍼
+ * API Wrapper
  * ================================ */
 export interface ApiResponse<T = any> {
     success: boolean;
