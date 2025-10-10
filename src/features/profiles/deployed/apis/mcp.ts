@@ -1,9 +1,9 @@
 import { axiosInstance } from "@/services/AxiosInstance";
 import {
-    McpItemType,
-    PageRequestType,
-    PageResponseType,
-} from "@/features/profiles/types/mcps";
+    UploadedMcpItemType,
+    UploadedMcpPageType,
+    UploadedMcpQueryType,
+} from "../types/mcps"; // ✅ 서버 타입만 import (UI 타입 X)
 
 /* ------------------------------
  * 서버 응답(raw) 타입
@@ -11,16 +11,23 @@ import {
 type ServerDashboardItem = {
     id: number;
     name: string;
-    version: string;
-    description: string;
-    imageUrl: string;
-    isKeyRequired: boolean;
-    categoryName: string;
-    platformName: string;
-    licenseName: string;
-    averageRating: number;
-    savedUserCount: number;
-    publishedDate: string; // ISO
+    version?: string;
+    description?: string;
+    imageUrl?: string;
+    requestUrl?: string;
+    sourceUrl?: string;
+    developerName?: string;
+    isKeyRequired?: boolean;
+    categoryId?: number;
+    categoryName?: string;
+    platformId?: number;
+    platformName?: string;
+    licenseId?: number;
+    licenseName?: string;
+    averageRating?: number;
+    savedUserCount?: number;
+    publishedDate?: string; // ISO
+    published?: boolean;    // 스웨거에 있으면 사용, 없으면 undefined
 };
 
 type ServerDashboardPage = {
@@ -31,11 +38,7 @@ type ServerDashboardPage = {
     size: number;
     first: boolean;
     last: boolean;
-    empty: boolean;
-};
-
-type DashboardQuery = PageRequestType & {
-    category?: string;
+    empty?: boolean;
 };
 
 /** 서버가 { result: ... }로 감싸도 안전하게 처리 */
@@ -56,27 +59,30 @@ const normalize = <T>(raw: unknown): T => {
     return raw as T;
 };
 
-/** 서버 아이템 → UI 카드 타입으로 변환 */
-const convertDashboardItemToMcpItem = (it: ServerDashboardItem): McpItemType => ({
-    id: String(it.id),
-    title: it.name,
+/** 서버 아이템 → 서버 타입(숫자 id)으로 변환 */
+const toUploadedMcpItem = (it: ServerDashboardItem): UploadedMcpItemType => ({
+    id: it.id,                          // ✅ 숫자 id 유지
     name: it.name,
-    version: it.version,
     description: it.description,
     imageUrl: it.imageUrl,
+    requestUrl: it.requestUrl,
+    sourceUrl: it.sourceUrl,
+    developerName: it.developerName,
+    categoryId: it.categoryId,
     categoryName: it.categoryName,
+    platformId: it.platformId,
     platformName: it.platformName,
+    licenseId: it.licenseId,
     licenseName: it.licenseName,
-    createdAt: it.publishedDate,
-    apiKey: undefined,
+    published: it.published,            // 있으면 사용
 });
 
 /* ------------------------------
  * GET /mcps/dashboard : 내 업로드 MCP 리스트 조회
  * ------------------------------ */
 export const fetchMyUploadedMcps = async (
-    query: DashboardQuery
-): Promise<PageResponseType<McpItemType>> => {
+    query: UploadedMcpQueryType
+): Promise<UploadedMcpPageType> => {
     const params = {
         page: query.page ?? 0,
         size: query.size ?? 12,
@@ -89,13 +95,18 @@ export const fetchMyUploadedMcps = async (
     const page = normalize<ServerDashboardPage>(data);
 
     return {
-        ...page,
-        content: (page.content ?? []).map(convertDashboardItemToMcpItem),
+        content: (page.content ?? []).map(toUploadedMcpItem), // ✅ 서버 타입 배열
+        totalElements: page.totalElements ?? 0,
+        totalPages: page.totalPages ?? 0,
+        number: page.number ?? (query.page ?? 0),
+        size: page.size ?? (query.size ?? 12),
+        first: !!page.first,
+        last: !!page.last,
     };
 };
 
 /* ------------------------------
- * DELETE /mcps/dashboard/{mcpId} : 업로드한 MCP 삭제 (soft delete)
+ * DELETE /mcps/dashboard/{mcpId} : 업로드한 MCP 삭제
  * ------------------------------ */
 type ApiEnvelope<T> = {
     timestamp: string;
@@ -108,5 +119,5 @@ export const deleteMyUploadedMcp = async (mcpId: string | number) => {
     const { data } = await axiosInstance.delete<ApiEnvelope<number>>(
         `/mcps/dashboard/${mcpId}`
     );
-    return data; // { message, code, result } 구조
+    return data; // { message, code, result }
 };
