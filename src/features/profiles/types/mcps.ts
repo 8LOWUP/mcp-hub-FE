@@ -1,4 +1,4 @@
-// src/features/profiles/types/mcps.ts
+
 
 /* 카드 컴포넌트가 기대하는 형태와 일치시킴 */
 export type McpItemType = {
