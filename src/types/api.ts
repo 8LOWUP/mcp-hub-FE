@@ -37,28 +37,28 @@ export interface User {
 
 // MCP 관련 타입
 export interface McpItem {
-  id: string;
-  title: string;
+  id: number;
+  name: string;
+  version: string;
   description: string;
-  category: string;
-  iconSrc: string;
-  usersCount: number;
-  saved: boolean;
-  developer: string;
-  license: string;
-  sourceCodeUrl?: string;
-  serverUrl?: string;
-  tags: string[];
+  requestUrl: string;
+  sourceUrl: string;
+  imageUrl: string;
+  isKeyRequired: boolean;
+  categoryName: string;
+  platformName: string;
+  licenseName: string;
+  averageRating: number;
+  savedUserCount: number;
   tools: McpTool[];
-  platforms: string[];
-  createdAt: string;
-  updatedAt: string;
+  publishDate: string;
+  lastPublishDate: string;
 }
 
 export interface McpTool {
+  id: number;
   name: string;
-  description: string;
-  parameters?: Record<string, any>;
+  content: string;
 }
 
 // 에러 타입
@@ -96,4 +96,14 @@ export interface McpUploadRequest {
 
 export interface McpUpdateRequest extends Partial<McpUploadRequest> {
   id: string;
+}
+
+export interface ReissueTokenResponse {
+  accessToken: string;
+  refreshToken: string,
+  member: {
+      id: string,
+      email: string,
+      nickname: string
+  };
 }
