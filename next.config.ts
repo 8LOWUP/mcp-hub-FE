@@ -1,24 +1,19 @@
+import createNextIntlPlugin from "next-intl/plugin";
 import type { NextConfig } from "next";
 
+const withNextIntl = createNextIntlPlugin();
+
+/** @type {NextConfig} */
 const nextConfig: NextConfig = {
-    reactStrictMode: false, // 👈 개발 모드에서 useEffect 2번 호출 방지
-    images: {
-        remotePatterns: [
+    async rewrites() {
+        return [
             {
-                protocol: "http",
-                hostname: "localhost",
-                port: "8081",   // 개발용 서버 이미지
+                source: "/__api/:path*",
+                destination: "http://61.109.236.22/:path*",
             },
-            {
-                protocol: "https",
-                hostname: "cdn.myservice.com", // 운영용 CDN
-            },
-            {
-                protocol: "https",
-                hostname: "img.com",           // 지금 응답에서 오는 도메인
-            },
-        ],
+        ];
     },
+    // 다른 옵션들 필요하면 여기 추가 (images, experimental 등)
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

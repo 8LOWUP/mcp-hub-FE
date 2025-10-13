@@ -6,7 +6,7 @@ export const LOCAL_STORAGE_KEY = {
 } as const;
 
 // API Base URL (스웨거 문서 기반)
-export const API_BASE_URL = 'https://61.109.236.22';
+export const API_BASE_URL = 'http://61.109.236.22';
 
 // API 엔드포인트 상수 (실제 스웨거 문서 기반)
 export const API_ENDPOINTS = {
@@ -19,8 +19,8 @@ export const API_ENDPOINTS = {
   },
   // LLM 관련
   LLM: {
-    LIST: '/llm',
-    TOKEN: '/llm/token',
+    LIST: '/workspaces/llm',
+    TOKEN: '/workspaces/llm/token/{llmId}',
   },
   // MCP 관련
   MCP: {
@@ -30,8 +30,8 @@ export const API_ENDPOINTS = {
     DASHBOARD_LICENSE: '/mcps/dashboard/license',
     DASHBOARD_PLATFORM: '/mcps/dashboard/platform',
     DASHBOARD_DETAIL: '/mcps/dashboard/{mcpId}',
-    DASHBOARD_META: '/mcps/dashboard/{mcpId}/meta',
-    DASHBOARD_PUBLISH: '/mcps/dashboard/{mcpId}/publish',
+    DASHBOARD_META: '/mcps/dashboard/meta',
+    DASHBOARD_PUBLISH: '/mcps/dashboard/publish',
     DASHBOARD_URL: '/mcps/dashboard/{mcpId}/url',
     MY_MCPS: '/mcps/me',
     REVIEW: '/mcps/review/{mcpId}',
@@ -55,8 +55,13 @@ export const API_ENDPOINTS = {
   // 워크스페이스 관련
   WORKSPACES: {
     LIST: '/workspaces',
+    CREATE: '/workspaces',
     DETAIL: '/workspaces/{workspaceId}',
+    UPDATE_TITLE: '/workspaces/{workspaceId}',
+    UPDATE_MCPS: '/workspaces/{workspaceId}/mcps',
+    DELETE: '/workspaces/{workspaceId}',
     CHATS: '/workspaces/{workspaceId}/chats',
+    CHAT: '/workspaces/{workspaceId}/chats',
     MCPS: '/workspaces/{workspaceId}/mcps',
   },
 } as const;
@@ -67,9 +72,9 @@ export const PUBLIC_PATHS = [
   API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_KAKAO,
   API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_GOOGLE,
   API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_GITHUB,
-  // MCP 공개 정보
+  // MCP 공개 정보 (조회만 공개)
   API_ENDPOINTS.MCP.LIST,
-  API_ENDPOINTS.MCP.DASHBOARD,
+  //API_ENDPOINTS.MCP.DASHBOARD,
   API_ENDPOINTS.MCP.DASHBOARD_CATEGORY,
   API_ENDPOINTS.MCP.DASHBOARD_LICENSE,
   API_ENDPOINTS.MCP.DASHBOARD_PLATFORM,
