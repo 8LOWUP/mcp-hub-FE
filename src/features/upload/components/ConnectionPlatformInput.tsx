@@ -63,12 +63,9 @@ const ConnectionPlatformInput = forwardRef<HTMLInputElement, ConnectionPlatformI
                 />
                 {warning && (
                     <p className="mt-1 text-sm text-red-500 animate-pulse">
-                        최대 6개까지만 입력 가능합니다.
+                        최대 1개까지만 입력 가능합니다.
                     </p>
                 )}
-                <p className="text-sm text-muted mt-1">
-                    입력 후 쉼표(,)로 구분되도록 적어주세요.
-                </p>
             </div>
         );
     }
