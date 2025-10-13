@@ -12,7 +12,7 @@ export type getMcpDetailResponse = CommonResponse<{
     sourceUrl?: string | null;
     imageUrl?: string;
     isKeyRequired: boolean;
-    developerName?: string | null;
+    developerName: string | null;
     categoryName: string;
     platformName: string;
     licenseName: string;

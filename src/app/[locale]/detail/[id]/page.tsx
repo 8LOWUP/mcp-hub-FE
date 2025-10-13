@@ -35,6 +35,34 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
         sort: "createdAt,DESC",
     });
 
+    // ✅ 콘솔 출력 (백엔드 응답 확인용)
+    React.useEffect(() => {
+        if (detail) {
+            console.group("🛰️ MCP 상세 데이터 (백엔드 응답)");
+            console.log("📦 전체 detail 객체:", detail);
+            console.table({
+                id: detail.id,
+                name: detail.name,
+                version: detail.version,
+                description: detail.description,
+                requestUrl: detail.requestUrl,
+                sourceUrl: detail.sourceUrl,
+                imageUrl: detail.imageUrl,
+                isKeyRequired: detail.isKeyRequired,
+                developerName: detail.developerName,
+                categoryName: detail.categoryName,
+                platformName: detail.platformName,
+                licenseName: detail.licenseName,
+                averageRating: detail.averageRating,
+                savedUserCount: detail.savedUserCount,
+                publishDate: detail.publishDate,
+                lastPublishDate: detail.lastPublishDate,
+            });
+            console.log("🧰 Tools 목록:", detail.tools);
+            console.groupEnd();
+        }
+    }, [detail]);
+
     // ✅ 모달 상태
     const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [platformId, setPlatformId] = React.useState("");
@@ -48,13 +76,11 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
     // ✅ Go to Chat 클릭 시 동작
     const handleGoToChat = async () => {
-        // 🔸 로그인되지 않은 경우 → 전역 로그인 모달 오픈
         if (!isLoggedIn) {
             openLoginModal();
             return;
         }
 
-        // 🔸 로그인된 사용자 → MCP 토큰 확인
         try {
             const res = await refetchToken();
             const result = res.data?.result;
@@ -62,16 +88,13 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
             if (!result) throw new Error("No token check result");
 
             if (result.isTokenExist) {
-                // ✅ 토큰 존재 → 채팅 페이지로 이동
                 router.push(`/${locale}/chat`);
             } else {
-                // ✅ 토큰 없음 → MCP 연결 모달 표시
                 setPlatformId(result.platformId);
                 setIsModalOpen(true);
             }
         } catch (err: any) {
             console.error("MCP Token check failed:", err);
-            // ⚠️ 400 에러(유저가 저장하지 않은 MCP)도 동일하게 MCP 연결 모달 표시
             setIsModalOpen(true);
         }
     };
@@ -82,14 +105,11 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
     return (
         <>
-            {/* ✅ 본문 영역 */}
             <div className="flex flex-col md:flex-row pt-20 md:pt-30 pb-10 items-start justify-center px-4 md:px-8 gap-6 md:gap-8">
                 <div className="flex flex-col md:flex-row w-full gap-6 md:gap-8">
-                    {/* 왼쪽 섹션 */}
                     <section className="flex flex-col gap-4 md:w-4/6">
                         <McpHeader data={detail} />
 
-                        {/* ✅ 모바일용 Chat 버튼 */}
                         <div className="block md:hidden">
                             <PrimaryButton
                                 additionalClassName="w-full py-2 text-sm"
@@ -102,14 +122,12 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                         <McpAbout about={detail.description} />
                         <MarketTools data={detail} />
 
-                        {/* ✅ 리뷰 섹션 */}
                         {loadingReviews ? (
                             <div className="text-center text-gray-400">리뷰 불러오는 중...</div>
                         ) : (
                             <ReviewList reviews={reviewData?.content ?? []} mcpId={mcpId} />
                         )}
 
-                        {/* ✅ 리뷰 작성 가능 여부 */}
                         {isLoggedIn ? (
                             reviewData?.content.some((r) => r.mine) ? (
                                 <p className="text-gray-400 text-sm">
@@ -125,7 +143,6 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                         )}
                     </section>
 
-                    {/* ✅ 오른쪽 사이드 섹션 */}
                     <aside className="flex flex-col gap-4 md:w-2/6">
                         <div className="md:mt-10 md:sticky md:top-30 flex flex-col gap-4">
                             <div className="hidden md:flex justify-center w-full">
@@ -144,7 +161,6 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 </div>
             </div>
 
-            {/* ✅ MCP 연결 모달 */}
             <McpConnectModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
