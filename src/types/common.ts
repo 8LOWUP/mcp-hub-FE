@@ -1,7 +1,6 @@
 export type CommonResponse<T> = {
-  //isSuccess: boolean;
-  timestamp: string;
   code: string;
+  timestamp: string;
   message: string;
   result: T;
 };

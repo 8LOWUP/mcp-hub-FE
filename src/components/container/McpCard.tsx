@@ -6,10 +6,9 @@ interface MCPCardProps {
     id: string;
     title: string;
     description: string;
-    iconSrc?: string; // mcp로고 이미지 경로 (기본값: /default-mcp-logo.svg)
+    iconSrc?: string; // mcp로고 이미지 경로 (기본값: /mcpLogo.svg)
     saved?: boolean;
     usersCount?: number;
-    developerName?: string;
     className?: string;
 }
 
@@ -17,10 +16,9 @@ const MCPCard: React.FC<MCPCardProps> = ({
     id,
     title,
     description,
-    iconSrc = "/default-mcp-logo.svg", // 기본 아이콘을 default-mcp-logo.svg로 설정
+    iconSrc = "/mcpLogo.svg", // 기본 아이콘을 mcpLogo.svg로 설정
     saved = false,
     usersCount,
-    developerName,
     className,
 }) => {
     return (
@@ -28,35 +26,17 @@ const MCPCard: React.FC<MCPCardProps> = ({
         <Link
             href={`/detail/${id}`}
             className={clsx(
-                "flex flex-col p-3 py-3.5 justify-between justify-items-center items-center w-[300px] h-[165px] rounded-md",
+                "flex flex-col p-6 justify-items-center items-center w-full max-w-sm rounded-md",
                 "border border-white/20 bg-surface-1",
-                "transition-all duration-400 ease-in-out",
-                "hover:border-accent",
-                "active:scale-[0.96] active:bg-surface-2",
+                "transition-transform duration-300 ease-in-out",
+                "hover:scale-[1.03] hover:bg-[var(--bg-color-2)] hover:border-transparent",
+                "active:scale-[0.98] active:bg-[var(--bg-color-2)]",
                 className
             )}
 
         >
-            
-
-            {/* 본문 */}
-            <div className="flex flex-col w-full">
-                <div className="flex w-full h-full justify-between items-start gap-3 flex-1">
-                    <div className="flex h-full items-center justify-center">
-                        <Image src={iconSrc} alt={title} width={35} height={35} className="w-11 h-11 ml-1 flex-shrink-0" />
-                    </div>
-                    <div className="flex w-4/5 flex-col justify-start flex-1">
-                        <div className="text-primary text-[18px] font-extrabold truncate mt-1">{title}</div>
-                        {developerName && (
-                            <div className="text-sm text-secondary">by {developerName}</div>
-                        )}
-                    </div>
-                </div>
-                <div className="text-secondary text-sm line-clamp-2 my-2 m-1 overflow-hidden">{description}</div>
-            </div>
-
             {/* 상단 라벨 */}
-            <div className="flex w-full justify-between items-center">
+            <div className="flex w-full justify-between items-center mb-3">
                 <div className="flex gap-2">
                     {/* saved 상태에 따라 하나만 렌더링 */}
                     <span
@@ -79,6 +59,15 @@ const MCPCard: React.FC<MCPCardProps> = ({
                         {usersCount}
                     </div>
                 )}
+            </div>
+
+            {/* 본문 */}
+            <div className="flex w-full justify-between items-center gap-3">
+                <Image src={iconSrc} alt={title} width={35} height={35} className="w-13 h-13 ml-0.5"/>
+                <div className="flex w-4/5 flex-col">
+                    <span className="text-primary">{title}</span>
+                    <span className="text-secondary text-sm">{description}</span>
+                </div>
             </div>
         </Link>
     );

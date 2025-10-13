@@ -8,5 +8,4 @@ export type McpCardData = {
     saved?: boolean;
     usersCount?: number;
     category: CategoryId;
-    developerName?: string;
 };

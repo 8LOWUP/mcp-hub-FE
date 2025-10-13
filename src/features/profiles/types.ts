@@ -1,10 +1,9 @@
+// src/features/profiles/types.ts
 export type McpItemType = {
-    id: string;            // 카드 key
-    mcpId: number;         // ✅ 서버의 실제 MCP ID(숫자)
+    id: string;
     title: string;
-    description?: string;
-    imageUrl?: string;
-    published?: boolean;   // 배포/임시저장 구분
+    description: string;
+    iconUrl?: string;
     isHighlighted?: boolean;
     apiKey?: string;
 };

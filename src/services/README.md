@@ -4,9 +4,9 @@
 
 ### 📁 생성된 파일들
 - `AxiosInstance.ts` - Axios 인스턴스 및 인터셉터 설정
-- `McpUpload-api.ts` - API 서비스 함수들
+- `api.ts` - API 서비스 함수들
 - `../constants/apis/key.ts` - API 관련 상수들 (스웨거 기반)
-- `../types/McpUpload-api.ts` - API 관련 타입 정의
+- `../types/api.ts` - API 관련 타입 정의
 
 ### 🚀 사용 방법
 
