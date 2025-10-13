@@ -76,6 +76,8 @@
   .border-contrast { border-color: var(--bg-color-3); }
   .border-accent   { border-color: var(--accent-color-1); }
 
+  .hover\:border-accent:hover { border-color: var(--accent-color-1); }
+
   /* Placeholders */
   .placeholder-muted::placeholder { color: var(--text-color-3); }
   .placeholder-disabled::placeholder { color: var(--text-color-4); }
