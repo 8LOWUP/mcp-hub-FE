@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { mcpUploadApi } from "@/services/upload/McpUpload-api";
 import type {
     McpMetaRequestFormData,
@@ -14,39 +14,57 @@ const isSuccessResponse = (code?: string) =>
 /* -------------------------------------------------------------------------- */
 /* 🧩 MCP 메타데이터 임시 저장 훅 (PATCH /mcps/dashboard/meta)                 */
 /* -------------------------------------------------------------------------- */
-/**
- * MCP 메타데이터를 임시 저장하는 훅
- * - Swagger 명세: PATCH /mcps/dashboard/meta
- *
- * ✅ 사용 예시:
- * const saveMeta = useSaveMcpMeta();
- * await saveMeta.mutateAsync({ file, meta });
- */
 export const useSaveMcpMeta = () => {
+    const qc = useQueryClient();
+
     return useMutation<McpMetaResponse, Error, McpMetaRequestFormData>({
         mutationKey: ["saveMcpMeta"],
 
-        // ✅ API 호출
         mutationFn: async (body) => {
             console.log("🧩 [useSaveMcpMeta] 요청 시작:", {
                 file: body.file instanceof File ? body.file.name : "empty",
                 meta: body.meta,
             });
-
-            // API 내부에서 FormData 생성 및 cleanObject 처리됨
             return await mcpUploadApi.saveMcpMeta(body);
         },
 
-        // ✅ 성공 콜백
-        onSuccess: (data) => {
-            if (isSuccessResponse(data.code)) {
-                console.log("✅ MCP 메타데이터 임시 저장 완료:", data);
-            } else {
+        onSuccess: (data, variables) => {
+            if (!isSuccessResponse(data.code)) {
                 console.warn("⚠️ MCP 메타데이터 저장 실패:", data.message);
+                return;
             }
+
+            const newId = data.result;
+            const meta = variables.meta;
+
+            // ✅ 1) 낙관적 업데이트: 캐시에 새 MCP 추가
+            qc.setQueryData<any[]>(["myUploadedMcps"], (old) => {
+                const prev = old ?? [];
+                if (prev.some((x) => x.id === newId)) return prev;
+                return [
+                    {
+                        id: newId,
+                        name: meta.name ?? "(제목 없음)",
+                        description: meta.description ?? "",
+                        imageUrl: meta.imageUrl ?? null,
+                        platformName: meta.platformName ?? "",
+                        categoryName: "",
+                        licenseName: "",
+                        published: false,
+                        lastPublishedAt: null,
+                    },
+                    ...prev,
+                ];
+            });
+
+            // ✅ 2) 서버 데이터로 최신화
+            qc.invalidateQueries({
+                predicate: (q) => Array.isArray(q.queryKey) && q.queryKey[0] === "myUploadedMcps",
+            });
+
+            console.log("✅ MCP 메타데이터 임시 저장 완료:", data);
         },
 
-        // ✅ 실패 콜백
         onError: (error) => {
             console.error("❌ MCP 메타데이터 저장 중 오류:", error);
         },
@@ -56,15 +74,9 @@ export const useSaveMcpMeta = () => {
 /* -------------------------------------------------------------------------- */
 /* 🚀 MCP 배포 훅 (PATCH /mcps/dashboard/publish)                              */
 /* -------------------------------------------------------------------------- */
-/**
- * MCP 메타데이터를 배포하는 훅
- * - Swagger 명세: PATCH /mcps/dashboard/publish
- *
- * ✅ 사용 예시:
- * const publish = usePublishMcp();
- * await publish.mutateAsync({ file, meta });
- */
 export const usePublishMcp = () => {
+    const qc = useQueryClient();
+
     return useMutation<McpMetaResponse, Error, McpMetaRequestFormData>({
         mutationKey: ["publishMcp"],
 
@@ -73,16 +85,31 @@ export const usePublishMcp = () => {
                 file: body.file instanceof File ? body.file.name : "empty",
                 meta: body.meta,
             });
-
             return await mcpUploadApi.publishMcp(body);
         },
 
-        onSuccess: (data) => {
-            if (isSuccessResponse(data.code)) {
-                console.log("✅ MCP 배포 완료:", data);
-            } else {
+        onSuccess: (data, variables) => {
+            if (!isSuccessResponse(data.code)) {
                 console.warn("⚠️ MCP 배포 실패:", data.message);
+                return;
             }
+
+            const mcpId = variables.meta.mcpId ?? data.result;
+
+            // ✅ 캐시 내 published 상태 갱신
+            qc.setQueryData<any[]>(["myUploadedMcps"], (old) => {
+                const prev = old ?? [];
+                return prev.map((x) =>
+                    x.id === mcpId ? { ...x, published: true, lastPublishedAt: new Date().toISOString() } : x
+                );
+            });
+
+            // ✅ 서버 동기화
+            qc.invalidateQueries({
+                predicate: (q) => Array.isArray(q.queryKey) && q.queryKey[0] === "myUploadedMcps",
+            });
+
+            console.log("✅ MCP 배포 완료:", data);
         },
 
         onError: (error) => {

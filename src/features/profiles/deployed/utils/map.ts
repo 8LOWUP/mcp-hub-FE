@@ -7,5 +7,5 @@ export const mapToCard = (it: UploadedMcpItemType): McpItemType => ({
     title: it.name,
     description: it.description,
     imageUrl: it.imageUrl,
-    published: it.published,
+    published: typeof it.published === "boolean" ? it.published : false,
 });
