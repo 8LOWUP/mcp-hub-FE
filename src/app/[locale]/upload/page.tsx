@@ -1,7 +1,10 @@
+// src/app/[locale]/upload/page.tsx
 "use client";
 
-import { useRef, useState } from "react";
-import { useSearchParams } from "next/navigation"; // ✅ 추가
+import { useRef, useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+
 import { CATEGORY_MAP, LICENSE_MAP } from "@/constants/upload/constants";
 import MCPNameInput from "@/features/upload/components/McpNameInput";
 import DescriptionInput from "@/features/upload/components/DescriptionInput";
@@ -15,14 +18,54 @@ import LicenseInput from "@/features/upload/components/LicenseInput";
 import UploadIcon from "@/features/upload/components/UploadIcon";
 
 import { useSaveMcpMeta, usePublishMcp } from "@/hooks/upload/useMcpUpload";
+import { axiosInstance } from "@/services/AxiosInstance";
+import { API_ENDPOINTS } from "@/constants/apis/key";
 
+/* ----------------------------- 타입 ----------------------------- */
 interface McpTool {
     name: string;
     content: string;
 }
 
+type MyMcpDetail = {
+    id: number;
+    name: string;
+    version?: string;
+    description?: string;
+    imageUrl?: string | null;
+    requestUrl?: string | null;
+    sourceUrl?: string | null;
+    developerName?: string | null;
+    isKeyRequired: boolean;
+    categoryId: number;
+    categoryName?: string;
+    platformId?: number;
+    platformName?: string;
+    licenseId: number;
+    licenseName?: string;
+    published?: boolean;
+    tools?: { id?: number; name: string; content: string }[];
+};
+
+type MyMcpDetailResponse = {
+    timestamp: string;
+    code: string;
+    message: string;
+    result: MyMcpDetail;
+};
+
+const isOk = (c?: string) => c === "SUCCESS" || c === "COMMON200" || c === "200";
+
+/* ----------------------------- 상세 조회 ----------------------------- */
+const fetchMyUploadDetail = async (mcpId: number) => {
+    const url = API_ENDPOINTS.MCP.DASHBOARD_DETAIL.replace("{mcpId}", String(mcpId));
+    const { data } = await axiosInstance.get<MyMcpDetailResponse>(url);
+    if (!isOk(data.code)) throw new Error(data.message || "상세 조회 실패");
+    return data.result;
+};
+
 export default function MCPUploadPage() {
-    /* ----------------------------- Ref 정의 ----------------------------- */
+    /* ----------------------------- Refs ----------------------------- */
     const refs = {
         mcpNameRef: useRef<HTMLInputElement>(null),
         descriptionRef: useRef<HTMLTextAreaElement>(null),
@@ -40,90 +83,87 @@ export default function MCPUploadPage() {
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
 
-    /* ----------------------------- 모드 분기 ----------------------------- */
+    /* ----------------------------- 모드 ----------------------------- */
     const searchParams = useSearchParams();
-    const mcpIdParam = searchParams.get("mcpId"); // URL ?mcpId=123
+    const mcpIdParam = searchParams.get("mcpId");
     const isEditMode = Boolean(mcpIdParam);
+    const mcpId = useMemo(() => Number(mcpIdParam), [mcpIdParam]);
 
-    /* ----------------------------- Hooks ----------------------------- */
+    /* ----------------------------- 편집 상세 ----------------------------- */
+    const {
+        data: detail,
+        isLoading: isDetailLoading,
+        error: detailError,
+    } = useQuery({
+        enabled: isEditMode && Number.isFinite(mcpId) && mcpId > 0,
+        queryKey: ["myUploadDetail", mcpId],
+        queryFn: () => fetchMyUploadDetail(mcpId),
+    });
+
+    /* ----------------------------- Tools 초기값 메모이즈 ----------------------------- */
+    const memoInitialTools = useMemo(
+        () =>
+            (detail?.tools ?? []).map((t) => ({
+                name: t?.name ?? "",
+                content: t?.content ?? "",
+            })),
+        // detail 전체를 의존성에 넣어도 되지만, 안전하게 id만 사용해도 충분
+        [detail?.id]
+    );
+
+    /* ----------------------------- API 훅 ----------------------------- */
     const saveMcpMetaMutation = useSaveMcpMeta();
     const publishMcpMutation = usePublishMcp();
 
     /* ----------------------------- 파일 선택 ----------------------------- */
     const handleFileSelect = (selectedFile: File | null) => {
         if (!selectedFile) return;
-
         setFile(selectedFile);
-        console.log("📁 파일 선택됨:", selectedFile.name, selectedFile.type, selectedFile.size);
     };
 
-    /* ----------------------------- 공통 메타데이터 생성 ----------------------------- */
+    /* ----------------------------- 메타데이터 생성 ----------------------------- */
     const buildMetaData = () => {
         const categoryText = refs.categoryRef.current?.value?.trim().toLowerCase() || "";
         const licenseText = refs.licenseRef.current?.value?.trim() || "";
 
-        // ✅ 문자열을 number로 매핑
         const categoryId = CATEGORY_MAP[categoryText] ?? 0;
         const licenseId = LICENSE_MAP[licenseText] ?? 0;
 
-        // ✅ 신규 업로드 시에는 mcpId를 넣지 않고, 수정 모드면 포함
-        const meta = {
-            ...(isEditMode ? { mcpId: Number(mcpIdParam) } : {}),
-
+        return {
+            ...(isEditMode ? { mcpId } : {}),
             name: refs.mcpNameRef.current?.value || "",
             description: refs.descriptionRef.current?.value || "",
-            categoryId, // ✅ 매핑된 숫자
-            licenseId, // ✅ 매핑된 숫자
+            categoryId,
+            licenseId,
             sourceUrl: refs.sourceCodeURLRef.current?.value || "",
-            imageUrl: "",
+            imageUrl: "", // 파일은 file 파트로 전송
             platformName: refs.connectionPlatformRef.current?.value || "",
             requestUrl: refs.serverURLRef.current?.value || "",
             developerName: refs.developerNameRef.current?.value || "",
             isKeyRequired: false,
             tools,
         };
-
-        console.log("🧩 생성된 MCP 메타데이터:", meta);
-        return meta;
     };
 
-    /* ----------------------------- MCP 메타데이터 저장 ----------------------------- */
+    /* ----------------------------- 저장/배포 ----------------------------- */
     const handleSave = async () => {
         try {
             setError(null);
             setMessage(isEditMode ? "Updating MCP metadata..." : "Saving MCP metadata...");
 
             const meta = buildMetaData();
-            const fileToSend = file || new File([], "empty.txt"); // ✅ multipart 유지용 빈 파일
+            const fileToSend = file || new File([], "empty.txt");
 
-            console.log("📦 [SAVE] 전송 준비 완료:", {
-                mode: isEditMode ? "EDIT" : "NEW",
-                file: fileToSend.name,
-                meta,
-            });
-
-            const res = await saveMcpMetaMutation.mutateAsync({
-                file: fileToSend,
-                meta,
-            });
-
-            console.log("📩 [SAVE] 응답 수신:", res);
-
-            // ✅ 여러 성공 코드("SUCCESS", "COMMON200", "200") 허용
-            if (!["SUCCESS", "COMMON200", "200"].includes(res.code)) {
-                throw new Error(res.message || "메타데이터 저장 실패");
-            }
-
+            const res = await saveMcpMetaMutation.mutateAsync({ file: fileToSend, meta });
+            if (!isOk(res.code)) throw new Error(res.message || "메타데이터 저장 실패");
 
             setMessage(isEditMode ? "✅ MCP metadata updated successfully." : "✅ MCP metadata saved successfully.");
         } catch (err) {
-            console.error("❌ MCP 메타데이터 저장 중 오류:", err);
             setError("❌ Failed to save MCP metadata.");
             setMessage(null);
         }
     };
 
-    /* ----------------------------- MCP 배포 ----------------------------- */
     const handleDeploy = async () => {
         try {
             setError(null);
@@ -132,50 +172,35 @@ export default function MCPUploadPage() {
             const meta = buildMetaData();
             const fileToSend = file || new File([], "empty.txt");
 
-            console.log("🚀 [DEPLOY] 전송 준비 완료:", {
-                mode: isEditMode ? "EDIT" : "NEW",
-                file: fileToSend.name,
-                meta,
-            });
+            const res = await publishMcpMutation.mutateAsync({ file: fileToSend, meta });
+            if (!isOk(res.code) && !/성공/i.test(res.message || "")) throw new Error(res.message || "배포 실패");
 
-            const res = await publishMcpMutation.mutateAsync({
-                file: fileToSend,
-                meta,
-            });
-
-            console.log("📩 [DEPLOY] 응답 수신:", res);
-
-            // ✅ 여러 성공 코드 대응
-            const successCodes = ["SUCCESS", "200", "COMMON200"];
-            const isSuccess = successCodes.includes(String(res.code).toUpperCase());
-
-            if (!isSuccess) {
-                // 서버가 "요청에 성공하였습니다" 같은 메시지만 주는 경우도 대비
-                const message = res.message || "";
-                if (!/성공/i.test(message)) {
-                    throw new Error(res.message || "배포 실패");
-                }
-            }
-
-            setMessage(
-                isEditMode
-                    ? "🚀 MCP updated & deployed successfully."
-                    : "🚀 MCP deployed successfully."
-            );
-
-            // ✅ 에러 초기화 (성공 시)
-            setError(null);
+            setMessage(isEditMode ? "🚀 MCP updated & deployed successfully." : "🚀 MCP deployed successfully.");
         } catch (err) {
-            // ✅ 개발 모드일 때만 콘솔 표시
-            if (process.env.NODE_ENV === "development") {
-                console.error("❌ MCP 배포 중 오류:", err);
-            }
-
             setError("❌ Failed to deploy MCP.");
             setMessage(null);
         }
     };
 
+    /* ----------------------------- 로딩/에러 (편집) ----------------------------- */
+    if (isEditMode && isDetailLoading) {
+        return (
+            <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
+                <div className="w-full max-w-3xl p-6 bg-surface-1 text-white rounded shadow-lg">
+                    <p className="text-sm opacity-70">기존 내용을 불러오는 중…</p>
+                </div>
+            </div>
+        );
+    }
+    if (isEditMode && detailError) {
+        return (
+            <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
+                <div className="w-full max-w-3xl p-6 bg-surface-1 text-white rounded shadow-lg">
+                    <p className="text-sm text-red-500">기존 내용 조회 실패. 권한이나 ID를 확인해주세요.</p>
+                </div>
+            </div>
+        );
+    }
 
     /* ----------------------------- UI ----------------------------- */
     const isLoading = saveMcpMetaMutation.isPending || publishMcpMutation.isPending;
@@ -183,7 +208,6 @@ export default function MCPUploadPage() {
     return (
         <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
             <div className="w-full max-w-3xl p-6 bg-surface-1 text-white rounded shadow-lg">
-                {/* ✅ 신규 / 수정 모드에 따라 제목만 변경 */}
                 <h1 className="text-2xl font-bold mb-2">
                     {isEditMode ? "Edit MCP" : "Upload MCP"}
                 </h1>
@@ -193,53 +217,77 @@ export default function MCPUploadPage() {
                         : "Provide the necessary information to share your MCP with the community."}
                 </p>
 
-                <form className="space-y-4">
+                {/* ✅ detail이 오면 key를 바꿔 안정적인 초기화 */}
+                <form key={detail?.id ?? "new"} className="space-y-4">
                     <MCPNameInput
                         ref={refs.mcpNameRef}
+                        defaultValue={detail?.name ?? ""}
                         onEnter={() => refs.descriptionRef.current?.focus()}
                     />
+
                     <DescriptionInput
                         ref={refs.descriptionRef}
+                        defaultValue={detail?.description ?? ""}
                         onEnter={() => refs.serverURLRef.current?.focus()}
                     />
-                    <TagsInput ref={refs.categoryRef} />
+
+                    <TagsInput
+                        ref={refs.categoryRef}
+                        defaultValue={(detail?.categoryName ?? "").toLowerCase()}
+                    />
+
                     <ServerURLInput
                         ref={refs.serverURLRef}
+                        defaultValue={detail?.requestUrl ?? ""}
                         onEnter={() => refs.connectionPlatformRef.current?.focus()}
                     />
-                    <ToolsDescriptionInput onChange={setTools} />
+
+                    <ToolsDescriptionInput
+                        initialTools={memoInitialTools}
+                        onChange={setTools}
+                    />
 
                     <ConnectionPlatformInput
                         ref={refs.connectionPlatformRef}
+                        defaultValue={detail?.platformName ?? ""}
                         onEnter={() => refs.developerNameRef.current?.focus()}
                     />
+
                     <DeveloperNameInput
                         ref={refs.developerNameRef}
+                        defaultValue={detail?.developerName ?? ""}
                         onEnter={() => refs.sourceCodeURLRef.current?.focus()}
                     />
+
                     <SourceCodeURLInput
                         ref={refs.sourceCodeURLRef}
+                        defaultValue={detail?.sourceUrl ?? ""}
                         onEnter={() => refs.licenseRef.current?.focus()}
                     />
-                    <LicenseInput ref={refs.licenseRef} onEnter={() => {}} />
 
-                    {/* ✅ 파일 업로드 */}
-                    <UploadIcon onFileSelect={handleFileSelect} />
+                    <LicenseInput
+                        ref={refs.licenseRef}
+                        defaultValue={detail?.licenseName ?? ""}
+                    />
+
+                    {/* 파일 업로드 (편집 미리보기 필요 시 defaultPreview 전달) */}
+                    <UploadIcon
+                        onFileSelect={handleFileSelect}
+                        // defaultPreview={detail?.imageUrl ?? null}
+                    />
                     {file && (
                         <p className="text-sm text-green-400 mt-1">
                             ✅ 선택된 파일: {file.name} ({Math.round(file.size / 1024)} KB)
                         </p>
                     )}
 
-                    {/* ✅ 상태 메시지 */}
+                    {/* 상태 메시지 */}
                     <div className="flex justify-end mb-2">
                         {error && <p className="text-red-500 font-semibold text-right">{error}</p>}
-                        {message && (
-                            <p className="text-green-500 font-semibold text-right">{message}</p>
-                        )}
+                        {message && <p className="text-green-500 font-semibold text-right">{message}</p>}
                     </div>
 
-                    {/* ✅ 버튼 */}
+                    {/* 버튼 */}
                     <div className="flex justify-end gap-2 mb-2">
                         <button
                             type="button"
