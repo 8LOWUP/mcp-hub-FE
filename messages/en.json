@@ -1,7 +1,7 @@
 {
   "LandingPage": {
-    "title": "Welcome to the Main Page",
-    "about": "Welcome!",
+    "title": "Welcome to the MCP Hub!",
+    "about": "Find various MCPs on Market or start a chat!",
     "chatStartPlaceholder": "Start a new chat..."
   },
   "ChatPage": {
