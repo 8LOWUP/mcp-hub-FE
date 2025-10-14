@@ -1,47 +1,55 @@
-// src/hooks/detail/useMcpToken.ts
+"use client";
+
 import { useQuery, useMutation } from "@tanstack/react-query";
-import {
+import { getMcpTokenCheck, postMcpToken } from "@/services/detail/mcpToken-api";
+import type {
     getMcpTokenCheckResponse,
     postMcpTokenRequestBody,
     postMcpTokenResponse,
 } from "@/types/detail/detail-types";
-import { getMcpTokenCheck, postMcpToken } from "@/services/detail/mcpToken-api";
+import { toast } from "sonner";
 
 /* -------------------------------------------------------------------------- */
-/* ✅ MCP 토큰 존재 여부 확인 (GET)                                            */
+/* ✅ MCP 토큰 존재 여부 확인 훅 (GET /workspaces/mcps/token/check/{mcpId})    */
 /* -------------------------------------------------------------------------- */
+
 /**
- * @description
- * MCP ID를 기반으로 현재 사용자가 MCP 토큰을 이미 등록했는지 확인하는 훅입니다.
- * - 200, 400 모두 정상 흐름으로 간주합니다.
- * - `data.result.isTokenExist`로 토큰 존재 여부 확인
+ * 사용자의 MCP 토큰이 존재하는지 확인하는 훅
+ * - 200: 존재
+ * - 400: 미등록 (그래도 result 구조 포함됨)
  */
-export function useCheckMcpToken(mcpId: number) {
+export const useCheckMcpToken = (mcpId: number) => {
     return useQuery<getMcpTokenCheckResponse>({
         queryKey: ["mcp-token-check", mcpId],
-        queryFn: () => getMcpTokenCheck(mcpId),
-        enabled: !!mcpId, // mcpId가 유효할 때만 실행
-        retry: false, // 400도 정상 응답으로 처리
+        queryFn: async () => await getMcpTokenCheck(mcpId),
+        enabled: !!mcpId, // mcpId가 있을 때만 실행
+        retry: false,
     });
-}
+};
 
 /* -------------------------------------------------------------------------- */
-/* ✅ MCP 토큰 등록 / 변경 (POST)                                              */
+/* ✅ MCP 토큰 등록 / 변경 훅 (POST /workspaces/mcps/token/{platformId})       */
 /* -------------------------------------------------------------------------- */
+
 /**
- * @description
- * 사용자의 MCP 토큰을 등록하거나 변경하는 훅입니다.
- * - `mutate({ platformId, body })` 형태로 호출합니다.
- * - 성공 시 result.platformId 반환
+ * 사용자의 MCP 토큰을 등록하거나 변경하는 훅
  */
-export function useUpdateMcpToken() {
-    return useMutation<
-        postMcpTokenResponse,
-        Error,
-        { platformId: string; body: postMcpTokenRequestBody }
-    >({
+export const usePostMcpToken = () => {
+    return useMutation<postMcpTokenResponse, Error, { platformId: string; body: postMcpTokenRequestBody }>({
         mutationFn: async ({ platformId, body }) => {
             return await postMcpToken(platformId, body);
         },
+        onSuccess: (data) => {
+            toast.success("✅ MCP 토큰이 성공적으로 등록되었습니다!");
+            console.log("🎉 MCP 토큰 등록 성공:", data);
+        },
+        onError: (error: any) => {
+            if (error.response?.status === 400) {
+                toast.error("⚠️ 저장되지 않은 MCP에 대한 요청입니다.");
+            } else {
+                toast.error("❌ MCP 토큰 등록에 실패했습니다.");
+            }
+            console.error("MCP 토큰 등록 오류:", error);
+        },
     });
-}
+};

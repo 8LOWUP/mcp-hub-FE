@@ -20,6 +20,9 @@ import { useCheckMcpToken } from "@/hooks/detail/useMcpToken";
 import McpConnectModal from "@/features/detail/components/modal/McpConnectModal";
 import SaveMcpButton from "@/features/detail/components/SaveMcpButton";
 
+// ✅ [1] usePostMcpToken 훅 추가 import
+import { usePostMcpToken } from "@/hooks/detail/useMcpToken";
+
 export default function MarketDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const router = useRouter();
@@ -28,7 +31,6 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
     const mcpId = Number(id);
 
-    // ✅ 데이터 로드
     const { data: detail, isLoading: loadingDetail, error } = useMarketDetail(mcpId);
     const { data: reviewData, isLoading: loadingReviews } = useMarketReviews(mcpId, {
         page: 0,
@@ -36,47 +38,23 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
         sort: "createdAt,DESC",
     });
 
-    // ✅ 콘솔 출력 (백엔드 응답 확인용)
-    React.useEffect(() => {
-        if (detail) {
-            console.group("🛰️ MCP 상세 데이터 (백엔드 응답)");
-            console.log("📦 전체 detail 객체:", detail);
-            console.table({
-                id: detail.id,
-                name: detail.name,
-                version: detail.version,
-                description: detail.description,
-                requestUrl: detail.requestUrl,
-                sourceUrl: detail.sourceUrl,
-                imageUrl: detail.imageUrl,
-                isKeyRequired: detail.isKeyRequired,
-                developerName: detail.developerName,
-                categoryName: detail.categoryName,
-                platformName: detail.platformName,
-                licenseName: detail.licenseName,
-                averageRating: detail.averageRating,
-                savedUserCount: detail.savedUserCount,
-                publishDate: detail.publishDate,
-                lastPublishDate: detail.lastPublishDate,
-                alreadySaved: detail.alreadySaved,
-            });
-            console.log("🧰 Tools 목록:", detail.tools);
-            console.groupEnd();
-        }
-    }, [detail]);
-
-    // ✅ 모달 상태
     const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [platformId, setPlatformId] = React.useState("");
 
-    // ✅ 로그인 상태 및 로그인 모달 store
     const { isLoggedIn } = useLoginStore();
     const { open: openLoginModal } = useLoginModalStore();
 
-    // ✅ MCP Token 확인 훅
     const { refetch: refetchToken } = useCheckMcpToken(mcpId);
 
-    // ✅ Go to Chat 클릭 시 동작
+    // ✅ [2] MCP 토큰 등록 훅 준비
+    const { mutateAsync: postToken } = usePostMcpToken();
+
+    /**
+     * ✅ Go to Chat 클릭 시 처리
+     * - 로그인 안 되어 있으면 로그인 모달
+     * - 이미 토큰 있음 → 바로 채팅 이동
+     * - 토큰 없음 → 모달에서 API Key 등록
+     */
     const handleGoToChat = async () => {
         if (!isLoggedIn) {
             openLoginModal();
@@ -89,19 +67,39 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
             if (!result) throw new Error("No token check result");
 
+            // ✅ 이미 토큰 존재 → 바로 이동
             if (result.isTokenExist) {
                 router.push(`/${locale}/chat`);
-            } else {
-                setPlatformId(result.platformId);
-                setIsModalOpen(true);
+                return;
             }
+
+            // ✅ 토큰 없을 때: platformId 저장 후 모달 열기
+            setPlatformId(result.platformId);
+            setIsModalOpen(true);
         } catch (err: any) {
             console.error("MCP Token check failed:", err);
             setIsModalOpen(true);
         }
     };
 
-    // ✅ 로딩 / 에러 처리
+    /**
+     * ✅ [3] MCP 연결 완료 시 처리
+     * - 모달에서 토큰 등록 성공 시 자동 이동
+     */
+    const handleConnected = async () => {
+        try {
+            // 🔹 토큰 등록 후 재확인 (선택사항이지만 안정적)
+            const check = await refetchToken();
+            if (check.data?.result.isTokenExist) {
+                router.push(`/${locale}/chat`);
+            }
+        } catch {
+            router.push(`/${locale}/chat`);
+        } finally {
+            setIsModalOpen(false);
+        }
+    };
+
     if (loadingDetail) return <div className="pt-20 text-center">Loading...</div>;
     if (error || !detail) return <div className="pt-20 text-center">데이터 없음</div>;
 
@@ -170,10 +168,11 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 </div>
             </div>
 
+            {/* ✅ MCP 연결 모달 */}
             <McpConnectModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onConnected={() => router.push(`/${locale}/chat`)}
+                onConnected={handleConnected} // 🔹 수정 포인트: 콜백 연결
                 mcpName={detail.name}
                 platformId={platformId}
             />

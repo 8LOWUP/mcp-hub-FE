@@ -112,33 +112,38 @@ export type postMcpSaveRequest = void;
  */
 export type postMcpSaveResponse = CommonResponse<number>;
 
-
-
-/* -------------------------------------------------------------------------- */
-/* ✅ MCP 토큰 등록 / 변경 (POST /workspaces/mcps/token/{platformId})          */
-/* -------------------------------------------------------------------------- */
-/**
- * Request Body
- */
-export type postMcpTokenRequestBody = {
-    token: string;
-};
-
-/**
- * Response Body
- */
-export type postMcpTokenResponse = CommonResponse<{
-    platformId: string;
-}>;
-
 /* -------------------------------------------------------------------------- */
 /* ✅ MCP 토큰 존재 여부 확인 (GET /workspaces/mcps/token/check/{mcpId})       */
 /* -------------------------------------------------------------------------- */
 
-/**
- * Response Body
- */
+/**Request Params*/
+export type getMcpTokenCheckRequest = {
+    mcpId: number;
+};
+
+/**Response Body*/
 export type getMcpTokenCheckResponse = CommonResponse<{
     platformId: string;
     isTokenExist: boolean;
 }>;
+
+/* -------------------------------------------------------------------------- */
+/* ✅ MCP 토큰 등록 / 변경 (POST /workspaces/mcps/token/{platformId})          */
+/* -------------------------------------------------------------------------- */
+
+/**Request Params*/
+export type postMcpTokenRequestParams = {
+    platformId: string;
+};
+
+/**Request Body*/
+export type postMcpTokenRequestBody = {
+    token: string;
+};
+
+/**Response Body*/
+export type postMcpTokenResponse = CommonResponse<{
+    platformId: string;
+}>;
+
+
