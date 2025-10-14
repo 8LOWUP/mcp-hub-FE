@@ -65,6 +65,9 @@ export const API_ENDPOINTS = {
     CHATS: '/workspaces/{workspaceId}/chats',
     CHAT: '/workspaces/{workspaceId}/chats',
     MCPS: '/workspaces/{workspaceId}/mcps',
+
+      MCPS_TOKEN_CHECK: '/workspaces/mcps/token/check/{mcpId}', // mcp 구매 저장
+      MCPS_TOKEN: '/workspaces/mcps/token/{platformId}', //mcp 토큰 등록
   },
 } as const;
 
