@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import TextContainer from "@/components/container/TextContainer";
-import { CopyCheck } from "lucide-react";
+import {Link , CopyCheck} from "lucide-react";
 import type { getMcpDetailResponse } from "@/types/detail/detail-types";
 
 interface Props {
@@ -24,8 +24,11 @@ export default function McpUrlCopy({ url }: Props) {
     }, [url]);
 
     return (
-        <div className="info-block relative">
-            <div className="text-secondary font-semibold text-lg mb-4">URL</div>
+        <div className="info-block relative mb-5">
+            <div className="flex items-center gap-2 mb-1">
+                <Link className="w-5 h-5"/>
+                <span className="text-white font-bold text-xl tracking-tight">URL</span>
+            </div>
 
             {!url ? (
                 <TextContainer className="w-full text-gray-400 text-sm p-4">

@@ -3,6 +3,7 @@
 import TextContainer from "@/components/container/TextContainer";
 import Image from "next/image";
 import type { getMcpDetailResponse } from "@/types/detail/detail-types";
+import {BadgeAlert } from "lucide-react";
 
 interface Props {
     data: getMcpDetailResponse["result"];
@@ -11,7 +12,11 @@ interface Props {
 export default function McpDetails({ data }: Props) {
     return (
         <>
-            <div className="text-secondary font-semibold text-lg">Details</div>
+            <div className="flex items-center gap-2 mb-1">
+                <BadgeAlert  className="w-5 h-5"/>
+                <span className="text-white font-bold text-xl tracking-tight">Detail</span>
+            </div>
+
             <TextContainer className="w-full">
                 <div className="space-y-5">
                     {/* Developer Name */}
