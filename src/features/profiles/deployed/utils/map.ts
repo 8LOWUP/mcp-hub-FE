@@ -1,11 +1,17 @@
+// src/features/profiles/deployed/utils/map.ts
 import { McpItemType } from "@/features/profiles/types";
-import { UploadedMcpItemType } from "../types/mcps"; // ✅ 서버 타입 경로로 교체
+import { UploadedMcpItemType } from "../types/mcps";
 
 export const mapToCard = (it: UploadedMcpItemType): McpItemType => ({
-    id: String(it.id),     // UI key는 문자열
-    mcpId: it.id,          // 업로드 페이지용 실제 숫자 id
+    id: String(it.id),
+    mcpId: it.id,
     title: it.name,
     description: it.description,
     imageUrl: it.imageUrl,
-    published: typeof it.published === "boolean" ? it.published : false,
+    // ✅ 리스트엔 published가 없을 수 있으므로 publishedDate/lastPublishedAt로 판정
+    published: Boolean(
+        (it as any).publishedDate ||
+        (it as any).lastPublishedAt ||
+        (typeof (it as any).published === "boolean" && (it as any).published)
+    ),
 });
