@@ -7,14 +7,20 @@ export const getMcpDetail = async (
     mcpId: number
 ): Promise<getMcpDetailResponse["result"]> => {
     const url = API_ENDPOINTS.MCP.DETAIL.replace("{mcpId}", String(mcpId));
-    console.log("📡 MCP 상세 요청 URL:", url);
+    try {
+        const response = await axiosInstance.get<getMcpDetailResponse>(url);
 
-    const response = await axiosInstance.get<getMcpDetailResponse>(url);
-    console.log("✅ MCP 상세 전체 응답:", response.data);
+        console.log("✅ MCP 상세 전체 응답:", response.data);
 
-    if (!response.data?.result) {
-        throw new Error("❌ MCP 상세 응답에 result가 없습니다.");
+        if (!response.data?.result) {
+            console.warn("⚠️ MCP 상세 응답에 result가 없습니다:", response.data);
+            throw new Error("❌ 서버 응답에 result가 없습니다.");
+        }
+
+        console.log("📦 MCP 상세 데이터(result):", response.data.result);
+        return response.data.result;
+    } catch (error: any) {
+        console.error("❌ MCP 상세 조회 실패:", error?.response || error);
+        throw error;
     }
-
-    return response.data.result;
 };

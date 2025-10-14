@@ -5,9 +5,10 @@ import type { getMcpDetailResponse } from "@/types/detail/detail-types";
 
 interface Props {
     data: getMcpDetailResponse["result"];
+    isSaved: boolean;
 }
 
-export default function MarketHeader({ data }: Props) {
+export default function MarketHeader({ data, isSaved }: Props) {
     const buildImageUrl = (path?: string | null) => {
         if (!path || path.trim() === "") return "/placeholder.png";
 
@@ -23,7 +24,7 @@ export default function MarketHeader({ data }: Props) {
     const safeName = data.name || "이름 없음";
     const safeTag = data.categoryName || "태그 없음";
     const safeDownloader = data.savedUserCount ?? 0;
-    const alreadySaved = data.alreadySaved;
+    const displaySaved = isSaved || data.alreadySaved;
 
     return (
         <div className="flex items-center gap-4">
@@ -46,7 +47,7 @@ export default function MarketHeader({ data }: Props) {
                     <div className="flex items-center gap-2">
 
                         {/*저장 상태 표시 */}
-                        {alreadySaved ? (
+                        {displaySaved ? (
                             <div className="inline-block bg-green-400/20 text-green-300 border border-green-400/30 text-xs font-medium px-2 py-1 rounded-full">
                                 저장됨
                             </div>

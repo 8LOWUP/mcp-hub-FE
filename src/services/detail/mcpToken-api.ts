@@ -10,11 +10,6 @@ import type {
 /* -------------------------------------------------------------------------- */
 /* ✅ MCP 토큰 존재 여부 확인 (GET /workspaces/mcps/token/check/{mcpId})       */
 /* -------------------------------------------------------------------------- */
-
-/**
- * 사용자의 MCP 토큰이 이미 등록되어 있는지 확인하는 API
- * 200 또는 400 모두 유효한 응답 구조를 반환함
- */
 export const getMcpTokenCheck = async (
     mcpId: number
 ): Promise<getMcpTokenCheckResponse> => {
