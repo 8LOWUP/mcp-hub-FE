@@ -1,17 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import type { getMcpDetailResponse } from "@/types/detail/detail-types"; // ✅ 올바른 타입 import
+import type { getMcpDetailResponse } from "@/types/detail/detail-types";
 
 interface Props {
     data: getMcpDetailResponse["result"];
 }
 
 export default function MarketHeader({ data }: Props) {
-    const safeLogo =
-        data.imageUrl && data.imageUrl.trim() !== ""
-            ? data.imageUrl
-            : "/placeholder.png";
+
+    const buildImageUrl = (path?: string | null) => {
+        if (!path || path.trim() === "") return "/placeholder.png";
+
+        // 중복 슬래시 방지
+        if (path.startsWith("/")) {
+            return `/__api${path}`;
+        } else {
+            return `/__api/${path}`;
+        }
+    };
+
+    const safeLogo = buildImageUrl(data.imageUrl);
+    console.log("✅ safeLogo URL:", safeLogo); //콘솔 확인용.
+
     const safeName = data.name || "이름 없음";
     const safeTag = data.categoryName || "태그 없음";
     const safeDownloader = data.savedUserCount ?? 0;
@@ -19,13 +30,10 @@ export default function MarketHeader({ data }: Props) {
     return (
         <div className="flex items-center gap-4">
             {/* MCP 로고 */}
-            <Image
+            <img
                 src={safeLogo}
                 alt={`${safeName} logo`}
-                width={100}
-                height={100}
-                unoptimized
-                className="rounded-lg object-contain"
+                className="rounded-lg object-contain w-25 h-25 overflow-hidden"
             />
 
             <div className="flex-1">
