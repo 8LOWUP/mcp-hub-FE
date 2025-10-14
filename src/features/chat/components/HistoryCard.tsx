@@ -75,7 +75,7 @@ const HistoryCard = memo(function HistoryCard({
         role="button"
         aria-pressed={isSelected}
         className={clsx(
-          "group w-full text-left rounded-lg px-5 py-5 flex flex-col gap-3 transition-all duration-300 ease-in-out",
+          "group w-full text-left rounded-md px-5 py-5 flex flex-col gap-3 transition-all duration-300 ease-in-out",
           "text-foreground",
           isSelected ? "bg-surface-3" : "bg-surface-2",
           isSelected && "ring-1 ring-inset ring-accent",

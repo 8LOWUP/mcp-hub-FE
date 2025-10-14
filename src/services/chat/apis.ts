@@ -1,6 +1,7 @@
 import { API_ENDPOINTS } from "@/constants/apis/key";
 import axiosInstance, { ApiResponse } from "../AxiosInstance";
 import { McpItem } from "@/types/api";
+import { useTokenErrorStore } from "@/store/error/error-store";
 import { 
   getWorkspaceHistory, 
   getWorkspaceResponse,
@@ -58,6 +59,14 @@ export const workspacesApi = {
       console.error('  - 에러 메시지:', error.response?.data);
       console.error('  - 요청 URL:', API_ENDPOINTS.WORKSPACES.CREATE);
       console.error('  - 요청 데이터:', JSON.stringify(data, null, 2));
+      
+      // 400 + 특정 코드(LLM002)에서만 토큰 에러 모달 표시
+      if (error.response.data.code === 'LLM002') {
+        console.log("🚨 워크스페이스 생성에서 400 에러 감지, 모달 열기 시도");
+        const { openTokenErrorModal } = useTokenErrorStore.getState();
+        openTokenErrorModal("워크스페이스 생성에 실패했습니다. LLM 토큰을 확인해주세요.");
+      }
+      
       throw error;
     }
   },
@@ -77,8 +86,22 @@ export const workspacesApi = {
 
   // 채팅 요청 API
   postSendWorkspaceChats: async (workspaceId: string, data: postSendWorkspaceChatRequestBody): Promise<postWorkspaceChattingResponse> => {
-    const response = await axiosInstance.post(API_ENDPOINTS.WORKSPACES.CHAT.replace('{workspaceId}', workspaceId), data);
-    return response.data;
+    try {
+      const response = await axiosInstance.post(API_ENDPOINTS.WORKSPACES.CHAT.replace('{workspaceId}', workspaceId), data);
+      return response.data;
+    } catch (error: any) {
+      // 400 + 특정 코드(LLM002)에서만 토큰 에러 모달 표시
+      if (error.response?.status === 400 && error?.response?.data?.code === 'LLM002') {
+        console.log("🚨 채팅 전송에서 400 에러 감지, 모달 열기 시도");
+        const { openTokenErrorModal } = useTokenErrorStore.getState();
+        openTokenErrorModal("채팅 전송에 실패했습니다. LLM 토큰을 확인해주세요.", () => {
+          console.log("채팅 전송 재시도");
+          // 재시도 로직
+          return workspacesApi.postSendWorkspaceChats(workspaceId, data);
+        });
+      }
+      throw error;
+    }
   },
 
   // 워크스페이스 상세 조회

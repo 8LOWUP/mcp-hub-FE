@@ -3,7 +3,7 @@ import clsx from "clsx";
 interface PrimaryButtonProps {
     children: React.ReactNode;
     onClick?: () => void;
-    variant?: "primary" | "secondary" | "outline";
+    variant?: "primary" | "secondary" | "outline" | "custom";
     size?: "sm" | "md" | "lg";
     additionalClassName?: string;
     disabled?: boolean;
@@ -22,6 +22,7 @@ const PrimaryButton: React.FC<PrimaryButtonProps> = ({
         primary: "bg-accent hover:bg-accent-hover text-black",
         secondary: "bg-surface-3 hover:bg-surface-4 text-secondary",
         outline: "border border-accent text-accent bg-transparent hover:bg-accent/10",
+        custom: ""
     };
 
     const sizes = {

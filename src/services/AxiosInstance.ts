@@ -278,6 +278,10 @@ axiosInstance.interceptors.response.use(
             }
         }
 
+        if (error.response?.status === 400) {
+            console.warn("⚠️ 400: 잘못된 요청 - LLM 토큰 오류 가능성");
+            // 400 에러는 특별한 처리가 필요할 수 있으므로 그대로 전달
+        }
         if (error.response?.status === 403) console.warn("🚫 접근 권한이 없습니다.");
         if (error.response?.status === 404) console.warn("🔍 요청한 리소스가 없습니다.");
         if (error.response?.status >= 500) console.error("🔥 서버 내부 오류(5xx)");

@@ -30,6 +30,9 @@ export const useWorkspaceDetail = (workspaceId: string | null) => {
   });
 };
 
+// 워크스페이스 MCP 목록 전용 조회 (정확한 동기화를 위해 사용)
+// (롤백) 별도 MCP 목록 훅 제거: 상세의 mcps 사용
+
 // 워크스페이스 채팅 로그 조회
 export const useWorkspaceChats = (workspaceId: string | null, page: number = 0, size: number = 50) => {
   const query = useQuery({

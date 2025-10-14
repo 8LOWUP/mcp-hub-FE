@@ -7,6 +7,7 @@ import ChattingWindowContainer from "@/features/chat/components/ChattingWindowCo
 import HistoryContainer from "@/features/chat/components/HistoryContainer";
 import { useTranslations } from "next-intl";
 import { useModelManager } from "@/hooks/chat/useModelManager";
+import { useTokenErrorStore } from "@/store/error/error-store";
 
 export default function ChatPage() {
   const t = useTranslations("ChatPage");
@@ -17,6 +18,12 @@ export default function ChatPage() {
 
   // 🔹 모델 매니저를 최상위에서 한 번만 호출
   const { availableModels, selectedModel, isLoading: modelsLoading, selectModel } = useModelManager();
+  const { setSelectedLLMId } = useTokenErrorStore();
+
+  // 선택된 모델 ID를 전역 스토어에 동기화 (Provider/모달에서 활용)
+  useEffect(() => {
+    setSelectedLLMId(selectedModel?.id);
+  }, [selectedModel?.id, setSelectedLLMId]);
 
   // ✅ lg 브레이크포인트에 맞춰 open 상태 자동 동기화
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { llmApi } from '@/services/chat/apis';
+import { useTokenErrorStore } from '@/store/error/error-store';
 import type { 
   postSettingLLMTokenRequestBody,
   patchLLMTokenRequestBody
@@ -28,6 +29,15 @@ export const useLLMTokens = (llmId: string | null) => {
     queryFn: () => llmApi.getLLMTokens(llmId!),
     select: (data) => data.result,
     enabled: !!llmId,
+    onError: (error: any) => {
+      if (error.response?.status === 400) {
+        const { openTokenErrorModal } = useTokenErrorStore.getState();
+        openTokenErrorModal("LLM 토큰이 유효하지 않습니다.", () => {
+          // 재시도 로직
+          window.location.reload();
+        });
+      }
+    },
   });
 };
 
@@ -41,6 +51,15 @@ export const useSetLLMToken = () => {
       // 해당 LLM의 토큰 정보 새로고침
       queryClient.invalidateQueries({ queryKey: ['llm-tokens', data.llmId] });
     },
+    onError: (error: any) => {
+      if (error.response?.status === 400) {
+        const { openTokenErrorModal } = useTokenErrorStore.getState();
+        openTokenErrorModal("LLM 토큰 설정에 실패했습니다.", () => {
+          // 재시도 로직
+          window.location.reload();
+        });
+      }
+    },
   });
 };
 
@@ -53,6 +72,15 @@ export const useUpdateLLMToken = () => {
     onSuccess: (_, data) => {
       // 해당 LLM의 토큰 정보 새로고침
       queryClient.invalidateQueries({ queryKey: ['llm-tokens', data.llmId] });
+    },
+    onError: (error: any) => {
+      if (error.response?.status === 400) {
+        const { openTokenErrorModal } = useTokenErrorStore.getState();
+        openTokenErrorModal("LLM 토큰 수정에 실패했습니다.", () => {
+          // 재시도 로직
+          window.location.reload();
+        });
+      }
     },
   });
 };
