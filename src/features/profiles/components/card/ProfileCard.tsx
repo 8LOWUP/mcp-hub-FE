@@ -1,7 +1,8 @@
+// src/features/profiles/components/card/ProfileCard.tsx
 "use client";
 
 import React from "react";
-import { McpItemType } from "../../types";
+import { McpItemType } from "../../types/mcps";
 import { PROFILES_STYLES } from "../../constants";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 
@@ -11,19 +12,22 @@ type ProfileCardProps = {
     onClose?: (id: string) => void;
 };
 
-const ProfileCard: React.FC<ProfileCardProps> = ({
-                                                     item,
-                                                     onClickApiKey,
-                                                     onClose,
-                                                 }) => {
-    const handleClickApiKey = () => {
-        // 버튼 클릭 시 포커스 잔상 제거
+const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose }) => {
+    const blurActive = () => {
         const active = document.activeElement;
         if (active instanceof HTMLElement) active.blur();
+    };
+
+    // ✅ 이벤트 인자 없이 정의 (SecondaryButton의 타입에 맞춤)
+    const handleClickApiKey = () => {
+        blurActive();
         onClickApiKey?.(item.id);
     };
 
-    const handleClose = () => {
+    // X 버튼은 네이티브 button이라 이벤트 인자 사용 가능
+    const handleClose = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        console.log("[CARD] close clicked", item.id);
         onClose?.(item.id);
     };
 
@@ -55,31 +59,22 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                         xmlns="http://www.w3.org/2000/svg"
                         className="block h-5 w-5"
                     >
-                        <path
-                            d="M1 19L17 1M17 19L1 1"
-                            stroke="#F6E577"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                        />
+                        <path d="M1 19L17 1M17 19L1 1" stroke="#F6E577" strokeWidth="2" strokeLinecap="round" />
                     </svg>
                 </button>
             </div>
 
             {/* 설명 */}
-            {item.description && (
-                <p className={PROFILES_STYLES.CARD_DESC}>{item.description}</p>
-            )}
+            {item.description && <p className={PROFILES_STYLES.CARD_DESC}>{item.description}</p>}
 
             {/* 하단 액션 */}
             <div className={PROFILES_STYLES.CARD_ACTIONS}>
-                <SecondaryButton
-                    variant="secondary"
-                    size="sm"
-                    hoverOnly
-                    onClick={handleClickApiKey}
-                >
-                    API Key
-                </SecondaryButton>
+                {/* ✅ capture 단계에서 전파 차단 → SecondaryButton은 () => void 유지 */}
+                <div onClickCapture={(e) => e.stopPropagation()}>
+                    <SecondaryButton variant="secondary" size="sm" hoverOnly onClick={handleClickApiKey}>
+                        API Key
+                    </SecondaryButton>
+                </div>
             </div>
         </article>
     );

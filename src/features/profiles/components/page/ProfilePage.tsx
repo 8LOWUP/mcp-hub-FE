@@ -32,7 +32,10 @@ const ProfilePage: React.FC = () => {
         [list, apiFlowId]
     );
 
-    const handleOpenDelete = (id: string) => setTargetId(id);
+    const handleOpenDelete = (id: string) => {
+        console.log("[PAGE] open delete modal for:", id);
+        setTargetId(id);
+    };
     const handleCloseDelete = () => setTargetId(null);
 
     const handleConfirmDelete = async () => {
