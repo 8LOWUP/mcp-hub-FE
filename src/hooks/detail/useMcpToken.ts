@@ -8,6 +8,7 @@ import type {
     postMcpTokenResponse,
 } from "@/types/detail/detail-types";
 import { toast } from "sonner";
+import {useLoginStore} from "@/store/login/login-store";
 
 /* -------------------------------------------------------------------------- */
 /* ✅ MCP 토큰 존재 여부 확인 훅 (GET /workspaces/mcps/token/check/{mcpId})    */
@@ -19,10 +20,11 @@ import { toast } from "sonner";
  * - 400: 미등록 (그래도 result 구조 포함됨)
  */
 export const useCheckMcpToken = (mcpId: number) => {
+    const { isLoggedIn } = useLoginStore();
     return useQuery<getMcpTokenCheckResponse>({
         queryKey: ["mcp-token-check", mcpId],
         queryFn: async () => await getMcpTokenCheck(mcpId),
-        enabled: !!mcpId, // mcpId가 있을 때만 실행
+        enabled: !!mcpId && isLoggedIn, // mcpId가 있을 때만 실행
         retry: false,
     });
 };

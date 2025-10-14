@@ -18,9 +18,10 @@ import { useLoginStore } from "@/store/login/login-store";
 import { useLoginModalStore } from "@/store/login/login-modal-store";
 import { useCheckMcpToken } from "@/hooks/detail/useMcpToken";
 import McpConnectModal from "@/features/detail/components/modal/McpConnectModal";
-import SaveMcpButton from "@/features/detail/components/SaveMcpButton";
-
-// ✅ [1] usePostMcpToken 훅 추가 import
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { postMcpSave } from "@/services/detail/mcp-saved-api";
+import { getMcpDetail } from "@/services/detail/mpc-api"; // ✅ 추가
 import { usePostMcpToken } from "@/hooks/detail/useMcpToken";
 
 export default function MarketDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -31,7 +32,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
     const mcpId = Number(id);
 
-    const { data: detail, isLoading: loadingDetail, error } = useMarketDetail(mcpId);
+    const { data: detail, isLoading: loadingDetail, error, refetch } = useMarketDetail(mcpId);
     const { data: reviewData, isLoading: loadingReviews } = useMarketReviews(mcpId, {
         page: 0,
         size: 10,
@@ -40,21 +41,60 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
     const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [platformId, setPlatformId] = React.useState("");
+    const [isSaved, setIsSaved] = React.useState(false);
+    const [isSaving, setIsSaving] = React.useState(false);
 
     const { isLoggedIn } = useLoginStore();
     const { open: openLoginModal } = useLoginModalStore();
 
     const { refetch: refetchToken } = useCheckMcpToken(mcpId);
-
-    // ✅ [2] MCP 토큰 등록 훅 준비
     const { mutateAsync: postToken } = usePostMcpToken();
 
-    /**
-     * ✅ Go to Chat 클릭 시 처리
-     * - 로그인 안 되어 있으면 로그인 모달
-     * - 이미 토큰 있음 → 바로 채팅 이동
-     * - 토큰 없음 → 모달에서 API Key 등록
-     */
+    React.useEffect(() => {
+        if (detail?.alreadySaved) {
+            setIsSaved(true);
+        }
+    }, [detail]);
+
+    /** ✅ MCP 저장 요청 */
+    const handleSave = async () => {
+        if (!isLoggedIn) {
+            openLoginModal();
+            return;
+        }
+
+        try {
+            setIsSaving(true);
+            const res = await postMcpSave(mcpId);
+
+            if (res.code === "SUCCESS" || res.result) {
+                toast.success("✅ MCP가 성공적으로 저장되었습니다!");
+                setIsSaved(true);
+
+                // ✅ 저장 직후 상세 데이터 재조회
+                console.log("🔄 MCP 저장 후 상세 정보 재요청 중...");
+                const detailRes = await getMcpDetail(mcpId);
+                console.log("📦 최신 MCP 상세 데이터:", detailRes);
+
+                // ✅ react-query 캐시 갱신 (있을 경우)
+                await refetch();
+            } else {
+                toast.error("⚠️ MCP 저장 실패. 다시 시도해주세요.");
+            }
+        } catch (err: any) {
+            if (err.response?.status === 402) {
+                toast.error("⚠️ 발행되지 않은 MCP입니다.");
+            } else if (err.response?.status === 400) {
+                toast.error("⚠️ 잘못된 요청입니다.");
+            } else {
+                toast.error("❌ MCP 저장에 실패했습니다.");
+            }
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    /** ✅ Go to Chat 클릭 시 처리 */
     const handleGoToChat = async () => {
         if (!isLoggedIn) {
             openLoginModal();
@@ -67,13 +107,11 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
             if (!result) throw new Error("No token check result");
 
-            // ✅ 이미 토큰 존재 → 바로 이동
             if (result.isTokenExist) {
                 router.push(`/${locale}/chat`);
                 return;
             }
 
-            // ✅ 토큰 없을 때: platformId 저장 후 모달 열기
             setPlatformId(result.platformId);
             setIsModalOpen(true);
         } catch (err: any) {
@@ -82,13 +120,9 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
         }
     };
 
-    /**
-     * ✅ [3] MCP 연결 완료 시 처리
-     * - 모달에서 토큰 등록 성공 시 자동 이동
-     */
+    /** ✅ MCP 연결 완료 시 처리 */
     const handleConnected = async () => {
         try {
-            // 🔹 토큰 등록 후 재확인 (선택사항이지만 안정적)
             const check = await refetchToken();
             if (check.data?.result.isTokenExist) {
                 router.push(`/${locale}/chat`);
@@ -108,7 +142,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
             <div className="flex flex-col md:flex-row pt-20 md:pt-30 pb-10 items-start justify-center px-4 md:px-8 gap-6 md:gap-8">
                 <div className="flex flex-col md:flex-row w-full gap-6 md:gap-8">
                     <section className="flex flex-col gap-4 md:w-4/6">
-                        <McpHeader data={detail} />
+                        <McpHeader data={detail} isSaved={isSaved} />
 
                         <div className="block md:hidden">
                             <PrimaryButton
@@ -145,21 +179,33 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
                     <aside className="flex flex-col gap-4 md:w-2/6">
                         <div className="md:mt-10 md:sticky md:top-30 flex flex-col gap-4">
-                            {/* ✅ MCP 저장 버튼 */}
                             {isLoggedIn && (
-                                <SaveMcpButton
-                                    mcpId={mcpId}
-                                    alreadySaved={detail.alreadySaved}
-                                />
+                                <>
+                                    {!isSaved ? (
+                                        <PrimaryButton
+                                            additionalClassName="w-full py-3 mb-5 text-base transition transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg rounded-full bg-amber-400 text-black hover:bg-amber-300"
+                                            onClick={handleSave}
+                                            disabled={isSaving}
+                                        >
+                                            {isSaving ? (
+                                                <span className="flex items-center justify-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          저장 중...
+                        </span>
+                                            ) : (
+                                                "💾 MCP 저장하기"
+                                            )}
+                                        </PrimaryButton>
+                                    ) : (
+                                        <PrimaryButton
+                                            additionalClassName="w-full py-3 mb-5 text-base transition transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg rounded-full"
+                                            onClick={handleGoToChat}
+                                        >
+                                            Go to Chat
+                                        </PrimaryButton>
+                                    )}
+                                </>
                             )}
-
-                            {/* ✅ 채팅 이동 버튼 */}
-                            <PrimaryButton
-                                additionalClassName="w-full py-3 mb-5 text-base transition transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg rounded-full"
-                                onClick={handleGoToChat}
-                            >
-                                Go to Chat
-                            </PrimaryButton>
 
                             <McpUrlCopy url={detail.requestUrl ?? undefined} />
                             <McpDetails data={detail} />
@@ -168,11 +214,10 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 </div>
             </div>
 
-            {/* ✅ MCP 연결 모달 */}
             <McpConnectModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onConnected={handleConnected} // 🔹 수정 포인트: 콜백 연결
+                onConnected={handleConnected}
                 mcpName={detail.name}
                 platformId={platformId}
             />
