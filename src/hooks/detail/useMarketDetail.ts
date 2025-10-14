@@ -6,7 +6,6 @@ import type { getMcpDetailResponse } from "@/types/detail/detail-types";
 
 
 // ✅ MCP 상세 조회 훅
-
 export const useMarketDetail = (mcpId: number) => {
     return useQuery<getMcpDetailResponse["result"]>({
         queryKey: ["mcpDetail", mcpId],

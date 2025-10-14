@@ -18,6 +18,7 @@ import { useLoginStore } from "@/store/login/login-store";
 import { useLoginModalStore } from "@/store/login/login-modal-store";
 import { useCheckMcpToken } from "@/hooks/detail/useMcpToken";
 import McpConnectModal from "@/features/detail/components/modal/McpConnectModal";
+import SaveMcpButton from "@/features/detail/components/SaveMcpButton";
 
 export default function MarketDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -57,6 +58,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 savedUserCount: detail.savedUserCount,
                 publishDate: detail.publishDate,
                 lastPublishDate: detail.lastPublishDate,
+                alreadySaved: detail.alreadySaved,
             });
             console.log("🧰 Tools 목록:", detail.tools);
             console.groupEnd();
@@ -145,14 +147,21 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
                     <aside className="flex flex-col gap-4 md:w-2/6">
                         <div className="md:mt-10 md:sticky md:top-30 flex flex-col gap-4">
-                            <div className="hidden md:flex justify-center w-full">
-                                <PrimaryButton
-                                    additionalClassName="w-full py-3 mb-5 text-base transition transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg rounded-full"
-                                    onClick={handleGoToChat}
-                                >
-                                    Go to Chat
-                                </PrimaryButton>
-                            </div>
+                            {/* ✅ MCP 저장 버튼 */}
+                            {isLoggedIn && (
+                                <SaveMcpButton
+                                    mcpId={mcpId}
+                                    alreadySaved={detail.alreadySaved}
+                                />
+                            )}
+
+                            {/* ✅ 채팅 이동 버튼 */}
+                            <PrimaryButton
+                                additionalClassName="w-full py-3 mb-5 text-base transition transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg rounded-full"
+                                onClick={handleGoToChat}
+                            >
+                                Go to Chat
+                            </PrimaryButton>
 
                             <McpUrlCopy url={detail.requestUrl ?? undefined} />
                             <McpDetails data={detail} />

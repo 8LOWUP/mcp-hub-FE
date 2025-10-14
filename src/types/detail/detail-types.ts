@@ -18,19 +18,23 @@ export type getMcpDetailResponse = CommonResponse<{
     licenseName: string;
     averageRating?: number | null;
     savedUserCount?: number | null;
+    alreadySaved: boolean;
 
-    // ✅ tools: 객체 배열로 수정
+    // tools: 객체 배열로 수정
     tools: {
         id: number;
         name: string;
         content: string;
     }[];
-
     publishDate?: string | null;
     lastPublishDate?: string | null;
 }>;
 
-// ✅ 리뷰 조회 (GET /mcps/review/{mcpId})
+/* -------------------------------------------------------------------------- */
+/* ✅ 리뷰 관련
+/* -------------------------------------------------------------------------- */
+
+// 리뷰 조회 (GET /mcps/review/{mcpId})
 export type getMcpReviewsRequest = {
     page: number;
     size: number;
@@ -76,7 +80,7 @@ export type getMcpReviewsResponse = CommonResponse<{
     empty: boolean;
 }>;
 
-// ✅ 리뷰 작성 (POST /mcps/review/{mcpId})
+// 리뷰 작성 (POST /mcps/review/{mcpId})
 export type postMcpReviewRequestBody = {
     rating: number;
     comment: string;
@@ -84,7 +88,7 @@ export type postMcpReviewRequestBody = {
 
 export type postMcpReviewResponse = CommonResponse<number>; // result = reviewId
 
-// ✅ 리뷰 수정 (PATCH /mcps/review/{reviewId})
+// 리뷰 수정 (PATCH /mcps/review/{reviewId})
 export type patchMcpReviewRequestBody = {
     rating: number;
     comment: string;
@@ -92,25 +96,36 @@ export type patchMcpReviewRequestBody = {
 
 export type patchMcpReviewResponse = CommonResponse<number>; // result = reviewId
 
-// ✅ 리뷰 삭제 (DELETE /mcps/review/{reviewId})
+// 리뷰 삭제 (DELETE /mcps/review/{reviewId})
 export type deleteMcpReviewResponse = CommonResponse<number>; // result = reviewId
+
+/* -------------------------------------------------------------------------- */
+/* ✅ MCP 저장 (POST /mcps/{mcpId})                                            */
+/* -------------------------------------------------------------------------- */
+/**
+ * Request Body
+ */
+export type postMcpSaveRequest = void;
+
+/**
+ * Response Body
+ */
+export type postMcpSaveResponse = CommonResponse<number>;
+
+
 
 /* -------------------------------------------------------------------------- */
 /* ✅ MCP 토큰 등록 / 변경 (POST /workspaces/mcps/token/{platformId})          */
 /* -------------------------------------------------------------------------- */
-
 /**
- * ✅ Request Body
- * 사용자의 MCP 토큰 등록 또는 변경 요청
+ * Request Body
  */
 export type postMcpTokenRequestBody = {
     token: string;
 };
 
 /**
- * ✅ Response Body
- * 200: 성공
- * 400: 유저가 저장하지 않은 MCP에 토큰 저장 시도
+ * Response Body
  */
 export type postMcpTokenResponse = CommonResponse<{
     platformId: string;
@@ -121,9 +136,7 @@ export type postMcpTokenResponse = CommonResponse<{
 /* -------------------------------------------------------------------------- */
 
 /**
- * ✅ Response Body
- * 200: 요청 성공 — 토큰이 존재하는지 여부 확인
- * 400: 유저가 저장하지 않은 MCP에 토큰 접근 시도 (이 경우도 result는 동일 구조)
+ * Response Body
  */
 export type getMcpTokenCheckResponse = CommonResponse<{
     platformId: string;
