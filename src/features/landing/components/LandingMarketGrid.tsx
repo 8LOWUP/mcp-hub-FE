@@ -6,6 +6,52 @@ import { McpCardData } from "@/features/market/types";
 import { CATEGORY_PRESET, CategoryId } from "@/features/market/constants";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+// 기본 MCP 카드 데이터 생성 함수
+const createDefaultMCPCards = (category: CategoryId): McpCardData[] => {
+  const categoryLabels = {
+    "web-search": "Web Search",
+    "memory": "Memory", 
+    "browser": "Browser",
+    "language": "Language",
+    "etc": "Etc"
+  };
+
+  const defaultCards: McpCardData[] = [
+    {
+      id: `${category}-default-1`,
+      title: `${categoryLabels[category]} MCP 1`,
+      description: `A sample ${categoryLabels[category].toLowerCase()} MCP for demonstration.`,
+      iconSrc: "/default-mcp-logo.svg",
+      saved: false,
+      usersCount: 0,
+      category: category,
+      developerName: "Sample Developer",
+    },
+    {
+      id: `${category}-default-2`,
+      title: `${categoryLabels[category]} MCP 2`, 
+      description: `Another ${categoryLabels[category].toLowerCase()} MCP example.`,
+      iconSrc: "/default-mcp-logo.svg",
+      saved: false,
+      usersCount: 0,
+      category: category,
+      developerName: "Demo Creator",
+    },
+    {
+      id: `${category}-default-3`,
+      title: `${categoryLabels[category]} MCP 3`,
+      description: `Third ${categoryLabels[category].toLowerCase()} MCP for testing.`,
+      iconSrc: "/default-mcp-logo.svg",
+      saved: false,
+      usersCount: 0,
+      category: category,
+      developerName: "Test Author",
+    }
+  ];
+  
+  return defaultCards;
+};
+
 interface LandingMarketGridProps {
   category: CategoryId;
   items: McpCardData[];
@@ -66,9 +112,8 @@ const LandingMarketGrid: React.FC<LandingMarketGridProps> = ({ category, items }
     }
   };
 
-  if (!items?.length) {
-    return null;
-  }
+  // 데이터가 없으면 기본 카드 사용
+  const displayItems = items?.length > 0 ? items : createDefaultMCPCards(category);
 
   return (
     <div className="w-full">
@@ -116,7 +161,7 @@ const LandingMarketGrid: React.FC<LandingMarketGridProps> = ({ category, items }
           msOverflowStyle: 'none',
         }}
       >
-        {items.map((item) => (
+        {displayItems.map((item) => (
           <div key={item.id} className="flex-shrink-0">
             <MCPCard {...item} />
           </div>
