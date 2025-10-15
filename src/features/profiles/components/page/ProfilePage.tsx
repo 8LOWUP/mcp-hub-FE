@@ -26,7 +26,7 @@ const ProfilePage: React.FC = () => {
         setPage,
         page,
         totalPages,
-    } = useMyMcps({ page: 0, size: 12, sort: "createdAt,desc" });
+    } = useMyMcps({ page: 0, size: 12});
 
     /** 삭제 플로우 */
     const [targetId, setTargetId] = useState<string | null>(null);
