@@ -33,10 +33,14 @@ export default function MarketHeader({ data, isSaved }: Props) {
     return (
         <div className="flex items-center gap-4">
             {/* MCP 로고 */}
-            <img
+            <Image
                 src={safeLogo}
                 alt={`${safeName} logo`}
+                width={100}
+                height={100}
                 className="rounded-lg object-contain w-25 h-25 overflow-hidden"
+                loader={imageLoader}
+                unoptimized
             />
 
             <div className="flex-1">

@@ -13,9 +13,8 @@ export default function imageLoader({ src }) {
   
   // /mcp로 시작하는 경우 API URL을 붙임
   if (src.startsWith('/mcp')) {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:8080';
-    const cleanApiUrl = apiUrl.replace(/\/+$/, '');
-    return `${cleanApiUrl}${src}`;
+    // 직접 프로덕션 서버로 요청
+    return `${process.env.NEXT_PUBLIC_API_IMAGE_URL}/${src}`;
   }
   
   // 다른 URL은 그대로 반환

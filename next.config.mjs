@@ -13,7 +13,7 @@ const nextConfig = {
 
   async rewrites() {
     if (process.env.NODE_ENV === "production") return [];
-    const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+    const raw = process.env.NEXT_PUBLIC_API_IMAGE_URL || "http://localhost:8080";
     const target = raw.replace(/\/+$/, "");
 
     return [
