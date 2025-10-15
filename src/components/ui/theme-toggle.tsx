@@ -1,6 +1,7 @@
 "use client";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+import imageLoader from "@/lib/imageLoader";
 
 
 export default function ThemeToggle() {
@@ -18,6 +19,8 @@ export default function ThemeToggle() {
                 width={36}
                 height={36}
                 priority
+                loader={imageLoader}
+                unoptimized
             />
 
         </button>
