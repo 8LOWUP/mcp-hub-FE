@@ -75,7 +75,7 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
             >
                 {preview ? (
                     <div className="relative">
-                        <Image src={preview} alt="Preview" width={120} height={120} className="rounded-md object-contain" loader={imageLoader} />
+                        <Image src={preview} alt="Preview" width={120} height={120} className="rounded-md object-contain" loader={imageLoader} unoptimized />
                         <button
                             type="button"
                             onClick={handleRemove}

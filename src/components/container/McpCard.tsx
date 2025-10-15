@@ -58,6 +58,7 @@ const MCPCard: React.FC<MCPCardProps> = ({
                                 className="w-11 h-11 ml-1 flex-shrink-0"
                                 onError={() => setImageError(true)}
                                 loader={imageLoader}
+                                unoptimized
                             />
                         ) : (
                             <div className="w-11 h-11 ml-1 flex-shrink-0 flex items-center justify-center bg-surface-2 rounded text-xs text-secondary font-bold">
@@ -96,6 +97,7 @@ const MCPCard: React.FC<MCPCardProps> = ({
                             height={16}
                             className="w-4 h-4 opacity-80"
                             loader={imageLoader}
+                            unoptimized
                         />
                         {usersCount}
                     </div>

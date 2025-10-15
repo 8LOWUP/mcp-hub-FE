@@ -19,6 +19,7 @@ export default function MarketHeader({ data }: Props) {
                 height={100}
                 className="rounded-lg object-contain"
                 loader={imageLoader}
+                unoptimized
             />
 
             <div className="flex-1">
@@ -41,6 +42,7 @@ export default function MarketHeader({ data }: Props) {
                             height={16}
                             className="w-4 h-4"
                             loader={imageLoader}
+                            unoptimized
                         />
                         <span className="text-sm">{data.downloader}</span>
                     </div>

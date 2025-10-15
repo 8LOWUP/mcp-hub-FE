@@ -30,7 +30,7 @@ const SocialSignInButton: React.FC<Props> = ({ provider, onClick, disabled }) =>
             ].join(" ")}
             aria-label={PROVIDER_LABEL[provider]}
         >
-            <Image src={ICON_SRC[provider]} alt="" width={22} height={22} loader={imageLoader} />
+            <Image src={ICON_SRC[provider]} alt="" width={22} height={22} loader={imageLoader} unoptimized />
             <span className="text-body3">{PROVIDER_LABEL[provider]}</span>
         </button>
     );

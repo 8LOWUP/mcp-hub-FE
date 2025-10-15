@@ -23,7 +23,7 @@ export default function Footer() {
 
                     {/* 왼쪽: 로고 및 서비스 이름 */}
                     <div className="flex items-center gap-3">
-                        <Image src="/logo.svg" alt="MCP Hub Logo" width={28} height={28} loader={imageLoader} />
+                        <Image src="/logo.svg" alt="MCP Hub Logo" width={28} height={28} loader={imageLoader} unoptimized />
                         <div>
                             <p className="text-primary font-bold">MCP Hub</p>
                             <p className="text-muted text-body4 mt-1">
@@ -50,7 +50,7 @@ export default function Footer() {
                                     aria-label={link.alt}
                                     className={link.alt === "Notion Icon" ? "mt-2" : ""}
                                 >
-                                    <Image src={link.src} alt={link.alt} width={24} height={24} loader={imageLoader} />
+                                    <Image src={link.src} alt={link.alt} width={24} height={24} loader={imageLoader} unoptimized />
                                 </Link>
                             ))}
                         </div>

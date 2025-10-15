@@ -82,6 +82,7 @@ const Header: React.FC = () => {
                             height={24} 
                             priority 
                             loader={imageLoader}
+                            unoptimized
                         />
                         <button
                             type="button"
@@ -136,6 +137,7 @@ const Header: React.FC = () => {
                                         height={32}
                                         className="object-cover w-full h-full"
                                         loader={imageLoader}
+                                        unoptimized
                                     />
                                 </button>
                                 {/* 로그아웃 버튼 */}

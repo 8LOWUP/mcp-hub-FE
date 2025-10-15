@@ -29,7 +29,7 @@ const LocaleSwitcher = () => {
       aria-label="Toggle locale"
       title={`Switch to ${next.toUpperCase()}`}
     >
-      <Image src="/locale.svg" alt="Locale icon" width={20} height={20} loader={imageLoader} />
+      <Image src="/locale.svg" alt="Locale icon" width={20} height={20} loader={imageLoader} unoptimized />
     </button>
   );
 }
