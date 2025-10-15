@@ -179,7 +179,23 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
                     <aside className="flex flex-col gap-4 md:w-2/6">
                         <div className="md:mt-10 md:sticky md:top-30 flex flex-col gap-4">
-                            {isLoggedIn && (
+                            {/* ✅ 로그인 여부 분기 처리 */}
+                            {!isLoggedIn ? (
+                                <PrimaryButton
+                                    disabled
+                                    additionalClassName="
+                                        w-full py-3 mb-5 text-base rounded-full
+    bg-gray-100/40 text-gray-400 font-medium
+    border border-gray-300/30
+    backdrop-blur-sm
+    cursor-not-allowed
+    shadow-sm
+    hover:scale-100 hover:shadow-none hover:brightness-100
+    transition-all duration-200"
+                                >
+                                    로그인 후 이용할 수 있습니다
+                                </PrimaryButton>
+                            ) : (
                                 <>
                                     {!isSaved ? (
                                         <PrimaryButton
@@ -189,9 +205,9 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                                         >
                                             {isSaving ? (
                                                 <span className="flex items-center justify-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          저장 중...
-                        </span>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                저장 중...
+              </span>
                                             ) : (
                                                 "💾 MCP 저장하기"
                                             )}
@@ -211,6 +227,9 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                             <McpDetails data={detail} />
                         </div>
                     </aside>
+
+
+
                 </div>
             </div>
 

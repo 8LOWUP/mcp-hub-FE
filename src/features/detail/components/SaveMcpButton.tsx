@@ -2,6 +2,7 @@
 
 import { useMcpSave } from "@/hooks/detail/useMcpSave";
 import { Loader2 } from "lucide-react";
+import {useLoginStore} from "@/store/login/login-store";
 
 interface SaveMcpButtonProps {
     mcpId: number;
@@ -15,11 +16,24 @@ interface SaveMcpButtonProps {
  */
 export default function SaveMcpButton({ mcpId, alreadySaved }: SaveMcpButtonProps) {
     const { mutate: saveMcp, isPending } = useMcpSave();
+    const {isLoggedIn} = useLoginStore();
 
     const handleSave = () => {
         if (alreadySaved) return;
         saveMcp(mcpId);
     };
+
+    // ✅ 로그인하지 않은 경우 — 버튼 디자인 그대로, 작동 비활성화
+    if (!isLoggedIn) {
+        return (
+            <button
+                disabled
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 bg-gray-700 text-gray-400 cursor-not-allowed"
+            >
+                🔒 로그인 후 이용할 수 있습니다
+            </button>
+        );
+    }
 
     return (
         <button

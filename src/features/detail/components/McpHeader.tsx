@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import type { getMcpDetailResponse } from "@/types/detail/detail-types";
+import{useLoginStore } from "@/store/login/login-store"
 
 interface Props {
     data: getMcpDetailResponse["result"];
@@ -9,6 +10,8 @@ interface Props {
 }
 
 export default function MarketHeader({ data, isSaved }: Props) {
+    const {isLoggedIn} = useLoginStore();
+
     const buildImageUrl = (path?: string | null) => {
         if (!path || path.trim() === "") return "/placeholder.png";
 
@@ -47,14 +50,16 @@ export default function MarketHeader({ data, isSaved }: Props) {
                     <div className="flex items-center gap-2">
 
                         {/*저장 상태 표시 */}
-                        {displaySaved ? (
-                            <div className="inline-block bg-green-400/20 text-green-300 border border-green-400/30 text-xs font-medium px-2 py-1 rounded-full">
-                                저장됨
-                            </div>
-                        ) : (
-                            <div className="inline-block bg-gray-500/20 text-gray-300 border border-gray-500/30 text-xs font-medium px-2 py-1 rounded-full">
-                                저장 안 됨
-                            </div>
+                        {isLoggedIn && (
+                            displaySaved ? (
+                                <div className="inline-block bg-green-400/20 text-green-300 border border-green-400/30 text-xs font-medium px-2 py-1 rounded-full">
+                                    저장됨
+                                </div>
+                            ) : (
+                                <div className="inline-block bg-gray-500/20 text-gray-300 border border-gray-500/30 text-xs font-medium px-2 py-1 rounded-full">
+                                    저장 안 됨
+                                </div>
+                            )
                         )}
 
                         {/* 카테고리 태그 */}

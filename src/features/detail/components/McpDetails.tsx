@@ -48,8 +48,8 @@ export default function McpDetails({ data }: Props) {
                                     rel="noopener noreferrer"
                                     className="flex items-center text-white space-x-2 hover:underline"
                                 >
-                                    <span className="truncate max-w-[200px]">
-                                        {data.sourceUrl}
+                                    <span className="truncate block max-w-[160px] text-right">
+                                      {data.sourceUrl}
                                     </span>
                                     <Image
                                         src="/sourceCode.svg"
@@ -73,7 +73,7 @@ export default function McpDetails({ data }: Props) {
                         </div>
                     </div>
 
-                    {/* ✅ Connection Platform (string만) */}
+                    {/* Connection Platform */}
                     <div className="flex justify-between items-center">
                         <div className="text-secondary">Connection Platform</div>
                         <div className="text-white">

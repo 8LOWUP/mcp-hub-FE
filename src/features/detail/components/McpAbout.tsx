@@ -15,7 +15,7 @@ export default function McpAbout({ about }: Props) {
             </div>
 
             <TextContainer className="w-full border border-contrast text-left tracking-wide leading-relaxed text-white">
-                {about || "No description available."} {/* ✅ fallback */}
+                {about || "작성된 설명이 없습니다."}
             </TextContainer>
         </>
     );
