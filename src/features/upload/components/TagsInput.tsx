@@ -1,15 +1,20 @@
 "use client";
+import { useState, useEffect, forwardRef } from "react";
 
-import { forwardRef, useState } from "react";
+interface Props { defaultValue?: string; } // ⬅️ 추가
 
-const TagsInput = forwardRef<HTMLInputElement>((_, ref) => {
+const TagsInput = forwardRef<HTMLInputElement, Props>(({ defaultValue }, ref) => {
     const tags = ["web server", "memory", "browser", "language", "etc"];
-    const [selectedTag, setSelectedTag] = useState<string>("etc"); // ✅ 기본값 etc
+    const [selectedTag, setSelectedTag] = useState<string>("etc");
 
-    const handleTagClick = (tag: string) => {
-        setSelectedTag(tag);
-        console.log("📌 선택된 카테고리:", tag);
-    };
+    // ✨ 프리필
+    useEffect(() => {
+        if (!defaultValue) return;
+        const lower = defaultValue.toLowerCase();
+        setSelectedTag(tags.includes(lower) ? lower : "etc");
+    }, [defaultValue]);
+
+    const handleTagClick = (tag: string) => { setSelectedTag(tag); };
 
     return (
         <div className="mb-6 w-full">
@@ -20,25 +25,15 @@ const TagsInput = forwardRef<HTMLInputElement>((_, ref) => {
                         key={tag}
                         onClick={() => handleTagClick(tag)}
                         className={`flex-1 min-w-[120px] text-center text-base px-6 py-3 rounded-2xl shadow-md cursor-pointer
-              ${
-                            selectedTag === tag
-                                ? "bg-accent text-black"
-                                : "bg-surface-2 hover:bg-accent hover:text-black"
-                        }`}
+              ${selectedTag === tag ? "bg-accent text-black" : "bg-surface-2 hover:bg-accent hover:text-black"}`}
                     >
-                        {tag}
-                    </span>
+            {tag}
+          </span>
                 ))}
             </div>
 
-            {/* ✅ ref를 hidden input에 직접 연결 */}
-            <input
-                type="hidden"
-                name="category"
-                ref={ref}
-                value={selectedTag}
-                readOnly
-            />
+            {/* 선택값 전달용 hidden */}
+            <input type="hidden" name="category" ref={ref} value={selectedTag} readOnly />
         </div>
     );
 });

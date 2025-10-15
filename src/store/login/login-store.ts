@@ -4,8 +4,11 @@ import { persist } from "zustand/middleware";
 import { LOCAL_STORAGE_KEY } from "@/constants/apis/key";
 
 export interface User {
-    id: string; email: string; nickname: string;
-    profileImage?: string; provider?: "google" | "kakao" | "github";
+    id: string;
+    email: string;
+    nickname: string;
+    avatarUrl?: string;
+    provider?: "google" | "kakao" | "github";
     createdAt?: string; updatedAt?: string;
 }
 

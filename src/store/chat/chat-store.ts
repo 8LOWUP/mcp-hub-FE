@@ -121,7 +121,7 @@ export const useChatStore = create<ChatState>()(
           };
 
           if (isNew) {
-            // Convert new chat to a real workspace immediately on first send
+            // Convert new chat to a real workspaces immediately on first send
             const newWorkspaceId = `ws-${Math.random().toString(36).slice(2, 8)}`;
             const newTitle = text.trim().slice(0, 30) || "New chat";
 
@@ -129,7 +129,7 @@ export const useChatStore = create<ChatState>()(
               const oldMsgs = prev.messagesByWorkspace[currentId] ?? [];
               const updatedMsgs = [...oldMsgs, userMsg];
 
-              // replace workspace summary entry
+              // replace workspaces summary entry
               const updatedList: WorkspaceSummary[] = prev.workspaces.map((w) =>
                 w.workspaceId === currentId ? { ...w, workspaceId: newWorkspaceId, title: newTitle } : w
               );
@@ -177,7 +177,7 @@ export const useChatStore = create<ChatState>()(
             return;
           }
 
-          // Existing workspace flow
+          // Existing workspaces flow
           set((prev) => ({
             messagesByWorkspace: {
               ...prev.messagesByWorkspace,

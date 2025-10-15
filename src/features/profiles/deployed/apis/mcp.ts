@@ -1,9 +1,10 @@
+// src/features/profiles/deployed/apis/mcp.ts
 import { axiosInstance } from "@/services/AxiosInstance";
 import {
     UploadedMcpItemType,
     UploadedMcpPageType,
     UploadedMcpQueryType,
-} from "../types/mcps"; // ✅ 서버 타입만 import (UI 타입 X)
+} from "../types/mcps";
 
 /* ------------------------------
  * 서버 응답(raw) 타입
@@ -26,8 +27,9 @@ type ServerDashboardItem = {
     licenseName?: string;
     averageRating?: number;
     savedUserCount?: number;
-    publishedDate?: string; // ISO
-    published?: boolean;    // 스웨거에 있으면 사용, 없으면 undefined
+    publishedDate?: string | null;
+    lastPublishedAt?: string | null;
+    published?: boolean;
 };
 
 type ServerDashboardPage = {
@@ -59,9 +61,9 @@ const normalize = <T>(raw: unknown): T => {
     return raw as T;
 };
 
-/** 서버 아이템 → 서버 타입(숫자 id)으로 변환 */
+/** 서버 아이템 → 앱에서 쓰는 아이템 타입으로 변환 */
 const toUploadedMcpItem = (it: ServerDashboardItem): UploadedMcpItemType => ({
-    id: it.id,                          // ✅ 숫자 id 유지
+    id: it.id,
     name: it.name,
     description: it.description,
     imageUrl: it.imageUrl,
@@ -74,7 +76,11 @@ const toUploadedMcpItem = (it: ServerDashboardItem): UploadedMcpItemType => ({
     platformName: it.platformName,
     licenseId: it.licenseId,
     licenseName: it.licenseName,
-    published: it.published,            // 있으면 사용
+    averageRating: it.averageRating,
+    savedUserCount: it.savedUserCount,
+    publishedDate: it.publishedDate ?? null,
+    lastPublishedAt: it.lastPublishedAt ?? null,
+    published: it.published,
 });
 
 /* ------------------------------
@@ -83,19 +89,21 @@ const toUploadedMcpItem = (it: ServerDashboardItem): UploadedMcpItemType => ({
 export const fetchMyUploadedMcps = async (
     query: UploadedMcpQueryType
 ): Promise<UploadedMcpPageType> => {
-    const params = {
+    const params: Record<string, any> = {
         page: query.page ?? 0,
         size: query.size ?? 12,
         sort: query.sort ?? "publishedDate,desc",
-        category: query.category ?? "",
         search: query.search ?? "",
     };
+    if (query.category !== "" && query.category != null) {
+        params.category = query.category;
+    }
 
     const { data } = await axiosInstance.get("/mcps/dashboard", { params });
     const page = normalize<ServerDashboardPage>(data);
 
     return {
-        content: (page.content ?? []).map(toUploadedMcpItem), // ✅ 서버 타입 배열
+        content: (page.content ?? []).map(toUploadedMcpItem),
         totalElements: page.totalElements ?? 0,
         totalPages: page.totalPages ?? 0,
         number: page.number ?? (query.page ?? 0),
@@ -119,5 +127,9 @@ export const deleteMyUploadedMcp = async (mcpId: string | number) => {
     const { data } = await axiosInstance.delete<ApiEnvelope<number>>(
         `/mcps/dashboard/${mcpId}`
     );
-    return data; // { message, code, result }
+    return data; // { timestamp, code, message, result }
 };
+
+
+const mcpApi = { fetchMyUploadedMcps, deleteMyUploadedMcp };
+export default mcpApi;

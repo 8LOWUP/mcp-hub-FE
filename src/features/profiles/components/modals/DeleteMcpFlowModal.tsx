@@ -30,24 +30,41 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
         if (isOpen) {
             setStep("confirm");
             setIsLoading(false);
+            // 디버깅용
+            // eslint-disable-next-line no-console
+            console.log("[MODAL] mounted (isOpen=true)");
         }
     }, [isOpen]);
 
     const handleConfirm = async () => {
         try {
             setIsLoading(true);
+            // eslint-disable-next-line no-console
+            console.log("[MODAL] confirm clicked");
             await onConfirm();
             setStep("done");
         } catch (e) {
-            console.error(e);
-            // 필요시 에러 토스트/문구 추가
+            // eslint-disable-next-line no-console
+            console.error("[MODAL] confirm error", e);
         } finally {
             setIsLoading(false);
         }
     };
 
-    return (
-        <BaseModal isOpen={isOpen} onClose={onClose} title={title} size="md">
+    // 진행 중에는 밖을 눌러도 닫히지 않게 막기 (BaseModal이 지원한다면)
+    const handleRequestClose = () => {
+        if (isLoading) return; // 진행 중 닫기 방지
+        onClose();
+    };
+
+    // ✅ isOpen일 때만 마운트 (렌더) — 포털/포커스/전파 이슈 최소화
+    return isOpen ? (
+        <BaseModal
+            isOpen={true}
+            onClose={handleRequestClose}
+            title={title}
+            size="md"
+        >
             <div className="flex flex-col gap-6">
                 {isConfirm ? (
                     <>
@@ -67,7 +84,7 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
                                 variant="secondary"
                                 size="md"
                                 additionalClassName="min-w-[96px] justify-center"
-                                onClick={onClose}
+                                onClick={handleRequestClose}
                                 disabled={isLoading}
                             >
                                 Cancel
@@ -102,7 +119,7 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
                 )}
             </div>
         </BaseModal>
-    );
+    ) : null;
 };
 
 export default DeleteMcpFlowModal;

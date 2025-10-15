@@ -62,9 +62,13 @@ const BaseModal: React.FC<BaseModalProps> = ({
         if (e.target === e.currentTarget) onClose();
     };
 
+    if (isOpen && mounted) {
+        console.log('[BaseModal] 렌더링됨 - 포털 생성됨');
+    }
+
     return createPortal(
         <div
-            className="fixed inset-0 z-[1000] flex items-center justify-center"
+            className="fixed inset-0 z-[100000] flex items-center justify-center"
             onMouseDown={handleBackdropClick}
         >
             {/* 오버레이: 공용 색상 체계 유지(반투명 검정은 유틸이 없으니 유일하게 투명도만 직접 지정) */}
