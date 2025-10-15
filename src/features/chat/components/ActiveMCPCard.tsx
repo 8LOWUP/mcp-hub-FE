@@ -31,7 +31,7 @@ export default function ActiveMCPCard({
         isLoading ? "opacity-50 pointer-events-none" : ""
       ].join(" ")}
     >
-      {/* 좌측: 아이콘 + 이름 */}
+      {/* 좌측: 아이콘/이미지 + 이름 */}
       <div className="flex items-center gap-2">
         {active ? (
           <TbCloudCheck className="text-accent text-lg" />
