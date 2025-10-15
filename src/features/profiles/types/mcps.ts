@@ -1,22 +1,32 @@
-
-
-/* 카드 컴포넌트가 기대하는 형태와 일치시킴 */
+/* 카드 컴포넌트(및 훅/서비스)에서 공통으로 기대하는 형태 */
 export type McpItemType = {
-    id: string;              // ✅ UI는 string id 기대 → 문자열로 통일
-    title: string;           // ✅ UI에서 title 사용 → name을 매핑해서 채움
-    name: string;
-    version: string;
-    description: string;
-    imageUrl: string;
-    categoryName: string;
-    platformName: string;
-    licenseName: string;
-    createdAt: string;
-    apiKey?: string;         // ✅ API Key 모달에서 사용
+    /** FE 카드용 문자열 id (UI 클릭/키로 사용) */
+    id: string;
+    /** 서버 숫자 id (API 호출용) */
+    mcpId: number;
+
+    /** 플랫폼 기준 API Key 관리를 위해 필요 (없을 수도 있으니 옵셔널) */
+    platformId?: string;
+
+    /** UI 표기용 */
+    title: string;
+
+    /** 부가정보: 화면에 따라 있을 수도/없을 수도 있으니 옵셔널 처리 */
+    name?: string;
+    version?: string;
+    description?: string;
+    imageUrl?: string;
+    categoryName?: string;
+    platformName?: string;
+    licenseName?: string;
+    createdAt?: string;
+    apiKey?: string;
+    published?: boolean;
 };
 
+/* 페이지 요청/응답 공통 타입 */
 export type PageRequestType = {
-    page?: number;
+    page?: number; // 0-base
     size?: number;
     search?: string;
     sort?: string;
@@ -26,9 +36,10 @@ export type PageResponseType<T> = {
     content: T[];
     totalElements: number;
     totalPages: number;
-    number: number;
+    number: number; // 현재 페이지(0-base)
     size: number;
-    first: boolean;
-    last: boolean;
-    empty: boolean;
+    /** 아래 3개는 서버에서 안 줄 수 있으니 옵셔널로 */
+    first?: boolean;
+    last?: boolean;
+    empty?: boolean;
 };

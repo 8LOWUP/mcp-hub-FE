@@ -1,26 +1,28 @@
+// src/constants/apis/key.ts
+
 // API 관련 상수 정의
 export const LOCAL_STORAGE_KEY = {
-  accessToken: 'accessToken',
-  refreshToken: 'refreshToken',
-  user: 'user',
+  accessToken: "accessToken",
+  refreshToken: "refreshToken",
+  user: "user",
 } as const;
 
 // API Base URL (스웨거 문서 기반)
-export const API_BASE_URL = 'http://61.109.236.22';
+export const API_BASE_URL = "http://61.109.236.22";
 
 // API 엔드포인트 상수 (실제 스웨거 문서 기반)
 export const API_ENDPOINTS = {
   // 파일 관련
   FILES: {
-    LIST: '/files',
-    UPLOAD: '/files/{category}',
-    PRESIGNED_URL: '/files/presigned-url/{category}',
-    DELETE: '/files',
+    LIST: "/files",
+    UPLOAD: "/files/{category}",
+    PRESIGNED_URL: "/files/presigned-url/{category}",
+    DELETE: "/files",
   },
   // LLM 관련
   LLM: {
-    LIST: '/workspaces/llm',
-    TOKEN: '/workspaces/llm/token/{llmId}',
+    LIST: "/workspaces/llm",
+    TOKEN: "/workspaces/llm/token/{llmId}",
   },
   // MCP 관련
   MCP: {
@@ -44,30 +46,31 @@ export const API_ENDPOINTS = {
   },
   // 사용자(Members) 관련
   MEMBERS: {
-    ME: '/members/me',
-    DETAIL: '/members/{memberId}',
-    SEARCH: '/members/search',
+    ME: "/members/me",
+    DETAIL: "/members/{memberId}",
+    SEARCH: "/members/search",
     // 인증 관련
-    AUTH_LOGOUT: '/members/auth/logout',
-    AUTH_TOKEN_REISSUE: '/members/auth/token/reissue',
-    AUTH_SOCIAL_KAKAO: '/members/auth/social/kakao',
-    AUTH_SOCIAL_GOOGLE: '/members/auth/social/google',
-    AUTH_SOCIAL_GITHUB: '/members/auth/social/github',
+    AUTH_LOGOUT: "/members/auth/logout",
+    AUTH_TOKEN_REISSUE: "/members/auth/token/reissue",
+    AUTH_SOCIAL_KAKAO: "/members/auth/social/kakao",
+    AUTH_SOCIAL_GOOGLE: "/members/auth/social/google",
+    AUTH_SOCIAL_GITHUB: "/members/auth/social/github",
   },
   // 워크스페이스 관련
   WORKSPACES: {
-    LIST: '/workspaces',
-    CREATE: '/workspaces',
-    DETAIL: '/workspaces/{workspaceId}',
-    UPDATE_TITLE: '/workspaces/{workspaceId}',
-    UPDATE_MCPS: '/workspaces/{workspaceId}/mcps',
-    DELETE: '/workspaces/{workspaceId}',
-    CHATS: '/workspaces/{workspaceId}/chats',
-    CHAT: '/workspaces/{workspaceId}/chats',
-    MCPS: '/workspaces/{workspaceId}/mcps',
+    LIST: "/workspaces",
+    CREATE: "/workspaces",
+    DETAIL: "/workspaces/{workspaceId}",
+    UPDATE_TITLE: "/workspaces/{workspaceId}",
+    UPDATE_MCPS: "/workspaces/{workspaceId}/mcps",
+    DELETE: "/workspaces/{workspaceId}",
+    CHATS: "/workspaces/{workspaceId}/chats",
+    CHAT: "/workspaces/{workspaceId}/chats",
+    MCPS: "/workspaces/{workspaceId}/mcps",
 
-      MCPS_TOKEN_CHECK: '/workspaces/mcps/token/check/{mcpId}', // mcp 구매 저장
-      MCPS_TOKEN: '/workspaces/mcps/token/{platformId}', //mcp 토큰 등록
+    // ✅ 플랫폼 기준 MCP 토큰
+    MCPS_TOKEN_CHECK: "/workspaces/mcps/token/check/{mcpId}",
+    MCPS_TOKEN: "/workspaces/mcps/token/{platformId}",
   },
 } as const;
 
@@ -77,9 +80,10 @@ export const PUBLIC_PATHS = [
   API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_KAKAO,
   API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_GOOGLE,
   API_ENDPOINTS.MEMBERS.AUTH_SOCIAL_GITHUB,
+
   // MCP 공개 정보 (조회만 공개)
   API_ENDPOINTS.MCP.LIST,
-  //API_ENDPOINTS.MCP.DASHBOARD,
+  API_ENDPOINTS.MCP.DETAIL,             // ✅ 상세 조회 공개
   API_ENDPOINTS.MCP.DASHBOARD_CATEGORY,
   API_ENDPOINTS.MCP.DASHBOARD_LICENSE,
   API_ENDPOINTS.MCP.DASHBOARD_PLATFORM,
@@ -87,6 +91,7 @@ export const PUBLIC_PATHS = [
   //API_ENDPOINTS.MCP.REVIEW, -> mcp 작성, 수정, 삭제는 로그인 필요
   // LLM 공개 정보
   API_ENDPOINTS.LLM.LIST,
+
   // 사용자 검색
   API_ENDPOINTS.MEMBERS.SEARCH,
   API_ENDPOINTS.MEMBERS.DETAIL,
@@ -105,19 +110,19 @@ export const HTTP_STATUS = {
 
 // API 응답 코드 상수
 export const API_RESPONSE_CODE = {
-  SUCCESS: 'SUCCESS',
-  ERROR: 'ERROR',
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  AUTH_ERROR: 'AUTH_ERROR',
-  NOT_FOUND: 'NOT_FOUND',
-  SERVER_ERROR: 'SERVER_ERROR',
+  SUCCESS: "SUCCESS",
+  ERROR: "ERROR",
+  VALIDATION_ERROR: "VALIDATION_ERROR",
+  AUTH_ERROR: "AUTH_ERROR",
+  NOT_FOUND: "NOT_FOUND",
+  SERVER_ERROR: "SERVER_ERROR",
 } as const;
 
 // 파일 업로드 관련 상수
 export const UPLOAD_CONSTANTS = {
   MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
-  ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-  ALLOWED_FILE_TYPES: ['application/pdf', 'text/plain', 'application/json'],
+  ALLOWED_IMAGE_TYPES: ["image/jpeg", "image/png", "image/gif", "image/webp"],
+  ALLOWED_FILE_TYPES: ["application/pdf", "text/plain", "application/json"],
 } as const;
 
 // 페이지네이션 관련 상수

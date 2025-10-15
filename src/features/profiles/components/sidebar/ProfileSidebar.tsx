@@ -1,4 +1,3 @@
-// src/features/profiles/components/sidebar/ProfileSidebar.tsx
 "use client";
 
 import React from "react";
@@ -121,27 +120,22 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
     };
 
     const displayName = profile?.nickname ?? username;
+    const avatarSrc = profile?.avatarUrl ?? undefined; // ✅ 훅에서 폴백 처리됨
 
     return (
         <aside className="w-full max-w-[280px] px-6 py-8 flex h-full flex-col">
-            <SidebarHeader username={displayName} />
+            {/* ✅ 아바타 이미지 전달 */}
+            <SidebarHeader username={displayName} avatarSrc={avatarSrc} />
+
             <SidebarNav activeKey={activeKey} />
 
             <div className="mt-auto pt-6 space-y-3">
                 {/* Edit Profile */}
-                <PrimaryButton
-                    size="md"
-                    additionalClassName="w-full justify-center"
-                    onClick={() => setOpenEdit(true)}
-                >
+                <PrimaryButton size="md" additionalClassName="w-full justify-center" onClick={() => setOpenEdit(true)}>
                     Edit Profile
                 </PrimaryButton>
 
-                <PrimaryButton
-                    size="md"
-                    additionalClassName="w-full justify-center"
-                    onClick={handleLogout}
-                >
+                <PrimaryButton size="md" additionalClassName="w-full justify-center" onClick={handleLogout}>
                     Log Out
                 </PrimaryButton>
 
@@ -160,7 +154,6 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                 isOpen={openDelete}
                 onClose={() => setOpenDelete(false)}
                 onRequestDelete={requestDelete}
-                // isSubmitting={isDeleting} // 컴포넌트가 지원하면 버튼 로딩 표시
             />
 
             {/* 프로필 수정 모달 */}

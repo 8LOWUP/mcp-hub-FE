@@ -242,11 +242,11 @@ export type ChatState = {
   workspaces: WorkspaceSummary[];
   currentWorkspaceId: string | null; // "new-..." for not yet created
 
-  // message cache per workspace
+  // message cache per workspaces
   messagesByWorkspace: MessagesByWorkspace;
   sendingByWorkspace: SendingByWorkspace;
 
-  // detail cache per workspace (Active MCP etc.)
+  // detail cache per workspaces (Active MCP etc.)
   workspaceCache: Record<string, Partial<WorkspaceDetail> & { selectedMcpId?: string } >;
 
   // ui loading flags
