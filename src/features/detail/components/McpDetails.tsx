@@ -3,7 +3,10 @@
 import TextContainer from "@/components/container/TextContainer";
 import Image from "next/image";
 import type { getMcpDetailResponse } from "@/types/detail/detail-types";
+<<<<<<< HEAD
 import imageLoader from "@/lib/imageLoader";
+=======
+>>>>>>> e796a77 ([feat]:sparkles: 제목 컴포넌트 추가)
 import {BadgeAlert } from "lucide-react";
 
 interface Props {

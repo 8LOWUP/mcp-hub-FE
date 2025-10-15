@@ -1,5 +1,6 @@
 import TextContainer from "@/components/container/TextContainer";
-import type { getMcpDetailResponse } from "@/types/detail/detail-types";  // ✅ 올바른 타입 import
+import type { getMcpDetailResponse } from "@/types/detail/detail-types";
+import {FlagTriangleRight  } from "lucide-react";  // ✅ 올바른 타입 import
 
 interface Props {
     about?: getMcpDetailResponse["result"]["description"]; // optional
@@ -8,7 +9,11 @@ interface Props {
 export default function McpAbout({ about }: Props) {
     return (
         <>
-            <div className="text-secondary font-semibold text-lg">About</div>
+            <div className="flex items-center gap-2 mb-1">
+                <FlagTriangleRight className="w-5 h-5"/>
+                <span className="text-white font-bold text-xl tracking-tight">About</span>
+            </div>
+
             <TextContainer className="w-full border border-contrast text-left tracking-wide leading-relaxed text-white">
                 {about || "No description available."} {/* ✅ fallback */}
             </TextContainer>
