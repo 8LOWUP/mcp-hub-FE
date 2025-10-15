@@ -1,4 +1,3 @@
-// src/features/profiles/components/page/ProfilePage.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -52,14 +51,12 @@ const ProfilePage: React.FC = () => {
 
     /** API Key 버튼 클릭 → 모달 즉시 오픈 → platformId 확보 → 현재 토큰 프리필 */
     const handleOpenApiKey = async (platformIdOrNull: string | null, mcpId: number) => {
-        // 일단 모달 열어서 사용자에게 즉시 피드백
         setIsApiModalOpen(true);
         setModalLoading(true);
         setModalApiKey("");
         setSelectedPlatformId(null);
 
         try {
-            // mcpId 방어적 보정
             const numericId = Number(mcpId);
             if (Number.isNaN(numericId)) {
                 console.warn("[ProfilePage] invalid mcpId for ApiKey modal:", { mcpId });
@@ -68,11 +65,10 @@ const ProfilePage: React.FC = () => {
                 return;
             }
 
-            // platformId 없으면 check API로 역조회
             let pf = platformIdOrNull;
             if (!pf) {
                 const check = await checkWorkspaceMcpToken(numericId);
-                pf = check.platformId;
+                pf = check.platformId; // 서버가 string으로 반환
                 if (!pf) {
                     toast.error("이 MCP의 platformId를 찾을 수 없습니다.");
                     setModalLoading(false);
@@ -81,7 +77,6 @@ const ProfilePage: React.FC = () => {
             }
             setSelectedPlatformId(pf);
 
-            // 현재 저장된 토큰 프리필 (없으면 빈 문자열)
             try {
                 const tokenRes = await getWorkspaceMcpToken(pf);
                 setModalApiKey(tokenRes?.token ?? "");
@@ -114,7 +109,7 @@ const ProfilePage: React.FC = () => {
             await saveWorkspaceMcpToken(selectedPlatformId, nextKey);
             setModalApiKey(nextKey);
             toast.success("API Key가 저장되었습니다.");
-            setIsApiModalOpen(false); // 모달 유지 원하면 이 줄 제거
+            setIsApiModalOpen(false);
         } catch (e) {
             console.error("[ProfilePage] handleEditApiKey error:", e);
             toast.error("저장에 실패했습니다.");
@@ -134,7 +129,7 @@ const ProfilePage: React.FC = () => {
             await saveWorkspaceMcpToken(selectedPlatformId, "");
             setModalApiKey("");
             toast.success("API Key가 삭제되었습니다.");
-            setIsApiModalOpen(false); // 모달 유지 원하면 이 줄 제거
+            setIsApiModalOpen(false);
         } catch (e) {
             console.error("[ProfilePage] handleDeleteApiKey error:", e);
             toast.error("삭제에 실패했습니다.");
@@ -193,7 +188,6 @@ const ProfilePage: React.FC = () => {
                                 key={item.id}
                                 item={item}
                                 onClose={() => handleOpenDelete(item.id)}
-                                // 카드가 platformId가 없을 수 있으므로 (null, mcpId) 형태로 전달
                                 onClickApiKey={(pf, mid) => handleOpenApiKey(pf, mid)}
                             />
                         ))}

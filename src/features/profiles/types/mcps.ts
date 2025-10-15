@@ -5,8 +5,8 @@ export type McpItemType = {
     /** 서버 숫자 id (API 호출용) */
     mcpId: number;
 
-    /** 플랫폼 기준 API Key 관리를 위해 필수 */
-    platformId: string;
+    /** 플랫폼 기준 API Key 관리를 위해 필요 (없을 수도 있으니 옵셔널) */
+    platformId?: string;
 
     /** UI 표기용 */
     title: string;

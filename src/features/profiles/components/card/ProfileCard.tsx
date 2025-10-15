@@ -14,26 +14,18 @@ type ProfileCardProps = {
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose }) => {
     const handleClickApiKey = () => {
-        // mcpId 없으면 id(문자열)를 숫자로 변환해서 사용
         const mid = item.mcpId ?? Number(item.id);
-        const pf = item.platformId || null;
-
         if (!mid || Number.isNaN(mid)) {
-            console.warn("[CARD] invalid mcpId (item.id, item.mcpId):", { id: item.id, mcpId: item.mcpId });
-            return; // 안전장치
+            console.warn("[CARD] invalid mcpId:", { id: item.id, mcpId: item.mcpId });
+            return;
         }
-
-        onClickApiKey?.(pf, mid);
+        onClickApiKey?.(item.platformId ?? null, mid);
     };
 
     const handleClose = (e: React.MouseEvent) => {
         e.stopPropagation();
         onClose?.(item.id);
     };
-
-    // ✅ mcpId가 없으면 id를 숫자로 변환해서 disabled 판단
-    const computedMcpId = item.mcpId ?? Number(item.id);
-    const isApiKeyDisabled = !computedMcpId || Number.isNaN(computedMcpId);
 
     return (
         <article
@@ -68,7 +60,6 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
                         size="sm"
                         hoverOnly
                         onClick={handleClickApiKey}
-                        disabled={isApiKeyDisabled}
                     >
                         API Key
                     </SecondaryButton>

@@ -1,4 +1,3 @@
-// src/features/profiles/hooks/useMyMcps.ts
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -12,36 +11,35 @@ type ServerMcpItem = {
     title?: string;
     description?: string;
     imageUrl?: string;
-    categoryName?: string;
+    categoryId?: number;
+    licenseId?: number;
+    platformId?: number;          // 🔹 새 스웨거
     platformName?: string;
-    licenseName?: string;
     createdAt?: string;
     published?: boolean;
 
-    // ⬇️ platformId가 들어올 수 있는 여러 형태(백엔드 구조 차이 흡수)
-    platformId?: string | number;
+    // 과거/기타 형태 호환 (혹시 남아있다면)
     platform?: { id?: string | number; name?: string };
     platform_code?: string | number;
     platform_id?: string | number;
 };
 
-/** 서버 → 카드 타입 매퍼: platformId를 반드시 채운다 */
+/** 서버 → 카드 타입 매퍼: platformId를 문자열로 표준화(없으면 undefined) */
 const mapServerToCard = (it: ServerMcpItem): McpItemType => {
     const idNum = Number(it.id);
     const title = it.name ?? it.title ?? `MCP #${it.id}`;
 
-    // ⬇️ platformId 후보 순서대로 탐색
     const rawPlatformId =
         it.platformId ??
         it.platform?.id ??
-        it.platform_code ??
-        it.platform_id ??
+        (it as any).platform_code ??
+        (it as any).platform_id ??
         null;
 
-    const platformId = rawPlatformId != null ? String(rawPlatformId) : "";
+    const platformId = rawPlatformId != null ? String(rawPlatformId) : undefined;
 
     if (!platformId) {
-        // 디버깅 편의 로그: 어떤 아이템이 비어 들어오는지 파악
+        // 디버깅 편의 로그
         // eslint-disable-next-line no-console
         console.warn("[useMyMcps] platformId missing for item:", {
             id: it.id,
@@ -56,17 +54,16 @@ const mapServerToCard = (it: ServerMcpItem): McpItemType => {
     return {
         id: String(it.id),
         mcpId: Number.isNaN(idNum) ? 0 : idNum,
-
-        platformId, // ⬅️ 반드시 채워서 카드로 넘김
+        platformId, // 문자열 or undefined
 
         title,
         description: it.description ?? "",
         imageUrl: it.imageUrl ?? "",
-        categoryName: it.categoryName ?? "",
+        categoryName: undefined,
         platformName: it.platformName ?? it.platform?.name ?? "",
-        licenseName: it.licenseName ?? "",
+        licenseName: undefined,
         createdAt: it.createdAt ?? "",
-        apiKey: "", // 서버가 직접 주면 채우세요(it.apiKey ?? "")
+        apiKey: undefined,
         published: !!it.published,
     };
 };
@@ -115,9 +112,7 @@ export const useMyMcps = (
 
             try {
                 const res = await fetchMyMcps(query);
-                // ⬇️ 서버 응답을 카드 타입으로 변환(특히 platformId 보장)
                 const mapped = (res.content as ServerMcpItem[]).map(mapServerToCard);
-
                 safeSetState(setList, mapped);
                 safeSetState(setTotalElements, res.totalElements);
                 safeSetState(setTotalPages, res.totalPages);
@@ -132,7 +127,6 @@ export const useMyMcps = (
         [page, size, search, sort, safeSetState]
     );
 
-    // page/size/sort/search가 바뀌면 자동 재요청
     useEffect(() => {
         fetchList();
     }, [page, size, search, sort, fetchList]);
@@ -145,32 +139,20 @@ export const useMyMcps = (
                 return false;
             }
 
-            // 낙관적 업데이트 준비 (롤백용 스냅샷)
             const prevList = list;
-
-            // 현재 페이지에서 마지막 1개를 지우는 경우 → 이전 페이지로 이동
             const isLastItemOnPage = list.length === 1 && page > 0;
 
             try {
-                // ✅ mcpId 기준으로 필터 (숫자 비교가 가장 안전)
                 setList((cur) => cur.filter((it) => it.mcpId !== numericId));
-
-                // eslint-disable-next-line no-console
-                console.log("[HOOK] deleteOne start:", numericId);
-
                 await deleteMyMcp(numericId);
 
                 const nextPage = isLastItemOnPage ? page - 1 : page;
                 if (isLastItemOnPage) setPage(nextPage);
-
-                // 페이지/검색 조건 유지하여 재조회
                 await fetchList({ page: nextPage, size, search, sort });
 
-                // eslint-disable-next-line no-console
-                console.log("[HOOK] deleteOne ok:", true);
                 return true;
             } catch (e: any) {
-                safeSetState(setList, prevList); // 실패 시 롤백
+                safeSetState(setList, prevList);
                 // eslint-disable-next-line no-console
                 console.error("[useMyMcps.deleteOne] error", e);
                 safeSetState(setError, e?.message ?? "삭제에 실패했습니다.");
