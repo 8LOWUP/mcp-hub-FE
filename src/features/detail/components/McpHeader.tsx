@@ -1,18 +1,17 @@
 "use client";
 
 import Image from "next/image";
-<<<<<<< HEAD
-import { McpDetail } from "@/features/detail/hooks/types";
-import imageLoader from "@/lib/imageLoader";
-=======
 import type { getMcpDetailResponse } from "@/types/detail/detail-types";
->>>>>>> JNII-194-상세페이지API연동
+import imageLoader from "@/lib/imageLoader";
+import{useLoginStore } from "@/store/login/login-store"
 
 interface Props {
     data: getMcpDetailResponse["result"];
+    isSaved: boolean;
 }
 
-export default function MarketHeader({ data }: Props) {
+export default function MarketHeader({ data, isSaved }: Props) {
+    const {isLoggedIn} = useLoginStore();
 
     const buildImageUrl = (path?: string | null) => {
         if (!path || path.trim() === "") return "/placeholder.png";
@@ -26,30 +25,18 @@ export default function MarketHeader({ data }: Props) {
     };
 
     const safeLogo = buildImageUrl(data.imageUrl);
-    console.log("✅ safeLogo URL:", safeLogo); //콘솔 확인용.
-
     const safeName = data.name || "이름 없음";
     const safeTag = data.categoryName || "태그 없음";
     const safeDownloader = data.savedUserCount ?? 0;
+    const displaySaved = isSaved || data.alreadySaved;
 
     return (
         <div className="flex items-center gap-4">
             {/* MCP 로고 */}
-<<<<<<< HEAD
-            <Image
-                src={data.mcpLogo}
-                alt={`${data.mcpLogo} logo`}
-                width={100}
-                height={100}
-                className="rounded-lg object-contain"
-                loader={imageLoader}
-                unoptimized
-=======
             <img
                 src={safeLogo}
                 alt={`${safeName} logo`}
                 className="rounded-lg object-contain w-25 h-25 overflow-hidden"
->>>>>>> JNII-194-상세페이지API연동
             />
 
             <div className="flex-1">
@@ -58,14 +45,31 @@ export default function MarketHeader({ data }: Props) {
                     {safeName}
                 </div>
 
-                {/* 한 줄: 좌측 Tag, 우측 Downloader */}
+                {/* 한 줄: 좌측 Tag + Saved 상태 / 우측 Downloader */}
                 <div className="flex justify-between items-center mt-1">
-                    {/* 왼쪽 끝: Tag */}
-                    <div className="inline-block bg-accent text-black text-xs font-medium px-2 py-1 rounded-full">
-                        {safeTag}
+                    {/* 왼쪽: Tag + 저장 여부 */}
+                    <div className="flex items-center gap-2">
+
+                        {/*저장 상태 표시 */}
+                        {isLoggedIn && (
+                            displaySaved ? (
+                                <div className="inline-block bg-green-400/20 text-green-300 border border-green-400/30 text-xs font-medium px-2 py-1 rounded-full">
+                                    저장됨
+                                </div>
+                            ) : (
+                                <div className="inline-block bg-gray-500/20 text-gray-300 border border-gray-500/30 text-xs font-medium px-2 py-1 rounded-full">
+                                    저장 안 됨
+                                </div>
+                            )
+                        )}
+
+                        {/* 카테고리 태그 */}
+                        <div className="inline-block bg-accent text-black text-xs font-medium px-2 py-1 rounded-full">
+                            {safeTag}
+                        </div>
                     </div>
 
-                    {/* 오른쪽 끝: Downloader */}
+                    {/* 오른쪽: 다운로드 수 */}
                     <div className="flex items-center gap-1">
                         <Image
                             src="/downloader.svg"
