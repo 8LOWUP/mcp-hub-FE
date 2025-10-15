@@ -27,9 +27,22 @@ const MCPCard: React.FC<MCPCardProps> = ({
     className,
 }) => {
     const [imageError, setImageError] = useState(false);
-
-    console.log("iconSrc", iconSrc);
     
+    const buildImageUrl = (path?: string | null) => {
+        if (!path || path.trim() === "") return "/placeholder.png";
+
+        // 중복 슬래시 방지
+        if (path.startsWith("/")) {
+            return `/__api${path}`;
+        } else {
+            return `/__api/${path}`;
+        }
+    };
+
+    const safeIconSrc = buildImageUrl(iconSrc);
+
+    console.log("safeIconSrc", safeIconSrc);
+
     const locale = useLocale();
 
     return (
@@ -52,8 +65,9 @@ const MCPCard: React.FC<MCPCardProps> = ({
             <div className="flex flex-col w-full">
                 <div className="flex w-full h-full justify-between items-start gap-3 flex-1">
                     <div className="flex h-full items-center justify-center">
+                        {!imageError ? (
                             <Image
-                                src={iconSrc}
+                                src={safeIconSrc}
                                 alt={`${title} MCP Logo`}
                                 width={35}
                                 height={35}
@@ -62,6 +76,11 @@ const MCPCard: React.FC<MCPCardProps> = ({
                                 loader={imageLoader}
                                 unoptimized
                             />
+                        ) : (
+                            <div className="w-11 h-11 ml-1 flex-shrink-0 flex items-center justify-center bg-surface-2 rounded text-xs text-secondary font-bold">
+                                {title.charAt(0).toUpperCase()}
+                            </div>
+                        )}
                     </div>
                     <div className="flex w-4/5 flex-col justify-start flex-1">
                         <div className="text-primary text-[18px] font-extrabold truncate mt-1">{title}</div>
