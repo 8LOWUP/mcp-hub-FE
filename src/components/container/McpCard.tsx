@@ -41,8 +41,6 @@ const MCPCard: React.FC<MCPCardProps> = ({
 
     const safeIconSrc = buildImageUrl(iconSrc);
 
-    console.log("safeIconSrc", safeIconSrc);
-
     const locale = useLocale();
 
     return (
