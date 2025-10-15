@@ -23,7 +23,7 @@ export const useWorkspaces = () => {
 // 워크스페이스 상세 조회
 export const useWorkspaceDetail = (workspaceId: string | null) => {
   return useQuery({
-    queryKey: ['workspace', workspaceId],
+    queryKey: ['workspaces', workspaceId],
     queryFn: () => workspacesApi.getWorkspaceDetail(workspaceId!),
     select: (data) => data.result,
     enabled: !!workspaceId,
@@ -33,7 +33,7 @@ export const useWorkspaceDetail = (workspaceId: string | null) => {
 // 워크스페이스 채팅 로그 조회
 export const useWorkspaceChats = (workspaceId: string | null, page: number = 0, size: number = 50) => {
   const query = useQuery({
-    queryKey: ['workspace-chats', workspaceId, page, size],
+    queryKey: ['workspaces-chats', workspaceId, page, size],
     queryFn: () => {
       console.log('🌐 워크스페이스 채팅 로그 API 호출:', { workspaceId, page, size });
       return workspacesApi.getWorkspaceChats(workspaceId!, page, size);
@@ -105,7 +105,7 @@ export const useUpdateWorkspaceTitle = () => {
     onSuccess: (_, { workspaceId }) => {
       // 워크스페이스 목록과 상세 정보 새로고침
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId] });
     },
   });
 };
@@ -119,13 +119,13 @@ export const useUpdateWorkspaceMcps = () => {
       workspacesApi.toggleWorkspaceMcps(workspaceId, data),
     onMutate: async ({ workspaceId, data }) => {
       // 진행 중인 쿼리 취소
-      await queryClient.cancelQueries({ queryKey: ['workspace', workspaceId] });
+      await queryClient.cancelQueries({ queryKey: ['workspaces', workspaceId] });
       
       // 이전 데이터 백업
-      const previousWorkspace = queryClient.getQueryData(['workspace', workspaceId]);
+      const previousWorkspace = queryClient.getQueryData(['workspaces', workspaceId]);
       
       // 낙관적 업데이트: 즉시 UI 업데이트
-      queryClient.setQueryData(['workspace', workspaceId], (old: any) => {
+      queryClient.setQueryData(['workspaces', workspaceId], (old: any) => {
         if (!old) return old;
         return {
           ...old,
@@ -142,12 +142,12 @@ export const useUpdateWorkspaceMcps = () => {
     onError: (err, { workspaceId }, context) => {
       // 에러 발생 시 이전 데이터로 롤백
       if (context?.previousWorkspace) {
-        queryClient.setQueryData(['workspace', workspaceId], context.previousWorkspace);
+        queryClient.setQueryData(['workspaces', workspaceId], context.previousWorkspace);
       }
     },
     onSettled: (_, __, { workspaceId }) => {
       // 성공/실패 관계없이 최종적으로 서버 데이터로 동기화
-      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId] });
     },
   });
 };
@@ -162,8 +162,8 @@ export const useDeleteWorkspace = () => {
       // 워크스페이스 목록 새로고침
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
       // 삭제된 워크스페이스 캐시 제거
-      queryClient.removeQueries({ queryKey: ['workspace', workspaceId] });
-      queryClient.removeQueries({ queryKey: ['workspace-chats', workspaceId] });
+      queryClient.removeQueries({ queryKey: ['workspaces', workspaceId] });
+      queryClient.removeQueries({ queryKey: ['workspaces-chats', workspaceId] });
     },
   });
 };
@@ -177,7 +177,7 @@ export const useSendWorkspaceChat = () => {
       workspacesApi.postSendWorkspaceChats(workspaceId, data),
     onSuccess: (_, { workspaceId }) => {
       // 채팅 로그 새로고침
-      queryClient.invalidateQueries({ queryKey: ['workspace-chats', workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ['workspaces-chats', workspaceId] });
     },
   });
 };

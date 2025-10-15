@@ -5,6 +5,9 @@ export type McpItemType = {
     /** 서버 숫자 id (API 호출용) */
     mcpId: number;
 
+    /** 플랫폼 기준 API Key 관리를 위해 필수 */
+    platformId: string;
+
     /** UI 표기용 */
     title: string;
 
@@ -23,7 +26,7 @@ export type McpItemType = {
 
 /* 페이지 요청/응답 공통 타입 */
 export type PageRequestType = {
-    page?: number;   // 0-base
+    page?: number; // 0-base
     size?: number;
     search?: string;
     sort?: string;

@@ -37,7 +37,7 @@ const uploadResponse = await apiService.files.uploadFile('image', file);
 
 // 워크스페이스
 const workspaces = await apiService.workspaces.getWorkspaces();
-const workspaceChats = await apiService.workspaces.getWorkspaceChats('workspace-123');
+const workspaceChats = await apiService.workspaces.getWorkspaceChats('workspaces-123');
 ```
 
 #### 2. 직접 axios 인스턴스 사용

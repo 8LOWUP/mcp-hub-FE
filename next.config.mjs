@@ -1,4 +1,3 @@
-// /next.config.mjs
 import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin();
 
@@ -7,15 +6,13 @@ const nextConfig = {
   reactStrictMode: false,
 
   images: {
-    domains: ['img.com'],
-    // 또는 더 안전한 방법으로 remotePatterns 사용
+    // 간단히 domains 사용
+    domains: ["img.com", "k.kakaocdn.net"], // ✅ 카카오 CDN 추가
+
+    // 또는 remotePatterns로 더 엄격하게
     // remotePatterns: [
-    //   {
-    //     protocol: 'https',
-    //     hostname: 'img.com',
-    //     port: '',
-    //     pathname: '/**',
-    //   },
+    //   { protocol: "https", hostname: "img.com" },
+    //   { protocol: "https", hostname: "k.kakaocdn.net" }, // ✅
     // ],
   },
 
