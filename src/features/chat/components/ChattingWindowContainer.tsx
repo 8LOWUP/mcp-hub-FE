@@ -8,6 +8,7 @@ import LoadingSkeleton from "./skeleton/LoadingSkeleton";
 import { useCurrentWorkspace } from "@/contexts/CurrentWorkspaceContext";
 import { useWorkspaceChats, useSendWorkspaceChat } from "@/hooks/chat/useWorkspaces";
 import { useLocalMCPState } from "@/hooks/chat/useLocalMCPState";
+import { useMcpSelectionStore } from "@/store/chat/mcp-selection-store";
 import { useWorkspaceDetail, useCreateWorkspace } from "@/hooks/chat/useWorkspaces";
 import type { Role, WorkspaceSummary, mcpInfo } from "@/types/chat/chat-type";
 import type { ModelInfo } from "@/hooks/chat/useModelManager";
@@ -54,7 +55,7 @@ export default function ChattingWindowContainer({
   const workspaceMcps = useMemo(() => workspaceDetail?.mcps ?? [{}], [workspaceDetail?.mcps]);
 
   // MCP 상태 동기화를 위한 훅
-  const { forceSync } = useLocalMCPState(
+  const { localMcps, forceSync } = useLocalMCPState(
     currentWorkspaceId,
     workspaceMcps
   );
@@ -144,8 +145,14 @@ export default function ChattingWindowContainer({
         setIsCreatingWorkspace(true);
         setIsSendingMessage(true);
         
-        // 빈 객체 사용 가능 (mcpInfo 타입이 선택적 속성으로 수정됨)
-        const mcpsForNewWorkspace: mcpInfo[] = [{}];
+        // 새 워크스페이스용 MCP 리스트: 우측 패널 선택(전역 스토어) → 없으면 localMcps
+        const storeMcps = useMcpSelectionStore.getState().selectedMcps;
+        console.log('🧩 localMcps (raw):', localMcps);
+        console.log('🧩 storeMcps (raw):', storeMcps);
+        const source = Array.isArray(storeMcps) && storeMcps.length > 0 ? storeMcps : localMcps;
+        const mcpsForNewWorkspace: mcpInfo[] = (Array.isArray(source) ? source : [])
+          .filter((m) => !!m && typeof m.id !== 'undefined' && m.active === true)
+          .map((m) => ({ id: String(m.id), active: true }));
         const finalModelId = modelId || 'GPT';
         
         const requestData = {
@@ -160,11 +167,11 @@ export default function ChattingWindowContainer({
           chatMessage: text,
           mcpsType: typeof mcpsForNewWorkspace,
           mcpsLength: mcpsForNewWorkspace.length,
-          mcpsFirstItem: mcpsForNewWorkspace[0],
-          mcpsFirstItemKeys: mcpsForNewWorkspace[0] ? Object.keys(mcpsForNewWorkspace[0]) : 'no items'
+          mcpsPreview: mcpsForNewWorkspace.slice(0, 5)
         });
         
         const createResponse = await createWorkspaceMutation.mutateAsync(requestData);
+        console.log('✅ 워크스페이스 생성 응답:', createResponse);
         
         const newWorkspaceId = createResponse.result.workspaceId;
         openWorkspace(newWorkspaceId);
@@ -173,8 +180,8 @@ export default function ChattingWindowContainer({
         setIsCreatingWorkspace(false);
         setIsSendingMessage(false);
         
-      } catch (error) {
-        console.error('워크스페이스 생성 실패:', error);
+      } catch (error: any) {
+        console.error('워크스페이스 생성 실패:', error?.response?.data ?? error);
         setTempUserMessage(null);
         setHasNewResponse(false); // 실패 시 리셋
         setIsCreatingWorkspace(false);

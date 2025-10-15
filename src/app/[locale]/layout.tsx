@@ -10,6 +10,7 @@ import QueryProvider from "@/providers/QueryProvider";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import { CurrentWorkspaceProvider } from "@/contexts/CurrentWorkspaceContext";
 import ToasterClient from "@/components/common/ToasterClient"; // ✅ 추가
+import ErrorModalProvider from "@/components/common/ErrorModalProvider";
 
 export default async function RootLayout({
                                              children,
@@ -40,6 +41,8 @@ export default async function RootLayout({
                                 <div id="portal-root" />
                             </ConditionalLayout>
                         </CurrentWorkspaceProvider>
+                        {/* ✅ 전역 에러 모달 (쿼리 컨텍스트 내부로 이동) */}
+                        <ErrorModalProvider />
                     </AuthProvider>
                 </QueryProvider>
             </NextIntlClientProvider>
@@ -47,6 +50,7 @@ export default async function RootLayout({
 
         {/* ✅ 전역 Toaster (클라이언트 컴포넌트) */}
         <ToasterClient />
+        
         </body>
         </html>
     );

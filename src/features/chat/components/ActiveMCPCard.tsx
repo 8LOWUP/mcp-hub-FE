@@ -9,6 +9,7 @@ type ActiveMCPCardProps = {
   active?: boolean;         // 토글 상태
   isLoading?: boolean;      // 로딩 상태
   onToggle?: (active: boolean) => void;
+  detailText?: string;      // 추가 정보 (워크스페이스/MC P정보 등)
 };
 
 export default function ActiveMCPCard({
@@ -17,6 +18,7 @@ export default function ActiveMCPCard({
   active = false,
   isLoading = false,
   onToggle,
+  detailText,
 }: ActiveMCPCardProps) {
   const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
     onToggle?.(e.target.checked);
@@ -29,7 +31,7 @@ export default function ActiveMCPCard({
         isLoading ? "opacity-50 pointer-events-none" : ""
       ].join(" ")}
     >
-      {/* 좌측: 아이콘 + 이름 */}
+      {/* 좌측: 아이콘/이미지 + 이름 */}
       <div className="flex items-center gap-2">
         {active ? (
           <TbCloudCheck className="text-accent text-lg" />
@@ -38,6 +40,9 @@ export default function ActiveMCPCard({
         )}
         <div className="flex flex-col">
           <h3 className="text-sm font-medium text-foreground">{name}</h3>
+          {detailText && (
+            <p className="text-xs text-foreground/70">{detailText}</p>
+          )}
           <p className="text-xs text-foreground/60">
             {active ? "활성화됨" : "비활성화됨"}
           </p>

@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 interface MCPCardProps {
     id: string;
@@ -23,6 +24,10 @@ const MCPCard: React.FC<MCPCardProps> = ({
     developerName,
     className,
 }) => {
+    const [imageError, setImageError] = useState(false);
+
+    console.log("iconSrc", iconSrc);
+    
     return (
 
         <Link
@@ -43,7 +48,20 @@ const MCPCard: React.FC<MCPCardProps> = ({
             <div className="flex flex-col w-full">
                 <div className="flex w-full h-full justify-between items-start gap-3 flex-1">
                     <div className="flex h-full items-center justify-center">
-                        <Image src={iconSrc} alt={title} width={35} height={35} className="w-11 h-11 ml-1 flex-shrink-0" />
+                        {!imageError ? (
+                            <Image
+                                src={iconSrc}
+                                alt={`${title} MCP Logo`}
+                                width={35}
+                                height={35}
+                                className="w-11 h-11 ml-1 flex-shrink-0"
+                                onError={() => setImageError(true)}
+                            />
+                        ) : (
+                            <div className="w-11 h-11 ml-1 flex-shrink-0 flex items-center justify-center bg-surface-2 rounded text-xs text-secondary font-bold">
+                                {title.charAt(0).toUpperCase()}
+                            </div>
+                        )}
                     </div>
                     <div className="flex w-4/5 flex-col justify-start flex-1">
                         <div className="text-primary text-[18px] font-extrabold truncate mt-1">{title}</div>

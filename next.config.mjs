@@ -7,16 +7,8 @@ const nextConfig = {
   reactStrictMode: false,
 
   images: {
-    domains: ['img.com'],
-    // 또는 더 안전한 방법으로 remotePatterns 사용
-    // remotePatterns: [
-    //   {
-    //     protocol: 'https',
-    //     hostname: 'img.com',
-    //     port: '',
-    //     pathname: '/**',
-    //   },
-    // ],
+    loader: 'custom',
+    loaderFile: './src/lib/imageLoader.js',
   },
 
   async rewrites() {

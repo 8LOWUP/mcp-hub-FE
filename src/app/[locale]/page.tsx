@@ -235,6 +235,7 @@ export default async function LandingPage() {
                   items={etcData}
                 />
               </FadeInOnScroll>
+
             </div>
         </div>
       </div>
