@@ -1,6 +1,7 @@
 import TextContainer from "@/components/container/TextContainer";
 import Image from "next/image";
 import { McpDetail } from "../hooks/types";
+import imageLoader from "@/lib/imageLoader";
 
 interface Props {
     data: McpDetail;
@@ -35,7 +36,9 @@ export default function McpDetails({ data }: Props) {
                                 <Image src="/sourceCode.svg"
                                        alt="Source Code Icon"
                                        width={10} height={10}
-                                       className="w-4 h-4 transition-transform duration-300 ease-in-out hover:scale-125" />
+                                       className="w-4 h-4 transition-transform duration-300 ease-in-out hover:scale-125"
+                                       loader={imageLoader}
+                                       unoptimized />
                             </a>
                         </div>
                     </div>

@@ -8,6 +8,7 @@ import ThemeToggle from "@/components/ui/theme-toggle";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SearchBar from "@/components/ui/searchBar";
 import { IoListSharp } from "react-icons/io5";
+import imageLoader from "@/lib/imageLoader";
 import { MdExtension } from "react-icons/md";
 import clsx from "clsx";
 
@@ -52,7 +53,7 @@ export default function ChattingHeader({ additionalClassName }: ChattingHeaderPr
             </button>
 
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push(`/${locale}`)}>
-              <Image src="/logo.svg" alt="MCP Hub logo" width={30} height={30} priority />
+              <Image src="/logo.svg" alt="MCP Hub logo" width={30} height={30} priority loader={imageLoader} unoptimized />
               <span className="hidden pr-1 md:block text-primary text-xl font-bold hover:underline underline-offset-4">
                 MCPHub
               </span>
@@ -68,7 +69,7 @@ export default function ChattingHeader({ additionalClassName }: ChattingHeaderPr
           <div className="flex justify-between items-center gap-2">
             <ThemeToggle />
             <div className="w-8 h-8 rounded-full border border-accent-color-1 overflow-hidden">
-              <Image src="/catprofile.svg" alt="Profile" width={32} height={32} className="object-cover w-full h-full" />
+              <Image src="/catprofile.svg" alt="Profile" width={32} height={32} className="object-cover w-full h-full" loader={imageLoader} unoptimized />
             </div>
             <button
               type="button"

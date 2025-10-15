@@ -1,5 +1,6 @@
 import TextContainer from "@/components/container/TextContainer";
 import Image from "next/image";
+import imageLoader from "@/lib/imageLoader";
 
 interface Props {
     platforms: string[];
@@ -22,7 +23,7 @@ export default function MarketConnectionPlatforms({ platforms }: Props) {
                     const iconSrc = platformIconMap[platform] || "/default.svg";
                     return (
                         <div key={idx} className="flex items-center gap-1 px-2 py-1 rounded">
-                            <Image src={iconSrc} alt={platform} width={40} height={40} />
+                            <Image src={iconSrc} alt={platform} width={40} height={40} loader={imageLoader} unoptimized />
                         </div>
                     );
                 })}

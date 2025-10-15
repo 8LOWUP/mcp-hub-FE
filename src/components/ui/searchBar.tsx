@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import imageLoader from "@/lib/imageLoader";
 
 interface SearchBarProps {
     placeholder?: string;
@@ -48,6 +49,8 @@ export default function SearchBar({ placeholder = "Search MCP..." }: SearchBarPr
                     alt="Search"
                     width={18}
                     height={18}
+                    loader={imageLoader}
+                    unoptimized
                 />
             </button>
         </div>

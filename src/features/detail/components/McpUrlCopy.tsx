@@ -3,6 +3,7 @@
 import { useState } from "react";
 import TextContainer from "@/components/container/TextContainer";
 import Image from "next/image";
+import imageLoader from "@/lib/imageLoader";
 
 interface Props {
     url: string;
@@ -24,7 +25,7 @@ export default function McpUrlCopy({ url }: Props) {
                     }}
                     className="hover:opacity-70"
                 >
-                    <Image src="/urlcopy.svg" alt="Copy URL" width={16} height={16} className="w-5 h-5" />
+                    <Image src="/urlcopy.svg" alt="Copy URL" width={16} height={16} className="w-5 h-5" loader={imageLoader} unoptimized />
                 </button>
             </TextContainer>
 
