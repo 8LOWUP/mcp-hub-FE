@@ -38,7 +38,9 @@ export const API_ENDPOINTS = {
     REVIEW_DELETE: '/mcps/review/{reviewId}',
     TOKEN_CHECK: '/mcps/token/check/{mcpId}',
     TOKEN_PLATFORM: '/mcps/token/{platformId}',
-    DETAIL: '/mcps/{mcpId}',
+    DETAIL: '/mcps/{mcpId}', // MCP 상세 조회-GET
+      SAVE: '/mcps/{mcpId}', // MCP 저장(구매)-POST
+
   },
   // 사용자(Members) 관련
   MEMBERS: {
@@ -63,6 +65,9 @@ export const API_ENDPOINTS = {
     CHATS: '/workspaces/{workspaceId}/chats',
     CHAT: '/workspaces/{workspaceId}/chats',
     MCPS: '/workspaces/{workspaceId}/mcps',
+
+      MCPS_TOKEN_CHECK: '/workspaces/mcps/token/check/{mcpId}', // mcp 구매 저장
+      MCPS_TOKEN: '/workspaces/mcps/token/{platformId}', //mcp 토큰 등록
   },
 } as const;
 
@@ -78,8 +83,9 @@ export const PUBLIC_PATHS = [
   API_ENDPOINTS.MCP.DASHBOARD_CATEGORY,
   API_ENDPOINTS.MCP.DASHBOARD_LICENSE,
   API_ENDPOINTS.MCP.DASHBOARD_PLATFORM,
-  API_ENDPOINTS.MCP.REVIEW,
-  // LLM 공개 정보 (조회만 공개)
+  API_ENDPOINTS.MCP.DETAIL,
+  //API_ENDPOINTS.MCP.REVIEW, -> mcp 작성, 수정, 삭제는 로그인 필요
+  // LLM 공개 정보
   API_ENDPOINTS.LLM.LIST,
   // 사용자 검색
   API_ENDPOINTS.MEMBERS.SEARCH,

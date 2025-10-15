@@ -13,7 +13,6 @@ const nextConfig: NextConfig = {
             },
         ];
     },
-    // 다른 옵션들 필요하면 여기 추가 (images, experimental 등)
 };
 
 export default withNextIntl(nextConfig);

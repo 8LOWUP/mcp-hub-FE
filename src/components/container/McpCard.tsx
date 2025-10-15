@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import imageLoader from "@/lib/imageLoader";
+import {useLocale} from "next-intl";
 
 interface MCPCardProps {
     id: string;
@@ -26,13 +27,26 @@ const MCPCard: React.FC<MCPCardProps> = ({
     className,
 }) => {
     const [imageError, setImageError] = useState(false);
-
-    console.log("iconSrc", iconSrc);
     
+    const buildImageUrl = (path?: string | null) => {
+        if (!path || path.trim() === "") return "/placeholder.png";
+
+        // 중복 슬래시 방지
+        if (path.startsWith("/")) {
+            return `/__api${path}`;
+        } else {
+            return `/__api/${path}`;
+        }
+    };
+
+    const safeIconSrc = buildImageUrl(iconSrc);
+
+    const locale = useLocale();
+
     return (
 
         <Link
-            href={`/detail/${id}`}
+            href={`/${locale}/detail/${id}`}
             className={clsx(
                 "flex flex-col p-3 py-3.5 justify-between justify-items-center items-center w-[300px] h-[165px] rounded-md",
                 "border border-white/20 bg-surface-1",
@@ -51,7 +65,7 @@ const MCPCard: React.FC<MCPCardProps> = ({
                     <div className="flex h-full items-center justify-center">
                         {!imageError ? (
                             <Image
-                                src={iconSrc}
+                                src={safeIconSrc}
                                 alt={`${title} MCP Logo`}
                                 width={35}
                                 height={35}
