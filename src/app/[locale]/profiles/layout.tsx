@@ -33,7 +33,7 @@ export default function ProfilesLayout({ children }: { children: React.ReactNode
 
             <div className="flex h-[calc(100vh-var(--header-h))] border-t border-contrast">
                 {/* 데스크톱 사이드바: md 이상에서 고정 노출 */}
-                <aside className="hidden md:flex w-[280px] shrink-0 border-r border-contrast h-full">
+                <aside className="hidden md:flex w-60 shrink-0 border-r border-contrast h-full">
                     {/* 헤더 아래에 딱 붙도록 sticky 기준을 헤더 높이에 맞춤 */}
                     <div className="sticky top-[var(--header-h)] h-[calc(100vh-var(--header-h))] overflow-auto w-full">
                         <SidebarClient />

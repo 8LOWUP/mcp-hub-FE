@@ -7,6 +7,7 @@ import MarketGrid from "../grid/MarketGrid";
 import { DUMMY_MCP_LIST } from "@/constants/mcp-data";
 import { getTitleByCategory } from "@/features/market/utils";
 import type { CategoryId } from "@/features/market/constants";
+import type { McpCardData } from "@/features/market/types";
 
 // ✅ 헤더 컴포넌트
 const MarketHeader: React.FC<{ title: string; count?: number }> = ({ title, count }) => (
@@ -20,13 +21,20 @@ const MarketHeader: React.FC<{ title: string; count?: number }> = ({ title, coun
     </header>
 );
 
-export default function MarketPage() {
+interface MarketPageProps {
+    initialData?: McpCardData[];
+}
+
+export default function MarketPage({ initialData }: MarketPageProps) {
     const sp = useSearchParams();
     const cat = (sp.get("cat") ?? "all") as CategoryId;
 
+    // initialData가 있으면 사용하고, 없으면 더미 데이터 사용
+    const allData = initialData || DUMMY_MCP_LIST;
+
     const items = React.useMemo(
-        () => (cat === "all" ? DUMMY_MCP_LIST : DUMMY_MCP_LIST.filter(i => i.category === cat)),
-        [cat]
+        () => (cat === "all" ? allData : allData.filter(i => i.category === cat)),
+        [cat, allData]
     );
 
     return (

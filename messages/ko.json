@@ -7,5 +7,23 @@
   "ChatPage": {
     "title": "메인페이지에 어서오세요",
     "about": "하이"
+  },
+  "MCPMarket": {
+    "title": "MCP Market",
+    "description": "다양한 MCP(Model Context Protocol) 도구들을 발견하고 사용해보세요. 웹 검색, 메모리, 브라우저, 언어 처리 등 카테고리별로 정리된 MCP 컬렉션을 제공합니다.",
+    "allCategories": "전체",
+    "webSearch": "웹 검색",
+    "memory": "메모리",
+    "browser": "브라우저",
+    "language": "언어 처리",
+    "etc": "기타",
+    "totalMCPs": "총 MCP",
+    "results": "개 결과",
+    "noResults": "검색 결과가 없습니다",
+    "searchPlaceholder": "MCP 이름, 설명, 개발자명으로 검색...",
+    "sortBy": "정렬",
+    "popular": "인기순",
+    "recent": "최신순",
+    "name": "이름순"
   }
 }
