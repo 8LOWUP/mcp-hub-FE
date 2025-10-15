@@ -13,7 +13,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({ username, avatarSrc }) =>
         <header className="flex flex-col items-center gap-4 pb-4">
             <div className="relative h-32 w-32 overflow-hidden rounded-full bg-[#E3E3E3]">
                 {avatarSrc ? (
-                    <Image src={avatarSrc} alt={`${username} avatar`} fill className="object-cover" />
+                    <Image src={avatarSrc} alt={`${username} avatar`} fill sizes="128px" className="object-cover" />
                 ) : (
                     <div className="grid h-full w-full place-items-center text-4xl">😼</div>
                 )}

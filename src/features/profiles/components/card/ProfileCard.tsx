@@ -54,7 +54,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
             {item.description && <p className={PROFILES_STYLES.CARD_DESC}>{item.description}</p>}
 
             <div className={PROFILES_STYLES.CARD_ACTIONS}>
-                <div onClickCapture={(e) => e.stopPropagation()}>
+                <div onClick={(e) => e.stopPropagation()}>
                     <SecondaryButton
                         variant="secondary"
                         size="sm"
