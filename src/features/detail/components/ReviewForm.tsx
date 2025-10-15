@@ -1,37 +1,50 @@
 "use client";
 
 import { useState } from "react";
-import {SendIcon, Star} from "lucide-react";
-import { Review } from "@/features/detail/hooks/types";
+import { SendIcon, Star } from "lucide-react";
+import { useCreateReview } from "@/hooks/detail/useReview";
+import { useLoginStore } from "@/store/login/login-store";
+import type { postMcpReviewRequestBody } from "@/types/detail/detail-types";
 
 interface ReviewFormProps {
-    onAddReview: (review: Review) => void;
+    mcpId: number;
 }
 
-export default function ReviewForm({ onAddReview }: ReviewFormProps) {
-    const [author, setAuthor] = useState("");
-    const [content, setContent] = useState("");
+export default function ReviewForm({ mcpId }: ReviewFormProps) {
+    const { user, isLoggedIn } = useLoginStore();
+    const createReview = useCreateReview(mcpId);
+
+    const [comment, setComment] = useState("");
     const [rating, setRating] = useState(0);
     const [hoveredRating, setHoveredRating] = useState(0);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        const newReview: Review = {
-            id: Date.now().toString(),
-            author: author || "Anonymous",
-            content,
+        if (!isLoggedIn || !user) {
+            alert("로그인해야 리뷰를 작성할 수 있습니다.");
+            return;
+        }
+
+        // ✅ 현재는 user.nickname → userName 매핑
+        const newReview: postMcpReviewRequestBody = {
             rating,
-            createdAt: new Date().toISOString().split("T")[0],
+            comment,
         };
 
-        onAddReview(newReview);
+        console.log("📡 최종 요청 body:", newReview);
 
-        // 초기화
-        setAuthor("");
-        setContent("");
-        setRating(0);
-        setHoveredRating(0);
+        createReview.mutate(newReview, {
+            onSuccess: () => {
+                setComment("");
+                setRating(0);
+                setHoveredRating(0);
+            },
+            onError: (err) => {
+                console.error("리뷰 작성 실패:", err);
+                alert("리뷰 작성 실패. 다시 시도해주세요.");
+            },
+        });
     };
 
     return (
@@ -43,7 +56,7 @@ export default function ReviewForm({ onAddReview }: ReviewFormProps) {
                 Give Feedback on MCP
             </h3>
 
-            {/* 별점 */}
+            {/* ⭐ 별점 */}
             <div className="flex items-center justify-center gap-3 mb-6">
                 {Array.from({ length: 5 }, (_, i) => i + 1).map((star) => (
                     <button
@@ -66,33 +79,25 @@ export default function ReviewForm({ onAddReview }: ReviewFormProps) {
                 ))}
             </div>
 
-            {/* 리뷰 내용 */}
+            {/* 📝 리뷰 작성 */}
             <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
                 placeholder="Share your experience..."
                 className="p-3 mb-6 rounded-xl bg-surface-1 border border-contrast text-primary placeholder-muted min-h-[140px] resize-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all duration-200 w-full"
             />
 
-            {/* 작성자 이름 */}
-            <input
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                placeholder="Your name"
-                className="p-3 mb-6 rounded-xl bg-surface-1 border border-contrast text-primary placeholder-muted focus:ring-2 focus:ring-accent/50 focus:border-accent w-full transition-all duration-200"
-            />
-
-            {/* 제출 버튼 */}
+            {/* 📤 제출 버튼 */}
             <div className="flex justify-end">
                 <button
                     type="submit"
+                    disabled={createReview.isPending}
                     className="w-full sm:w-auto bg-surface-1 hover:bg-accent hover:text-black px-3 py-2 rounded-xl font-medium flex items-center justify-center gap-2 shadow-lg hover:scale-105 transition-transform duration-300"
                 >
-                    <SendIcon className="w-4 h-3" /> Submit Review
+                    <SendIcon className="w-4 h-3" />
+                    {createReview.isPending ? "Submitting..." : "Submit Review"}
                 </button>
-
             </div>
         </form>
-
     );
 }

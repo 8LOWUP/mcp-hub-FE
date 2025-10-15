@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import imageLoader from "@/lib/imageLoader";
+import {useLocale} from "next-intl";
 
 interface MCPCardProps {
     id: string;
@@ -29,10 +30,12 @@ const MCPCard: React.FC<MCPCardProps> = ({
 
     console.log("iconSrc", iconSrc);
     
+    const locale = useLocale();
+
     return (
 
         <Link
-            href={`/detail/${id}`}
+            href={`/${locale}/detail/${id}`}
             className={clsx(
                 "flex flex-col p-3 py-3.5 justify-between justify-items-center items-center w-[300px] h-[165px] rounded-md",
                 "border border-white/20 bg-surface-1",

@@ -1,3 +1,5 @@
+"use client";
+
 import TextContainer from "@/components/container/TextContainer";
 import Image from "next/image";
 import imageLoader from "@/lib/imageLoader";
@@ -7,18 +9,23 @@ interface Props {
 }
 
 export default function MarketConnectionPlatforms({ platforms }: Props) {
+    // 🔑 플랫폼 이름 → 아이콘 매핑 테이블
     const platformIconMap: Record<string, string> = {
-        Youtube: "/youtube.svg",
-        Notion: "/notionLogo.svg",
-        Google: "/google.svg",
-        Vscode: "/vscode.svg",
-        Instagram: "/instagram.svg",
+        youtube: "/youtube.svg",
+        notion: "/notionLogo.svg",
+        google: "/google.svg",
+        vscode: "/vscode.svg",
+        instagram: "/instagram.svg",
+        github: "/github.svg", // 깃허브 추가 (예시)
     };
 
     return (
         <div className="info-block">
-            <div className="text-secondary font-semibold text-lg mb-4">Connection Platform</div>
+            <div className="text-secondary font-semibold text-lg mb-4">
+                Connection Platform
+            </div>
             <TextContainer className="w-full flex flex-wrap gap-2 items-center">
+<<<<<<< HEAD
                 {platforms.map((platform, idx) => {
                     const iconSrc = platformIconMap[platform] || "/default.svg";
                     return (
@@ -27,6 +34,32 @@ export default function MarketConnectionPlatforms({ platforms }: Props) {
                         </div>
                     );
                 })}
+=======
+                {platforms.length > 0 ? (
+                    platforms.map((platform, idx) => {
+                        const key = platform.toLowerCase();
+                        const iconSrc = platformIconMap[key] || "/default.svg";
+
+                        return (
+                            <div
+                                key={idx}
+                                className="flex items-center px-2 py-1 rounded"
+                            >
+                                <Image
+                                    src={iconSrc}
+                                    alt={`${platform} icon`}
+                                    width={32}
+                                    height={32}
+                                    unoptimized
+                                    className="object-contain"
+                                />
+                            </div>
+                        );
+                    })
+                ) : (
+                    <div className="text-gray-400 text-sm">플랫폼 정보 없음</div>
+                )}
+>>>>>>> JNII-194-상세페이지API연동
             </TextContainer>
         </div>
     );

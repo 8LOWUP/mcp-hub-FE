@@ -148,6 +148,16 @@ axiosInstance.interceptors.request.use(
         // ✅ PUBLIC_PATHS와 정확히 일치하는 경우만 공개 API로 간주
         let isPublicPath = PUBLIC_PATHS.some(path => config.url === path);
 
+        // ✅ 194 기능 통합: 부분 일치 + GET 메서드면 공개 GET API로 처리
+        const isGetRequest = config.method?.toUpperCase() === "GET";
+        const includesPublic = PUBLIC_PATHS.some(path => config.url?.includes(path));
+        if (!isPublicPath && includesPublic && isGetRequest) {
+            isPublicPath = true;
+            if (process.env.NODE_ENV !== "production") {
+                console.log("🌍 공개 GET API로 인식:", config.url);
+            }
+        }
+
         // ✅ /mcps/dashboard/meta는 강제로 인증 필요하도록 예외 처리
         if (config.url?.includes("/mcps/dashboard/meta")) {
             isPublicPath = false;
@@ -160,20 +170,30 @@ axiosInstance.interceptors.request.use(
             console.log("📎 FormData 감지됨 → multipart/form-data로 전송");
         }
 
+        // ✅ 토큰 확인
+        const accessToken = getAccessToken();
 
-        // 인증이 필요한 API면 Authorization 헤더 추가
-        if (!isPublicPath) {
-            const accessToken = getAccessToken();
+        // ✅ 공개 GET API (로그인 상태면 Authorization 추가)
+        if (isPublicPath && isGetRequest) {
             if (accessToken) {
                 (config.headers as any).Authorization = `Bearer ${accessToken}`;
                 if (process.env.NODE_ENV !== "production") {
-                    console.log("✅ Authorization 헤더 추가됨:", (config.headers as any).Authorization);
+                    console.log("🔑 로그인 상태 공개 GET API 요청, Authorization 추가:", config.url);
+                }
+            } else if (process.env.NODE_ENV !== "production") {
+                console.log("🌍 비로그인 상태 공개 GET API 요청:", config.url);
+            }
+        }
+        // ✅ Private API (항상 Authorization 필요)
+        else {
+            if (accessToken) {
+                (config.headers as any).Authorization = `Bearer ${accessToken}`;
+                if (process.env.NODE_ENV !== "production") {
+                    console.log("🔒 Private API 요청, Authorization 추가:", config.url);
                 }
             } else {
-                console.warn("⚠️ accessToken 없음, Authorization 헤더 미포함");
+                console.warn("⚠️ Private API 요청인데 accessToken 없음:", config.url);
             }
-        } else if (process.env.NODE_ENV !== "production") {
-            console.log("✅ 공개 API, Authorization 헤더 제외:", config.url);
         }
 
         return config;
@@ -185,7 +205,7 @@ axiosInstance.interceptors.request.use(
 );
 
 /* ================================
- * 토큰 재발급 큐
+ * 토큰 재발급 큐 (기존 180 그대로 유지)
  * ================================ */
 let isRefreshing = false;
 let failedQueue: Array<{ resolve: (v?: any) => void; reject: (e?: any) => void }> = [];
@@ -194,7 +214,6 @@ const processQueue = (error: any, token: string | null = null) => {
     failedQueue.forEach(({ resolve, reject }) => (error ? reject(error) : resolve(token)));
     failedQueue = [];
 };
-
 /* ================================
  * 응답 인터셉터
  * ================================ */
