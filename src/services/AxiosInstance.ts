@@ -25,6 +25,7 @@ export const axiosInstance = axios.create({
     headers: {
         Accept: "application/json",
     },
+    timeout: 120000, // 120초 타임아웃
 });
 
 /* ================================
@@ -258,6 +259,7 @@ axiosInstance.interceptors.response.use(
                 const plain = axios.create({
                     baseURL: BASE_URL,
                     headers: { Accept: "application/json", "Content-Type": "application/json" },
+                    timeout: 120000, // 120초 타임아웃 (메인 인스턴스와 동일)
                 });
 
                 const reissue = await plain.post(
@@ -303,7 +305,22 @@ axiosInstance.interceptors.response.use(
         }
         if (error.response?.status === 403) console.warn("🚫 접근 권한이 없습니다.");
         if (error.response?.status === 404) console.warn("🔍 요청한 리소스가 없습니다.");
-        if (error.response?.status >= 500) console.error("🔥 서버 내부 오류(5xx)");
+        if (error.response?.status >= 500) {
+            console.error("🔥 서버 내부 오류(5xx) - 상세 정보:");
+            console.error("  📍 URL:", originalRequest?.url || "알 수 없음");
+            console.error("  📍 Method:", originalRequest?.method?.toUpperCase() || "알 수 없음");
+            console.error("  📍 Status:", error.response.status);
+            console.error("  📍 Status Text:", error.response.statusText);
+            console.error("  📍 Response Data:", error.response.data);
+            console.error("  📍 Request Headers:", originalRequest?.headers);
+            console.error("  📍 Request Data:", originalRequest?.data);
+            console.error("  📍 Full Error:", error);
+        }
+        
+        // 타임아웃 에러 처리
+        if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+            console.error("⏰ 요청 타임아웃 (30초 초과)");
+        }
 
         return Promise.reject(error);
     }
