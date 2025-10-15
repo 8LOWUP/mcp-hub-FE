@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import BaseModal from "@/components/ui/modal/BaseModal";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import { usePostMcpToken } from "@/hooks/detail/useMcpToken"; // ✅ MCP 토큰 등록 훅
-
+import { X } from "lucide-react";
 type Step = 1 | 2 | 3;
 
 interface Props {
@@ -39,6 +39,7 @@ const McpConnectModal: React.FC<Props> = ({
                 alert("API Key를 입력해주세요.");
                 return;
             }
+            console.log("✅ platformId:", platformId);
             setStep(2);
             try {
                 await postToken({
@@ -65,8 +66,20 @@ const McpConnectModal: React.FC<Props> = ({
         <BaseModal
             isOpen={isOpen}
             onClose={onClose}
-            title="MCP 연결"
             size="md"
+            title={
+                <div className="flex justify-between items-center w-full">
+                    <span>MCP 연결</span>
+                    {(step === 1 || step === 3) && (
+                        <button
+                            onClick={onClose}
+                            className="text-gray-400 hover:text-white transition"
+                        >
+                            <X size={20} />
+                        </button>
+                    )}
+                </div>
+            }
             footer={
                 <div className="flex justify-end gap-2">
                     {step > 1 && step < 3 && (

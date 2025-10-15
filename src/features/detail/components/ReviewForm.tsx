@@ -22,7 +22,7 @@ export default function ReviewForm({ mcpId }: ReviewFormProps) {
         e.preventDefault();
 
         if (!isLoggedIn || !user) {
-            alert("로그인해야 리뷰를 작성할 수 있습니다.");
+            alert("로그인 후, 리뷰를 작성할 수 있습니다.");
             return;
         }
 
