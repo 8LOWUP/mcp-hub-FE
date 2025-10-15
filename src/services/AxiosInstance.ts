@@ -25,6 +25,7 @@ export const axiosInstance = axios.create({
     headers: {
         Accept: "application/json",
     },
+    timeout: 180000, // 180초
 });
 
 /* ================================
