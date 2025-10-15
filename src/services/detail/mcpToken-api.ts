@@ -17,19 +17,23 @@ export const getMcpTokenCheck = async (
         "{mcpId}",
         String(mcpId)
     );
-    console.log("📡 MCP 토큰 확인 요청:", url);
+
+    console.log(`🔎 [GET] MCP 토큰 확인 요청 → ${url}`);
 
     try {
         const res = await axiosInstance.get<getMcpTokenCheckResponse>(url);
-        console.log("✅ MCP 토큰 확인 성공:", res.data);
+        console.log("✅ [GET] MCP 토큰 확인 성공:", res.data);
         return res.data;
     } catch (error: any) {
-        // ⚠️ 400 응답도 정상적으로 result가 포함됨
-        if (error.response?.status === 400) {
-            console.warn("⚠️ MCP 토큰 미등록 상태:", error.response.data);
-            return error.response.data as getMcpTokenCheckResponse;
+        const status = error.response?.status;
+        const data = error.response?.data;
+
+        if (status === 400) {
+            console.warn("⚠️ [GET] MCP 토큰 미등록 상태:", data);
+            return data as getMcpTokenCheckResponse;
         }
-        console.error("❌ MCP 토큰 확인 실패:", error);
+
+        console.error(`❌ [GET] MCP 토큰 확인 실패 [${status ?? "Unknown"}]:`, data ?? error);
         throw error;
     }
 };
@@ -37,10 +41,6 @@ export const getMcpTokenCheck = async (
 /* -------------------------------------------------------------------------- */
 /* ✅ MCP 토큰 등록 / 변경 (POST /workspaces/mcps/token/{platformId})          */
 /* -------------------------------------------------------------------------- */
-
-/**
- * 사용자의 MCP 토큰을 등록하거나 수정하는 API
- */
 export const postMcpToken = async (
     platformId: string,
     body: postMcpTokenRequestBody
@@ -49,14 +49,18 @@ export const postMcpToken = async (
         "{platformId}",
         platformId
     );
-    console.log("📡 MCP 토큰 등록 요청:", url, body);
+
+    console.log(`🚀 [POST] MCP 토큰 등록 요청 → ${url}`, body);
 
     try {
         const res = await axiosInstance.post<postMcpTokenResponse>(url, body);
-        console.log("✅ MCP 토큰 등록 성공:", res.data);
+        console.log("✅ [POST] MCP 토큰 등록 성공:", res.data);
         return res.data;
     } catch (error: any) {
-        console.error("❌ MCP 토큰 등록 실패:", error);
+        const status = error.response?.status;
+        const data = error.response?.data;
+
+        console.error(`❌ [POST] MCP 토큰 등록 실패 [${status ?? "Unknown"}]:`, data ?? error);
         throw error;
     }
 };

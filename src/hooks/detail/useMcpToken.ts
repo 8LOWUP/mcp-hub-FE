@@ -16,8 +16,6 @@ import {useLoginStore} from "@/store/login/login-store";
 
 /**
  * 사용자의 MCP 토큰이 존재하는지 확인하는 훅
- * - 200: 존재
- * - 400: 미등록 (그래도 result 구조 포함됨)
  */
 export const useCheckMcpToken = (mcpId: number) => {
     const { isLoggedIn } = useLoginStore();
@@ -42,7 +40,7 @@ export const usePostMcpToken = () => {
             return await postMcpToken(platformId, body);
         },
         onSuccess: (data) => {
-            toast.success("✅ MCP 토큰이 성공적으로 등록되었습니다!");
+            toast.success("MCP 토큰이 성공적으로 등록되었습니다!");
             console.log("🎉 MCP 토큰 등록 성공:", data);
         },
         onError: (error: any) => {
