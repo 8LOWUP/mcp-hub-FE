@@ -10,9 +10,13 @@ interface Props {
     isSaved: boolean;
 }
 
+<<<<<<< HEAD
 export default function MarketHeader({ data, isSaved }: Props) {
     const {isLoggedIn} = useLoginStore();
 
+=======
+export default function MarketHeader({ data }: Props) {
+>>>>>>> e275768 ([feat]:sparkles: mcp 저장 api연동)
     const buildImageUrl = (path?: string | null) => {
         if (!path || path.trim() === "") return "/placeholder.png";
 
@@ -28,7 +32,11 @@ export default function MarketHeader({ data, isSaved }: Props) {
     const safeName = data.name || "이름 없음";
     const safeTag = data.categoryName || "태그 없음";
     const safeDownloader = data.savedUserCount ?? 0;
+<<<<<<< HEAD
     const displaySaved = isSaved || data.alreadySaved;
+=======
+    const alreadySaved = data.alreadySaved;
+>>>>>>> e275768 ([feat]:sparkles: mcp 저장 api연동)
 
     return (
         <div className="flex items-center gap-4">
@@ -51,6 +59,7 @@ export default function MarketHeader({ data, isSaved }: Props) {
                     <div className="flex items-center gap-2">
 
                         {/*저장 상태 표시 */}
+<<<<<<< HEAD
                         {isLoggedIn && (
                             displaySaved ? (
                                 <div className="inline-block bg-green-400/20 text-green-300 border border-green-400/30 text-xs font-medium px-2 py-1 rounded-full">
@@ -61,6 +70,16 @@ export default function MarketHeader({ data, isSaved }: Props) {
                                     저장 안 됨
                                 </div>
                             )
+=======
+                        {alreadySaved ? (
+                            <div className="inline-block bg-green-400/20 text-green-300 border border-green-400/30 text-xs font-medium px-2 py-1 rounded-full">
+                                저장됨
+                            </div>
+                        ) : (
+                            <div className="inline-block bg-gray-500/20 text-gray-300 border border-gray-500/30 text-xs font-medium px-2 py-1 rounded-full">
+                                저장 안 됨
+                            </div>
+>>>>>>> e275768 ([feat]:sparkles: mcp 저장 api연동)
                         )}
 
                         {/* 카테고리 태그 */}

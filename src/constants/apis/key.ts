@@ -38,7 +38,9 @@ export const API_ENDPOINTS = {
     REVIEW_DELETE: '/mcps/review/{reviewId}',
     TOKEN_CHECK: '/mcps/token/check/{mcpId}',
     TOKEN_PLATFORM: '/mcps/token/{platformId}',
-    DETAIL: '/mcps/{mcpId}',
+    DETAIL: '/mcps/{mcpId}', // MCP 상세 조회-GET
+      SAVE: '/mcps/{mcpId}', // MCP 저장(구매)-POST
+
   },
   // 사용자(Members) 관련
   MEMBERS: {
