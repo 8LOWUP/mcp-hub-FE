@@ -4,6 +4,7 @@ import Image from "next/image";
 import {useLocale} from "next-intl";
 import {usePathname, useRouter} from "@/i18n/routing";
 import {useSearchParams} from "next/navigation";
+import imageLoader from "@/lib/imageLoader";
 
 const LocaleSwitcher = () => {
   const router = useRouter();
@@ -28,7 +29,7 @@ const LocaleSwitcher = () => {
       aria-label="Toggle locale"
       title={`Switch to ${next.toUpperCase()}`}
     >
-      <Image src="/locale.svg" alt="Locale icon" width={20} height={20} />
+      <Image src="/locale.svg" alt="Locale icon" width={20} height={20} loader={imageLoader} />
     </button>
   );
 }

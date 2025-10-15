@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { McpDetail } from "@/features/detail/hooks/types";
+import imageLoader from "@/lib/imageLoader";
 
 interface Props {
     data: McpDetail;
@@ -17,6 +18,7 @@ export default function MarketHeader({ data }: Props) {
                 width={100}
                 height={100}
                 className="rounded-lg object-contain"
+                loader={imageLoader}
             />
 
             <div className="flex-1">
@@ -38,6 +40,7 @@ export default function MarketHeader({ data }: Props) {
                             width={16}
                             height={16}
                             className="w-4 h-4"
+                            loader={imageLoader}
                         />
                         <span className="text-sm">{data.downloader}</span>
                     </div>

@@ -2,6 +2,7 @@
 import React from "react";
 import Image from "next/image";
 import { PROVIDER_LABEL, ProviderId } from "@/features/auth/constants";
+import imageLoader from "@/lib/imageLoader";
 
 const ICON_SRC: Record<ProviderId, string> = {
     google: "/icons/google.svg",
@@ -29,7 +30,7 @@ const SocialSignInButton: React.FC<Props> = ({ provider, onClick, disabled }) =>
             ].join(" ")}
             aria-label={PROVIDER_LABEL[provider]}
         >
-            <Image src={ICON_SRC[provider]} alt="" width={22} height={22} />
+            <Image src={ICON_SRC[provider]} alt="" width={22} height={22} loader={imageLoader} />
             <span className="text-body3">{PROVIDER_LABEL[provider]}</span>
         </button>
     );

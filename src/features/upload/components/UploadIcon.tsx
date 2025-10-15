@@ -2,6 +2,7 @@
 
 import { useState, DragEvent, ChangeEvent, useRef } from "react";
 import Image from "next/image";
+import imageLoader from "@/lib/imageLoader";
 
 interface UploadIconProps {
     onFileSelect?: (file: File | null) => void; // ✅ 파일을 상위 컴포넌트/훅에 전달
@@ -74,7 +75,7 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
             >
                 {preview ? (
                     <div className="relative">
-                        <Image src={preview} alt="Preview" width={120} height={120} className="rounded-md object-contain" />
+                        <Image src={preview} alt="Preview" width={120} height={120} className="rounded-md object-contain" loader={imageLoader} />
                         <button
                             type="button"
                             onClick={handleRemove}

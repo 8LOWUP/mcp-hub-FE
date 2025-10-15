@@ -5,6 +5,7 @@ import React from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import imageLoader from "@/lib/imageLoader";
 
 import LocaleSwitcher from "@/components/ui/LocaleSwitcher";
 import ThemeToggle from "@/components/ui/theme-toggle";
@@ -74,7 +75,14 @@ const Header: React.FC = () => {
                 <div className="max-w-screen-2xl h-full flex items-center justify-between px-6">
                     {/* 로고 + Market */}
                     <div className="flex items-center gap-2">
-                        <Image src="/logo.svg" alt="MCP Hub logo" width={24} height={24} priority />
+                        <Image 
+                            src="/logo.svg" 
+                            alt="MCP Hub logo" 
+                            width={24} 
+                            height={24} 
+                            priority 
+                            loader={imageLoader}
+                        />
                         <button
                             type="button"
                             className="flex flex-col cursor-pointer"
@@ -127,6 +135,7 @@ const Header: React.FC = () => {
                                         width={32}
                                         height={32}
                                         className="object-cover w-full h-full"
+                                        loader={imageLoader}
                                     />
                                 </button>
                                 {/* 로그아웃 버튼 */}
