@@ -166,19 +166,20 @@ export default async function LandingPage() {
   const t = await getTranslations('LandingPage');
 
   // 5개 카테고리별 데이터를 병렬로 받아오기
-  const [
-    webSearchData,
-    memoryData,
-    browserData,
-    languageData,
-    etcData
-  ] = await Promise.all([
-    fetchWebSearchData(),
-    fetchMemoryData(),
-    fetchBrowserData(),
-    fetchLanguageData(),
-    fetchEtcData()
-  ]);
+  // Rate Limiting 방지를 위해 순차적으로 요청 (간격 조절)
+  const webSearchData = await fetchWebSearchData();
+  await new Promise(resolve => setTimeout(resolve, 100)); // 100ms 대기
+  
+  const memoryData = await fetchMemoryData();
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  const browserData = await fetchBrowserData();
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  const languageData = await fetchLanguageData();
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  const etcData = await fetchEtcData();
 
   return (
     <AnimatedGradient>

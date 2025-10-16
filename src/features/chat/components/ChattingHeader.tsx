@@ -6,12 +6,13 @@ import { useRouter, usePathname } from "next/navigation";
 import LocaleSwitcher from "@/components/ui/LocaleSwitcher";
 import ThemeToggle from "@/components/ui/theme-toggle";
 import PrimaryButton from "@/components/ui/PrimaryButton";
-import SearchBar from "@/components/ui/searchBar";
+import ClientSearchBar from "@/components/ui/ClientSearchBar";
 import { IoListSharp } from "react-icons/io5";
 import imageLoader from "@/lib/imageLoader";
 import { MdExtension } from "react-icons/md";
 import clsx from "clsx";
 import { useLoginStore } from "@/store/login/login-store";
+import LoginModal from "@/features/auth/components/LoginModal";
 
 type ChattingHeaderProps = { additionalClassName?: string };
 
@@ -19,7 +20,8 @@ export default function ChattingHeader({ additionalClassName }: ChattingHeaderPr
   const router = useRouter();
   const pathname = usePathname();
 
-  const { isLoggedIn, user } = useLoginStore();
+  const isLoggedIn = useLoginStore(s => s.isLoggedIn);
+  const user = useLoginStore(s => s.user);
   const isAuthed = isLoggedIn;
 
   const [scrolled, setScrolled] = useState(false);
@@ -49,12 +51,12 @@ export default function ChattingHeader({ additionalClassName }: ChattingHeaderPr
         go(`/${locale}/profiles`);
         return;
     }
-    // 비로그인 상태라면 항상 로그인 모달 오픈
+    // 비로그인 상태라면 로그인 모달 오픈
     openLogin();
-};
+  };
 
   return (
-    <header className={clsx("block sticky top-0 z-40", additionalClassName)}>
+    <header className={clsx("block sticky top-0 z-50", additionalClassName)}>
       <div
         className={clsx(
           "h-20 w-full px-4 sm:px-8 bg-surface-1 transition-colors duration-200",
@@ -84,7 +86,7 @@ export default function ChattingHeader({ additionalClassName }: ChattingHeaderPr
 
           {/* 가운데: 검색 */}
           <div className="flex-1 max-w-2xl px-2">
-            <SearchBar />
+            <ClientSearchBar />
           </div>
 
           {/* 우측: 액션 + (모바일/태블릿 전용) MCP 버튼 */}
@@ -100,7 +102,7 @@ export default function ChattingHeader({ additionalClassName }: ChattingHeaderPr
                         className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent hover:cursor-pointer"
                     >
                         <Image
-                            src={user?.profileImage || "/catprofile.svg"}
+                            src={user?.avatarUrl || "/catprofile.svg"}
                             alt={user?.nickname || "Profile"}
                             width={32}
                             height={32}
@@ -132,6 +134,14 @@ export default function ChattingHeader({ additionalClassName }: ChattingHeaderPr
           </div>
         </div>
       </div>
+
+      {/* 로그인 모달 */}
+      {isLoginOpen && (
+        <LoginModal
+          isOpen={isLoginOpen}
+          onClose={closeLogin}
+        />
+      )}
     </header>
   );
 }

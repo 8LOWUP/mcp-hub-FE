@@ -1,10 +1,12 @@
 "use client";
 
-import * as React from "react";
+import React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import imageLoader from "@/lib/imageLoader";
-import { axiosInstance } from "@/services/AxiosInstance";
+import { serverAxios } from "@/lib/serverAxios";
+import SearchResultItem from "./SearchResultItem";
+import { useDebounce } from "@/hooks/useDebounce";
 
 type SearchItem = {
     id: number;
@@ -13,11 +15,33 @@ type SearchItem = {
     imageUrl?: string | null;
 };
 
+// 이미지 URL 처리 함수
+const processImageUrl = (path?: string | null) => {
+    if (!path || path.trim() === "") return null;
+    if (/^https?:\/\//i.test(path)) return path; // 절대 URL은 그대로
+    // 중복 슬래시 방지
+    return path.startsWith("/") ? `/__api${path}` : `/__api/${path}`;
+};
+
+// API 응답 파싱 함수
+const parseSearchResponse = (data: any): SearchItem[] => {
+    const payload = data?.result ?? data ?? {};
+    const content = payload?.content ?? payload?.result?.content ?? (Array.isArray(payload) ? payload : []);
+    
+    return (content || []).map((it: any) => ({
+        id: it.id,
+        name: it.name,
+        description: it.description,
+        imageUrl: processImageUrl(it.imageUrl),
+    }));
+};
+
 export default function SearchBar({
-                                      placeholder = "Search MCP...",
-                                  }: {
+    placeholder = "Search MCP...",
+}: {
     placeholder?: string;
 }) {
+    console.log("🔍 SearchBar 컴포넌트 렌더링됨");
     const router = useRouter();
     const pathname = usePathname() || "/";
     const locale = pathname.split("/")[1] || "en";
@@ -26,6 +50,26 @@ export default function SearchBar({
     const [results, setResults] = React.useState<SearchItem[]>([]);
     const [open, setOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
+
+    // 입력 핸들러들
+    const handleInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log("🔍 입력 변경:", e.target.value);
+        setQuery(e.target.value);
+    }, []);
+
+    const handleInputFocus = React.useCallback(() => {
+        if (query.trim()) setOpen(true);
+    }, [query]);
+
+    const handleKeyDown = React.useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            const q = query.trim();
+            if (!q) return;
+            router.push(`/${locale}/market?search=${encodeURIComponent(q)}`);
+            setOpen(false);
+        }
+    }, [query, router, locale]);
+
 
     // 바깥 클릭 시 드롭다운 닫기
     const rootRef = React.useRef<HTMLDivElement>(null);
@@ -37,82 +81,100 @@ export default function SearchBar({
         return () => document.removeEventListener("mousedown", onDocDown);
     }, []);
 
-    // 입력 시 자동완성 (디바운스 + AbortController 로 스테일 응답 방지)
+    // 검색 API 호출 함수
+    const fetchSearchResults = React.useCallback(async (searchQuery: string, signal: AbortSignal) => {
+        const res = await serverAxios.get("/mcps", {
+            signal,
+            params: {
+                search: searchQuery,
+                "request.search": searchQuery,
+                page: 0,
+                size: 8,
+                sort: "createdAt,desc",
+                "request.page": 0,
+                "request.size": 8,
+                "request.sort": "createdAt,desc",
+            },
+        });
+        return parseSearchResponse(res.data);
+    }, []);
+
+    // 입력 시 자동완성 (useDebounce + AbortController)
+    const debouncedQuery = useDebounce(query, 300);
+    
+    // 디버깅용 로그
+    console.log("🔍 query:", query, "debouncedQuery:", debouncedQuery);
+    
     React.useEffect(() => {
+        console.log("🔍 useEffect 실행됨, debouncedQuery:", debouncedQuery);
         const controller = new AbortController();
-        const q = query.trim();
+        const q = debouncedQuery.trim();
 
-        const run = async () => {
-            if (!q) {
-                setResults([]);
-                setOpen(false);
-                return;
-            }
+        if (!q) {
+            console.log("🔍 빈 쿼리, 결과 초기화");
+            setResults([]);
+            setOpen(false);
+            return;
+        }
 
+        console.log("🔍 검색 시작:", q);
+        let active = true;
+        (async () => {
             try {
                 setLoading(true);
+                console.log("🔍 API 호출 시작");
+                const items = await fetchSearchResults(q, controller.signal);
 
-                // ✅ MCP 목록 검색: /mcps (서버 구현 차이 흡수 위해 두 형태 동시 전송)
-                const res = await axiosInstance.get("/mcps", {
-                    signal: controller.signal,
-                    params: {
-                        search: q,
-                        "request.search": q,
-                        page: 0,
-                        size: 8,
-                        sort: "createdAt,desc",
-                        "request.page": 0,
-                        "request.size": 8,
-                        "request.sort": "createdAt,desc",
-                    },
-                });
-
-                // ✅ 응답 파싱 (BaseResponse<PageMcpResponse> 또는 직접 Page)
-                const payload = res.data?.result ?? res.data ?? {};
-                const content =
-                    payload?.content ??
-                    payload?.result?.content ??
-                    (Array.isArray(payload) ? payload : []);
-
-                const items: SearchItem[] = (content || []).map((it: any) => ({
-                    id: it.id,
-                    name: it.name,
-                    description: it.description,
-                    imageUrl: it.imageUrl ?? it.iconUrl ?? it.thumbnailUrl ?? null,
-                }));
-
+                if (!active) {
+                    console.log("🔍 컴포넌트가 비활성화됨, 결과 무시");
+                    return;
+                }
+                console.log("🔍 검색 결과:", items);
                 setResults(items);
-                setOpen(true);
+                setOpen(items.length > 0);
             } catch (err: any) {
+                console.log("🔍 에러 발생:", err);
                 if (err?.name !== "CanceledError" && err?.code !== "ERR_CANCELED") {
                     console.warn("MCP 검색 실패:", err);
+                    if (!active) return;
                     setResults([]);
+                    setOpen(false);
                 }
             } finally {
-                setLoading(false);
+                if (active) setLoading(false);
             }
-        };
+        })();
 
-        const t = setTimeout(run, 300);
         return () => {
-            clearTimeout(t);
+            console.log("🔍 cleanup 실행");
+            active = false;
             controller.abort();
         };
-    }, [query]);
+    }, [debouncedQuery, fetchSearchResults]);
+
+    // 네비게이션 함수들
+    const navigateToMarket = React.useCallback((searchQuery: string) => {
+        router.push(`/${locale}/market?search=${encodeURIComponent(searchQuery)}`);
+        setOpen(false);
+    }, [router, locale]);
+
+    const navigateToDetail = React.useCallback((id: number) => {
+        router.push(`/${locale}/detail/${id}`);
+        setOpen(false);
+    }, [router, locale]);
 
     // 검색 버튼 / Enter 이동
-    const handleSearch = () => {
+    const handleSearch = React.useCallback(() => {
         const q = query.trim();
         if (!q) return;
-        router.push(`/${locale}/market?search=${encodeURIComponent(q)}`);
-        setOpen(false);
-    };
+        navigateToMarket(q);
+    }, [query, navigateToMarket]);
 
     // 항목 클릭 → 상세
-    const goDetail = (id: number) => {
-        router.push(`/${locale}/detail/${id}`); // ✅ detail 로 맞추기
-        setOpen(false);
-    };
+    const goDetail = React.useCallback((id: number) => {
+        navigateToDetail(id);
+    }, [navigateToDetail]);
+
 
     return (
         <div ref={rootRef} className="relative w-full">
@@ -120,11 +182,9 @@ export default function SearchBar({
             <input
                 type="text"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onFocus={() => query.trim() && setOpen(true)}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSearch();
-                }}
+                onChange={handleInputChange}
+                onFocus={handleInputFocus}
+                onKeyDown={handleKeyDown}
                 placeholder={placeholder}
                 className="w-full rounded-md bg-surface-3 py-2 pl-4 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:ring-primary"
                 aria-label="Search MCPs"
@@ -149,7 +209,7 @@ export default function SearchBar({
 
             {/* 자동완성 드롭다운 */}
             {open && (
-                <div className="absolute left-0 right-0 mt-2 bg-surface-1 border border-accent/20 rounded-xl shadow-lg z-50 overflow-hidden">
+                <div className="absolute left-0 right-0 mt-2 bg-surface-1 py-0.5 border border-accent/20 rounded-xl shadow-lg z-[9999] overflow-hidden">
                     {loading && (
                         <div className="px-4 py-2 text-sm text-muted">검색 중...</div>
                     )}
@@ -162,54 +222,15 @@ export default function SearchBar({
 
                     {!loading && results.length > 0 && (
                         <ul className="max-h-80 overflow-auto">
-                            {results.map((item, idx) => (
-                                <li key={item.id ? `mcp-${item.id}` : `mcp-${idx}`}>
-                                    <button
-                                        type="button"
-                                        className="flex items-center gap-3 w-full text-left px-3 py-2 hover:bg-accent/10"
-                                        onClick={() => goDetail(item.id)}
-                                    >
-                                        {/* MCP 썸네일 */}
-                                        <div className="w-8 h-8 rounded-md overflow-hidden bg-surface-3 border border-accent/10 shrink-0">
-                                            <Image
-                                                src={
-                                                    item.imageUrl
-                                                        ? /^https?:\/\//i.test(item.imageUrl)
-                                                            ? item.imageUrl
-                                                            : `${
-                                                                process.env.NEXT_PUBLIC_API_URL?.replace(
-                                                                    /\/$/,
-                                                                    ""
-                                                                ) || ""
-                                                            }${item.imageUrl}`
-                                                        : "/mcp-fallback.png"
-                                                }
-                                                alt={item.name || "MCP Thumbnail"}
-                                                width={32}
-                                                height={32}
-                                                className="object-cover w-8 h-8"
-                                                onError={(e) => {
-                                                    (e.target as HTMLImageElement).src =
-                                                        "/mcp-fallback.png";
-                                                }}
-                                                unoptimized
-                                                loader={imageLoader}
-                                            />
-                                        </div>
-
-                                        {/* 텍스트 */}
-                                        <div className="min-w-0">
-                                            <p className="text-sm font-medium truncate">
-                                                {item.name}
-                                            </p>
-                                            {item.description && (
-                                                <p className="text-xs text-muted truncate">
-                                                    {item.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </button>
-                                </li>
+                            {results.map((item) => (
+                                <SearchResultItem
+                                    key={item.id}
+                                    id={item.id}
+                                    name={item.name}
+                                    description={item.description}
+                                    imageUrl={item.imageUrl}
+                                    onClick={goDetail}
+                                />
                             ))}
                         </ul>
                     )}

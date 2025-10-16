@@ -3,8 +3,6 @@ import { ReactNode } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/contexts/theme-provider";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import AuthProvider from "@/providers/AuthProvider";
 import QueryProvider from "@/providers/QueryProvider";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";

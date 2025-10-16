@@ -30,7 +30,7 @@ export const getMcpAutoComplete = async (q: string, size = 8) => {
             search: q,
             page: 0,
             size,
-            sort: "createdAt,desc",
+            sort: "popular",
         },
     });
     return data.result?.content ?? [];

@@ -12,7 +12,9 @@ type Props = { isOpen: boolean; onClose: () => void };
 const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
     const pathname = usePathname();
     const locale = pathname.split("/")[1] || "en";
-    const { isLoading, error } = useLoginStore();
+    // 필요한 상태만 선택적으로 구독하여 불필요한 리렌더링 방지
+    const isLoading = useLoginStore((s) => s.isLoading);
+    const error = useLoginStore((s) => s.error);
 
     const handleSignIn = async (provider: ProviderId) => {
         (document.activeElement as HTMLElement | null)?.blur();
