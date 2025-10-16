@@ -1,7 +1,7 @@
 // chat/components/ActiveMCPListContainer.tsx
 "use client";
 
-import { useMemo, memo, useEffect } from "react";
+import { useMemo, memo, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useCurrentWorkspace } from "@/contexts/CurrentWorkspaceContext";
 import { useWorkspaceDetail } from "@/hooks/chat/useWorkspaces";
@@ -57,9 +57,13 @@ const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
   // 새 워크스페이스 모드일 때 전역 선택 스토어와 동기화
   const setAllMcps = useMcpSelectionStore((s) => s.setAll);
   const selectionToggle = useMcpSelectionStore((s) => s.toggle);
+  
+  // localMcps 변경을 추적하기 위한 ref 사용
+  const prevLocalMcpsRef = useRef(localMcps);
   useEffect(() => {
-    if (!isWorkspaceSelected) {
+    if (!isWorkspaceSelected && JSON.stringify(prevLocalMcpsRef.current) !== JSON.stringify(localMcps)) {
       setAllMcps(localMcps);
+      prevLocalMcpsRef.current = localMcps;
     }
   }, [isWorkspaceSelected, localMcps, setAllMcps]);
 
