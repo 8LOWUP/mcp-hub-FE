@@ -1,6 +1,6 @@
 // components/layout/LandingHeader.tsx (일부만)
 "use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import LocaleSwitcher from "@/components/ui/LocaleSwitcher";
@@ -11,12 +11,17 @@ import { IoListSharp } from "react-icons/io5";
 import imageLoader from "@/lib/imageLoader";
 import { MdExtension } from "react-icons/md";
 import clsx from "clsx";
+import { useLoginStore } from "@/store/login/login-store";
 
 type ChattingHeaderProps = { additionalClassName?: string };
 
 export default function ChattingHeader({ additionalClassName }: ChattingHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
+
+  const { isLoggedIn, user } = useLoginStore();
+  const isAuthed = isLoggedIn;
+
   const [scrolled, setScrolled] = useState(false);
   const locale = pathname.split("/")[1] || "en";
 
@@ -26,16 +31,33 @@ export default function ChattingHeader({ additionalClassName }: ChattingHeaderPr
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // 로그인 모달 상태
+  const [isLoginOpen, setIsLoginOpen] = React.useState(false);
+  const openLogin = () => setIsLoginOpen(true);
+  const closeLogin = () => setIsLoginOpen(false);
+
   // 커스텀 이벤트 발행 헬퍼
   const emit = (name: string) => {
     if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(name));
   };
 
+  // 공통 이동
+  const go = (to: string) => router.push(to);
+
+  const handleProfileOrLoginClick = () => {
+    if (isAuthed) {
+        go(`/${locale}/profiles`);
+        return;
+    }
+    // 비로그인 상태라면 항상 로그인 모달 오픈
+    openLogin();
+};
+
   return (
     <header className={clsx("block sticky top-0 z-40", additionalClassName)}>
       <div
         className={clsx(
-          "h-20 w-full px-4 sm:px-6 bg-surface-1 transition-colors duration-200",
+          "h-20 w-full px-4 sm:px-8 bg-surface-1 transition-colors duration-200",
           scrolled ? "border-b-2 border-accent shadow-md" : "border-b border-transparent"
         )}
       >
@@ -68,9 +90,36 @@ export default function ChattingHeader({ additionalClassName }: ChattingHeaderPr
           {/* 우측: 액션 + (모바일/태블릿 전용) MCP 버튼 */}
           <div className="flex justify-between items-center gap-2">
             <ThemeToggle />
-            <div className="w-8 h-8 rounded-full border border-accent-color-1 overflow-hidden">
-              <Image src="/catprofile.svg" alt="Profile" width={32} height={32} className="object-cover w-full h-full" loader={imageLoader} unoptimized />
-            </div>
+            <LocaleSwitcher />
+            {isAuthed ? (
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={handleProfileOrLoginClick}
+                        aria-label="Open profile"
+                        className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent hover:cursor-pointer"
+                    >
+                        <Image
+                            src={user?.profileImage || "/catprofile.svg"}
+                            alt={user?.nickname || "Profile"}
+                            width={32}
+                            height={32}
+                            className="object-cover w-full h-full"
+                            loader={imageLoader}
+                            unoptimized
+                        />
+                    </button>
+                </div>
+            ) : (
+                <PrimaryButton
+                    onClick={handleProfileOrLoginClick}
+                    variant="secondary"
+                    size="sm"
+                    additionalClassName="py-2 px-2"
+                >
+                    Log In
+                </PrimaryButton>
+            )}
             <button
               type="button"
               onClick={() => emit("chat:toggle-right")}

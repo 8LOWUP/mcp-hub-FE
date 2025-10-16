@@ -2,10 +2,15 @@
 "use client";
 
 import { TbCloudCheck, TbCloudX } from "react-icons/tb";
+import { useMcpDetail } from "@/hooks/detail/useMcpDetail";
+import imageLoader from "@/lib/imageLoader";
+import Image from "next/image";
+import { useState } from "react";
+import { processMcpImageUrl, getFallbackIconProps } from "@/utils/imageUtils";
 
 type ActiveMCPCardProps = {
   id: string;
-  name: string;
+  name?: string;            // 선택적 이름 (상세 정보에서 가져올 수 있음)
   active?: boolean;         // 토글 상태
   isLoading?: boolean;      // 로딩 상태
   onToggle?: (active: boolean) => void;
@@ -20,34 +25,59 @@ export default function ActiveMCPCard({
   onToggle,
   detailText,
 }: ActiveMCPCardProps) {
+  // MCP 상세 정보 가져오기
+  const { data: mcpDetail, isLoading: isDetailLoading } = useMcpDetail(id);
+  const [imageError, setImageError] = useState(false);
+  
   const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
     onToggle?.(e.target.checked);
   };
 
+  // 표시할 이름과 이미지 결정
+  const displayName = mcpDetail?.name || name || `MCP-${id}`;
+  const rawImageUrl = mcpDetail?.imageUrl;
+  const isDetailLoadingState = isDetailLoading || isLoading;
+  
+  // 이미지 URL 처리
+  const imageUrl = processMcpImageUrl(rawImageUrl);
+
   return (
     <div
       className={[
-        "flex items-center justify-between w-full px-3 py-2 rounded-lg",
-        isLoading ? "opacity-50 pointer-events-none" : ""
+        "flex items-center justify-between w-full py-2 px-1 rounded-lg",
+        isDetailLoadingState ? "opacity-50 pointer-events-none" : ""
       ].join(" ")}
     >
-      {/* 좌측: 아이콘/이미지 + 이름 */}
-      <div className="flex items-center gap-2">
-        {active ? (
-          <TbCloudCheck className="text-accent text-lg" />
-        ) : (
-          <TbCloudX className="text-secondary text-lg" />
-        )}
-        <div className="flex flex-col">
-          <h3 className="text-sm font-medium text-foreground">{name}</h3>
-          {detailText && (
-            <p className="text-xs text-foreground/70">{detailText}</p>
-          )}
-          <p className="text-xs text-foreground/60">
-            {active ? "활성화됨" : "비활성화됨"}
-          </p>
+        {/* 좌측: 아이콘/이미지 + 이름 */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            {!imageError && imageUrl ? (
+              <Image
+                src={imageUrl} 
+                alt={displayName}
+                width={36}
+                height={36}
+                className="w-9 h-9 object-cover rounded-md"
+                loader={imageLoader}
+                unoptimized
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className={getFallbackIconProps(displayName, 'md').className}>
+                {getFallbackIconProps(displayName, 'md').text}
+              </div>
+            )}
+            <div className="flex flex-col w-31">
+              <h3 className="text-xs font-medium text-foreground">{displayName}</h3>
+              <p className={[
+                "text-xs transition-colors duration-300",
+                active ? "text-accent" : "text-secondary",
+              ].join(" ")}>
+                {active ? "사용중" : "미사용"}
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
 
       {/* 우측: 토글 버튼 */}
       <label 
@@ -59,12 +89,12 @@ export default function ActiveMCPCard({
           className="sr-only peer"
           checked={active}
           onChange={handleToggle}
-          disabled={isLoading}
+          disabled={isDetailLoadingState}
         />
         <div className={[
           "w-10 h-5 rounded-full transition-all duration-300 ease-in-out",
           active ? "bg-accent shadow-lg shadow-accent/25" : "bg-gray-600",
-          isLoading ? "opacity-50" : ""
+          isDetailLoadingState ? "opacity-50" : ""
         ].join(" ")}></div>
         <div
           className={[
