@@ -2,6 +2,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { LOCAL_STORAGE_KEY, PUBLIC_PATHS, API_BASE_URL } from "@/constants/apis/key";
 import { useLoginStore } from "@/store/login/login-store";
+import { toast } from "sonner";
 
 /* ================================
  * BASE_URL (dev 프록시 + prod 실제 주소)
@@ -27,6 +28,21 @@ export const axiosInstance = axios.create({
     },
     timeout: 180000, // 180초
 });
+
+/* ================================
+ * Locale 유틸
+ * ================================ */
+const getCurrentLocale = (): string => {
+    if (typeof window === "undefined") return "ko"; // 서버 사이드에서는 기본값
+    
+    const pathname = window.location.pathname;
+    const segments = pathname.split("/").filter(Boolean);
+    const locale = segments[0];
+    
+    // 지원되는 locale인지 확인
+    const supportedLocales = ["en", "ko"];
+    return supportedLocales.includes(locale) ? locale : "ko";
+};
 
 /* ================================
  * localStorage 유틸
@@ -235,26 +251,31 @@ axiosInstance.interceptors.response.use(
 
         // 401 처리 + 재발급
         if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-            console.warn("🔒 401: 토큰 만료로 판단, 재발급 시도");
+            console.warn("🔒 401: 토큰 만료로 판단, 재발급 시도", {
+                url: originalRequest.url,
+                method: originalRequest.method,
+                hasRefreshToken: !!getRefreshToken(),
+                isRefreshing
+            });
 
-            // MCP 요청은 자동 재시도 제외 (직접 다시 호출)
-            const isMcpRequest = originalRequest.url?.includes("/mcps");
-            if (isMcpRequest) {
-                console.warn("🔄 MCP 401 - 자동 재시도 생략");
-                return Promise.reject(error);
-            }
+            // 모든 401 에러에 대해 토큰 재발급 시도
 
             if (isRefreshing) {
+                console.log("⏳ 토큰 재발급 중... 요청 대기열에 추가");
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
                 })
                     .then((token) => {
                         if (token) {
                             (originalRequest.headers as any).Authorization = `Bearer ${token}`;
+                            console.log("🔄 대기 중인 요청 재시도:", originalRequest.url);
                         }
                         return axiosInstance(originalRequest);
                     })
-                    .catch((err) => Promise.reject(err));
+                    .catch((err) => {
+                        console.error("❌ 대기 중인 요청 실패:", err);
+                        return Promise.reject(err);
+                    });
             }
 
             originalRequest._retry = true;
@@ -264,9 +285,16 @@ axiosInstance.interceptors.response.use(
                 const { refreshToken, setTokens } = useLoginStore.getState();
                 if (!refreshToken) throw new Error("리프레시 토큰이 없습니다.");
 
+                console.log("🔄 토큰 재발급 시작:", {
+                    hasRefreshToken: !!refreshToken,
+                    refreshTokenLength: refreshToken?.length,
+                    originalUrl: originalRequest.url
+                });
+
                 const plain = axios.create({
                     baseURL: BASE_URL,
                     headers: { Accept: "application/json", "Content-Type": "application/json" },
+                    timeout: 120000, // 120초 타임아웃 (메인 인스턴스와 동일)
                 });
 
                 const reissue = await plain.post(
@@ -275,30 +303,86 @@ axiosInstance.interceptors.response.use(
                     { params: { refreshToken } }
                 );
 
-                const newAccessToken = reissue?.data?.result?.accessToken;
-                const ok = reissue?.data?.success && !!newAccessToken;
-                if (!ok) throw new Error("토큰 갱신 응답이 올바르지 않습니다.");
+                console.log("🔄 토큰 재발급 응답:", {
+                    status: reissue.status,
+                    success: reissue?.data?.success,
+                    hasAccessToken: !!reissue?.data?.result?.accessToken,
+                    responseData: reissue?.data
+                });
 
-                setTokens(newAccessToken, refreshToken);
+                const newAccessToken = reissue?.data?.result?.accessToken;
+                const newRefreshToken = reissue?.data?.result?.refreshToken;
+                const ok = reissue?.status == 200
+                
+                if (!ok) {
+                    console.error("❌ 토큰 재발급 실패 - 응답 데이터:", reissue?.data);
+                    throw new Error("토큰 갱신 응답이 올바르지 않습니다.");
+                }
+
+                console.log("✅ 토큰 재발급 성공:", {
+                    newTokenLength: newAccessToken?.length,
+                    newTokenPreview: newAccessToken?.substring(0, 20) + "..."
+                });
+
+                // 토큰 업데이트
+                setTokens(newAccessToken, newRefreshToken);
+                
+                // 큐에 대기 중인 요청들 처리
                 processQueue(null, newAccessToken);
 
+                // 원래 요청의 헤더 업데이트
                 (originalRequest.headers as any).Authorization = `Bearer ${newAccessToken}`;
+                
+                console.log("🔄 원래 요청 재시도:", {
+                    url: originalRequest.url,
+                    method: originalRequest.method,
+                    hasNewToken: !!newAccessToken
+                });
+                
+                // 새로운 axios 인스턴스로 요청 재시도 (기존 인터셉터 우회)
                 return axiosInstance(originalRequest);
             } catch (refreshError: any) {
-                console.error("❌ 토큰 갱신 실패:", refreshError);
+                console.error("❌ 토큰 갱신 실패:", {
+                    error: refreshError,
+                    status: refreshError?.response?.status,
+                    statusText: refreshError?.response?.statusText,
+                    responseData: refreshError?.response?.data,
+                    message: refreshError?.message,
+                    url: refreshError?.config?.url
+                });
                 processQueue(refreshError, null);
 
                 const status = refreshError?.response?.status;
                 if (status === 401 || status === 403) {
+                    console.warn("🚫 리프레시 토큰도 만료됨 - 로그아웃 처리");
+                    
+                    // 토스트 메시지 표시
+                    toast.error("🔒 세션이 만료되었습니다. 다시 로그인해주세요.", {
+                        duration: 6000,
+                        description: "보안을 위해 자동으로 로그아웃됩니다."
+                    });
+                    
                     const { logout } = useLoginStore.getState();
                     logout?.();
                     removeLocalStorageItem();
                     if (typeof window !== "undefined") {
                         sessionStorage.setItem("BLOCK_AUTH_ONCE", "1");
-                        window.location.href = "/login";
+                        // 토스트 메시지가 표시될 시간을 주고 리다이렉트
+                        setTimeout(() => {
+                            const currentLocale = getCurrentLocale();
+                            window.location.href = `/${currentLocale}`;
+                        }, 1000);
                     }
                 } else {
-                    console.warn("⚠️ 재발급 실패(일시 오류 가능). 토큰은 보존합니다. status:", status);
+                    console.warn("⚠️ 재발급 실패(일시 오류 가능). 토큰은 보존합니다.", {
+                        status,
+                        message: refreshError?.message
+                    });
+                    
+                    // 일시적 오류에 대한 토스트 메시지
+                    toast.warning("⚠️ 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", {
+                        duration: 2000
+                    });
                 }
                 return Promise.reject(refreshError);
             } finally {
@@ -312,7 +396,22 @@ axiosInstance.interceptors.response.use(
         }
         if (error.response?.status === 403) console.warn("🚫 접근 권한이 없습니다.");
         if (error.response?.status === 404) console.warn("🔍 요청한 리소스가 없습니다.");
-        if (error.response?.status >= 500) console.error("🔥 서버 내부 오류(5xx)");
+        if (error.response?.status >= 500) {
+            console.error(`🔥 서버 내부 오류(${error.response?.status}) - 상세 정보:`);
+            console.error("  📍 URL:", originalRequest?.url || "알 수 없음");
+            console.error("  📍 Method:", originalRequest?.method?.toUpperCase() || "알 수 없음");
+            console.error("  📍 Status:", error.response.status);
+            console.error("  📍 Status Text:", error.response.statusText);
+            console.error("  📍 Response Data:", error.response.data);
+            console.error("  📍 Request Headers:", originalRequest?.headers);
+            console.error("  📍 Request Data:", originalRequest?.data);
+            console.error("  📍 Full Error:", error);
+        }
+        
+        // 타임아웃 에러 처리
+        if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+            console.error("⏰ 요청 타임아웃 (30초 초과)");
+        }
 
         return Promise.reject(error);
     }
