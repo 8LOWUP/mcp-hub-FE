@@ -11,12 +11,19 @@ const nextConfig : NextConfig = {
     loaderFile: './src/lib/imageLoader.js',
     // 간단히 domains 사용
     domains: ["img.com", "k.kakaocdn.net"], // ✅ 카카오 CDN 추가
-
-    // 또는 remotePatterns로 더 엄격하게
-    // remotePatterns: [
-    //   { protocol: "https", hostname: "img.com" },
-    //   { protocol: "https", hostname: "k.kakaocdn.net" }, // ✅
-    // ],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8080',
+        pathname: '/mcps/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '61.109.236.22',
+        pathname: '/mcps/**',
+      },
+    ],
   },
 
   experimental: {
