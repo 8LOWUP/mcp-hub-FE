@@ -10,7 +10,7 @@ import imageLoader from "@/lib/imageLoader";
 import LocaleSwitcher from "@/components/ui/LocaleSwitcher";
 import ThemeToggle from "@/components/ui/theme-toggle";
 import PrimaryButton from "@/components/ui/PrimaryButton";
-import SearchBar from "@/components/ui/searchBar";
+import ClientSearchBar from "@/components/ui/ClientSearchBar";
 import LoginModal from "@/features/auth/components/LoginModal";
 import { useLoginStore } from "@/store/login/login-store";
 import { socialLogin } from "@/services/auth/social-login";
@@ -19,6 +19,7 @@ import { socialLogin } from "@/services/auth/social-login";
 const trimSlash = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
 
 const Header: React.FC = () => {
+    console.log("🔍 Header 컴포넌트 렌더링됨");
     const router = useRouter();
     const pathnameRaw = usePathname() || "/";
     const pathname = trimSlash(pathnameRaw);
@@ -42,7 +43,7 @@ const Header: React.FC = () => {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-    // 로그인 모달 상태
+    // 로그인 모달 상태(로컬 관리)
     const [isLoginOpen, setIsLoginOpen] = React.useState(false);
     const openLogin = () => setIsLoginOpen(true);
     const closeLogin = () => setIsLoginOpen(false);
@@ -60,15 +61,15 @@ const Header: React.FC = () => {
             go(`/${locale}/profiles`);
             return;
         }
-        // 비로그인 상태라면 항상 로그인 모달 오픈
+        // 비로그인 상태라면 로그인 모달 오픈
         openLogin();
     };
 
     return (
-        <header className="sticky top-0 z-40 shadow-md">
+        <header className="sticky top-0 z-50 shadow-md">
             <div
                 className={[
-                    "absolute top-0 left-0 right-0 z-20 h-20 px-10 bg-surface-1 transition-colors duration-200",
+                    "absolute top-0 left-0 right-0 z-50 h-20 px-10 bg-surface-1 transition-colors duration-200",
                     scrolled ? "border-b-2 border-accent" : "border-b border-transparent",
                 ].join(" ")}
             >
@@ -107,7 +108,7 @@ const Header: React.FC = () => {
 
           {/* 검색바 */}
           <div className="flex-1 max-w-xl px-4">
-            <SearchBar />
+            <ClientSearchBar />
           </div>
                     {/* 우측 액션 */}
                     <div className="flex items-center gap-x-2">
@@ -128,10 +129,10 @@ const Header: React.FC = () => {
                                     type="button"
                                     onClick={handleProfileOrLoginClick}
                                     aria-label="Open profile"
-                                    className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                                    className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
                                 >
                                     <Image
-                                        src={user?.profileImage || "/catprofile.svg"}
+                                        src={user?.avatarUrl || "/catprofile.svg"}
                                         alt={user?.nickname || "Profile"}
                                         width={32}
                                         height={32}

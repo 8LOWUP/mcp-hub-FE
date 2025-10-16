@@ -1,7 +1,7 @@
 // chat/components/ActiveMCPListContainer.tsx
 "use client";
 
-import { useMemo, memo, useEffect } from "react";
+import { useMemo, memo, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useCurrentWorkspace } from "@/contexts/CurrentWorkspaceContext";
 import { useWorkspaceDetail } from "@/hooks/chat/useWorkspaces";
@@ -10,6 +10,7 @@ import { useLoginStore } from "@/store/login/login-store";
 import { fetchMyMcps } from "@/features/profiles/apis/mcps";
 import ActiveMCPCard from "./ActiveMCPCard";
 import NewWorkspaceMCPCard from "./NewWorkspaceMCPCard";
+import MCPCardSkeleton from "./MCPCardSkeleton";
 import { useMcpSelectionStore } from "@/store/chat/mcp-selection-store";
 
 const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
@@ -56,9 +57,13 @@ const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
   // 새 워크스페이스 모드일 때 전역 선택 스토어와 동기화
   const setAllMcps = useMcpSelectionStore((s) => s.setAll);
   const selectionToggle = useMcpSelectionStore((s) => s.toggle);
+  
+  // localMcps 변경을 추적하기 위한 ref 사용
+  const prevLocalMcpsRef = useRef(localMcps);
   useEffect(() => {
-    if (!isWorkspaceSelected) {
+    if (!isWorkspaceSelected && JSON.stringify(prevLocalMcpsRef.current) !== JSON.stringify(localMcps)) {
       setAllMcps(localMcps);
+      prevLocalMcpsRef.current = localMcps;
     }
   }, [isWorkspaceSelected, localMcps, setAllMcps]);
 
@@ -80,11 +85,16 @@ const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
 
   return (
     <>
-      <h2 className="text-2xl font-bold p-3">Active MCP</h2>
+      <h2 className="text-2xl font-bold pb-4">Active MCP</h2>
       <ul className="flex flex-col w-full rounded-md h-fit overflow-y-auto bg-surface-2 p-2">
         {isWorkspaceSelected ? (
           isWorkspaceLoading ? (
-            <li className="text-sm text-foreground/60 p-3">MCP 정보를 불러오는 중...</li>
+            // 워크스페이스 로딩 중 - 3개의 스켈레톤 표시
+            Array.from({ length: 1 }).map((_, index) => (
+              <li key={`skeleton-active-${index}`} className="mb-2 last:mb-0">
+                <MCPCardSkeleton variant="active" />
+              </li>
+            ))
           ) : localMcps.length === 0 ? (
             <li className="text-sm text-foreground/60 p-3">MCP가 할당되지 않았습니다.</li>
           ) : (
@@ -96,7 +106,6 @@ const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
               <li key={mcp.id} className="mb-2 last:mb-0">
                 <ActiveMCPCard
                   id={id}
-                  name={`MCP-${id}`}
                   active={mcp.active}
                   onToggle={(next) => toggleMcpActive(id, next)}
                   detailText={`WS: ${workspaceDetail?.title ?? ''} (${workspaceDetail?.workspaceId ?? ''})`}
@@ -107,7 +116,12 @@ const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
               })
           )
         ) : isMyMcpsLoading ? (
-          <li className="text-sm text-foreground/60 p-3">MCP 정보를 불러오는 중...</li>
+          // 내 MCP 로딩 중 - 3개의 스켈레톤 표시
+          Array.from({ length: 3 }).map((_, index) => (
+            <li key={`skeleton-new-${index}`} className="mb-2 last:mb-0">
+              <MCPCardSkeleton variant="new-workspace" />
+            </li>
+          ))
         ) : localMcps.length === 0 ? (
           <li className="text-sm text-foreground/60 p-3">활성화된 MCP가 없습니다</li>
         ) : (
@@ -119,7 +133,6 @@ const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
             <li key={id} className="mb-2 last:mb-0">
               <NewWorkspaceMCPCard
                 id={id}
-                name={`MCP-${id}`}
                 selected={mcp.active}
                 isLoading={isSyncing}
                 onSelect={(next) => {

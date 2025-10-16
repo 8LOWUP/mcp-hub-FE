@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { McpItemType } from "../../types/mcps";
 import { PROFILES_STYLES } from "../../constants";
 import SecondaryButton from "@/components/ui/SecondaryButton";
@@ -13,13 +14,33 @@ type ProfileCardProps = {
 };
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose }) => {
-    const handleClickApiKey = () => {
-        const mid = item.mcpId ?? Number(item.id);
-        if (!mid || Number.isNaN(mid)) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const locale = pathname.split("/")[1] || "en";
+
+    const mcpId = item.mcpId ?? Number(item.id);
+
+    const handleOpenDetail = () => {
+        if (!mcpId || Number.isNaN(mcpId)) {
             console.warn("[CARD] invalid mcpId:", { id: item.id, mcpId: item.mcpId });
             return;
         }
-        onClickApiKey?.(item.platformId ?? null, mid);
+        router.push(`/${locale}/detail/${mcpId}`);
+    };
+
+    const handleKeyDown: React.KeyboardEventHandler<HTMLElement> = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleOpenDetail();
+        }
+    };
+
+    const handleClickApiKey = () => {
+        if (!mcpId || Number.isNaN(mcpId)) {
+            console.warn("[CARD/APIKEY] invalid mcpId:", { id: item.id, mcpId: item.mcpId });
+            return;
+        }
+        onClickApiKey?.(item.platformId ?? null, mcpId);
     };
 
     const handleClose = (e: React.MouseEvent) => {
@@ -29,11 +50,16 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
 
     return (
         <article
+            onClick={handleOpenDetail}
+            onKeyDown={handleKeyDown}
+            tabIndex={0}
+            role="button"
             className={[
                 PROFILES_STYLES.CARD_BASE,
                 PROFILES_STYLES.CARD_BORDER_HIGHLIGHT,
                 "hover:border-transparent hover:bg-surface-2 active:bg-surface-2",
-                "cursor-pointer transition-colors",
+                "cursor-pointer transition-colors outline-none",
+                "focus:ring-2 focus:ring-yellow-300/60 rounded-xl",
             ].join(" ")}
             aria-label={`${item.title} 카드`}
         >
@@ -55,12 +81,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
 
             <div className={PROFILES_STYLES.CARD_ACTIONS}>
                 <div onClick={(e) => e.stopPropagation()}>
-                    <SecondaryButton
-                        variant="secondary"
-                        size="sm"
-                        hoverOnly
-                        onClick={handleClickApiKey}
-                    >
+                    <SecondaryButton variant="secondary" size="sm" hoverOnly onClick={handleClickApiKey}>
                         API Key
                     </SecondaryButton>
                 </div>
