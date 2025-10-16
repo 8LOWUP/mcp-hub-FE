@@ -1,22 +1,37 @@
 "use client";
 
-import { useState, DragEvent, ChangeEvent, useRef } from "react";
+import { useState, useEffect, DragEvent, ChangeEvent, useRef } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import imageLoader from "@/lib/imageLoader";
 
 interface UploadIconProps {
-    onFileSelect?: (file: File | null) => void; // ✅ 파일을 상위 컴포넌트/훅에 전달
+    onFileSelect?: (file: File | null) => void;
+    defaultImageUrl?: string | null; // ✅ detail.imageUrl 전달받음
 }
 
-export default function UploadIcon({ onFileSelect }: UploadIconProps) {
-    // Locale translations
+export default function UploadIcon({ onFileSelect, defaultImageUrl }: UploadIconProps) {
     const t = useTranslations('UploadPage');
+    
     const [preview, setPreview] = useState<string | null>(null);
     const [dragOver, setDragOver] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    // ✅ 파일 처리
+    // ✅ MarketHeader 규칙 적용: /__api 경로 보정
+    const buildImageUrl = (path?: string | null) => {
+        if (!path || path.trim() === "") return null;
+        if (path.startsWith("/")) return `/__api${path}`;
+        return `/__api/${path}`;
+    };
+
+    // ✅ 수정 모드일 때 기존 이미지 표시
+    useEffect(() => {
+        if (defaultImageUrl) {
+            const fullUrl = buildImageUrl(defaultImageUrl);
+            setPreview(fullUrl);
+        }
+    }, [defaultImageUrl]);
+
     const handleFile = (file: File) => {
         if (!file) return;
         if (!file.type.startsWith("image/")) {
@@ -28,11 +43,15 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
             return;
         }
 
-        // ✅ 미리보기 URL 생성 (이거 빠져서 안 보였던 거!)
         const previewUrl = URL.createObjectURL(file);
         setPreview(previewUrl);
 
-        // 상위 훅에 전달
+        console.log("이미지 생성됨:", {
+            name: file.name,
+            type: file.type,
+            size: `${Math.round(file.size / 1024)}KB`,
+        });
+
         if (onFileSelect) onFileSelect(file);
     };
 
@@ -50,8 +69,8 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
 
     const handleRemove = () => {
         setPreview(null);
-        if (fileInputRef.current) fileInputRef.current.value = ""; // input 초기화
-        if (onFileSelect) onFileSelect(null); // ✅ null 전달
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        if (onFileSelect) onFileSelect(null);
     };
 
     return (
@@ -62,7 +81,7 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
 
             <div
                 className={`relative border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer p-6 w-full max-w-lg mx-auto
-            ${dragOver ? "border-yellow-400 bg-yellow-50" : "border-gray-600 bg-color-3"}`}
+                ${dragOver ? "border-yellow-400 bg-yellow-50" : "border-gray-600 bg-color-3"}`}
                 onDragOver={(e) => {
                     e.preventDefault();
                     setDragOver(true);
@@ -72,7 +91,15 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
             >
                 {preview ? (
                     <div className="relative">
-                        <Image src={preview} alt="Preview" width={120} height={120} className="rounded-md object-contain" loader={imageLoader} unoptimized />
+                        <Image
+                            src={preview}
+                            alt="Preview"
+                            width={120}
+                            height={120}
+                            className="rounded-md object-contain"
+                            loader={imageLoader}
+                            unoptimized
+                        />
                         <button
                             type="button"
                             onClick={handleRemove}
@@ -90,11 +117,18 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
                             viewBox="0 0 24 24"
                             stroke="currentColor"
                         >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                  d="M3 15a4 4 0 01.88-7.903A5.001 5.001 0 0115 6h1a5 5 0 010 10H5a4 4 0 01-2-7.528" />
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M3 15a4 4 0 01.88-7.903A5.001 5.001 0 0115 6h1a5 5 0 010 10H5a4 4 0 01-2-7.528"
+                            />
                         </svg>
-                        <p className="cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                            <span className="text-yellow-400 font-medium">{t('uploadFile')}</span> {t('dragAndDrop')}
+                        <p
+                            className="cursor-pointer"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <span className="text-yellow-400 font-medium">Upload a file</span> or drag and drop
                         </p>
                         <p className="text-sm text-gray-500">{t('fileFormat')}</p>
                     </div>
