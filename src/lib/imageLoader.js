@@ -1,23 +1,30 @@
-const API_BASE =
-    process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://localhost:8080";
-const isProd = process.env.NODE_ENV === "production";
-
+// src/lib/imageLoader.js
 export default function imageLoader({ src }) {
-  if (!src) return "/mcp-fallback.png";
+  console.log('🖼️ imageLoader called with src:', src);
 
-  // 절대 URL은 그대로
-  if (/^https?:\/\//i.test(src)) return src;
+  // @https://img.com 또는 https://img.com으로 시작하는 URL인 경우 API URL로 변환
+  if (src.startsWith('@https://img.com') || src.startsWith('https://img.com')) {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:8080';
+    const cleanApiUrl = apiUrl.replace(/\/+$/, '');
 
-  // /files/... 또는 /mcp/... → dev는 프록시, prod는 API_BASE 붙이기
-  if (src.startsWith("/files") || src.startsWith("/mcp")) {
-    return isProd ? `${API_BASE}${src}` : `/__img${src}`;
+    // @https://img.com/ocr.png -> https://localhost:8080/img.com/ocr.png
+    // https://img.com/payment.png -> https://localhost:8080/img.com/payment.png
+    const cleanSrc = src.replace('@', ''); // @ 제거
+    const result = cleanSrc.replace('https://', `${cleanApiUrl}/`);
+    console.log('🖼️ img.com URL transformed:', result);
+    return result;
   }
-
-  // 상대경로(files/...) → dev는 프록시, prod는 API_BASE 붙이기
-  if (!src.startsWith("/")) {
-    return isProd ? `${API_BASE}/${src}` : `/__img/${src}`;
+  
+  // /mcps로 시작하는 경우 API URL을 붙임
+  if (src.startsWith('/mcps')) {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:8080';
+    const cleanApiUrl = apiUrl.replace(/\/+$/, '');
+    const result = `${cleanApiUrl}${src}`;
+    console.log('🖼️ /mcps URL transformed:', result);
+    return result;
   }
-
-  // 그 외는 그대로 반환
+  
+  // 다른 URL은 그대로 반환
+  console.log('🖼️ URL unchanged:', src);
   return src;
 }

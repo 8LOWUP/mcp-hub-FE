@@ -3,10 +3,15 @@
 
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import { MdCheckCircle, MdRadioButtonUnchecked } from "react-icons/md";
+import { useMcpDetail } from "@/hooks/detail/useMcpDetail";
+import imageLoader from "@/lib/imageLoader";
+import Image from "next/image";
+import { useState } from "react";
+import { processMcpImageUrl, getFallbackIconProps } from "@/utils/imageUtils";
 
 type NewWorkspaceMCPCardProps = {
   id: string;
-  name: string;
+  name?: string;            // 선택적 이름 (상세 정보에서 가져올 수 있음)
   selected?: boolean;
   isLoading?: boolean;
   onSelect?: (selected: boolean) => void;
@@ -19,7 +24,24 @@ export default function NewWorkspaceMCPCard({
   isLoading = false,
   onSelect,
 }: NewWorkspaceMCPCardProps) {
+  // MCP 상세 정보 가져오기
+  const { data: mcpDetail, isLoading: isDetailLoading } = useMcpDetail(id);
+  const [imageError, setImageError] = useState(false);
+  
   const handleClick = () => onSelect?.(!selected);
+
+  // 표시할 이름과 이미지 결정
+  const displayName = mcpDetail?.name || name || `MCP-${id}`;
+  const rawImageUrl = mcpDetail?.imageUrl;
+  const isDetailLoadingState = isDetailLoading || isLoading;
+  
+  // 이미지 URL 처리
+  const imageUrl = processMcpImageUrl(rawImageUrl);
+  
+  // 디버깅용 로그
+  console.log('🔍 NewWorkspaceMCPCard - mcpDetail:', mcpDetail);
+  console.log('🔍 NewWorkspaceMCPCard - rawImageUrl:', rawImageUrl);
+  console.log('🔍 NewWorkspaceMCPCard - processed imageUrl:', imageUrl);
   const buttonClass = [
     "h-8 py-0 px-3 text-sm transition-colors",
     selected
@@ -30,26 +52,32 @@ export default function NewWorkspaceMCPCard({
   return (
     <div
       className={[
-        "flex items-center justify-between w-full px-3 py-2 rounded-lg",
-        isLoading ? "opacity-50 pointer-events-none" : "",
+        "flex items-center justify-between w-full px-1 py-2 rounded-lg",
+        isDetailLoadingState ? "opacity-50 pointer-events-none" : "",
       ].join(" ")}
     >
-      {/* 좌측: 이름 */}
+      {/* 좌측: 이미지/아이콘 + 이름 */}
       <div className="flex items-center gap-2">
-        <div
-          className={[
-            "transform transition-all duration-300 ease-out",
-            selected ? "opacity-100 scale-110" : "opacity-70 scale-100",
-          ].join(" ")}
-        >
-            {selected ? (
-              <MdCheckCircle className="text-accent w-4 h-4" />
-            ) : (
-              <MdRadioButtonUnchecked className="text-foreground/50 w-4 h-4" />
-            )}
-        </div>
+        {!imageError && imageUrl ? (
+          <div className="w-9 h-9 rounded-md overflow-hidden flex-shrink-0">
+            <Image
+              src={imageUrl}
+              alt={displayName}
+              width={36}
+              height={36}
+              className="w-full h-full object-cover"
+              loader={imageLoader}
+              unoptimized
+              onError={() => setImageError(true)}
+            />
+          </div>
+          ) : (
+            <div className={getFallbackIconProps(displayName, 'md').className}>
+              {getFallbackIconProps(displayName, 'md').text}
+            </div>
+          )}
         <div className="flex flex-col">
-          <h3 className="text-sm font-medium text-foreground">{name}</h3>
+          <h3 className="text-xs font-medium text-foreground">{displayName}</h3>
           <p className={[
             "text-xs transition-colors duration-300",
             selected ? "text-accent" : "text-secondary",

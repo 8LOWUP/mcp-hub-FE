@@ -1,3 +1,4 @@
+// src/components/layout/Header.tsx
 "use client";
 
 import React from "react";
@@ -22,22 +23,15 @@ const Header: React.FC = () => {
     const pathnameRaw = usePathname() || "/";
     const pathname = trimSlash(pathnameRaw);
 
-    // NextAuth + 커스텀 스토어 병행
-    const { status, data: session } = useSession();
+    // 세션 (로그인 여부) - NextAuth와 우리 로그인 스토어 둘 다 확인
+    const { status } = useSession();
     const { isLoggedIn, user } = useLoginStore();
-
-    // ✅ 사용자 인증 여부: 커스텀 스토어 우선, 아니면 NextAuth
-    const isAuthed = Boolean(user?.id) || status === "authenticated";
-
-    // ✅ 아바타 이미지 소스 결정: 우리 스토어 > NextAuth > 로컬 fallback
-    const avatarSrc =
-        user?.avatarUrl ||
-        // NextAuth가 있다면 세션의 이미지도 고려
-        (session?.user as any)?.image ||
-        "/catprofile.svg";
+    const isAuthed = status === "authenticated" || isLoggedIn;
 
     // locale 추출 (URL의 첫 세그먼트)
     const locale = React.useMemo(() => pathname.split("/")[1] || "en", [pathname]);
+
+    // 현재 페이지가 locale 루트인지 (예: /ko)
     const isLocaleHome = React.useMemo(() => pathname === `/${locale}`, [pathname, locale]);
 
     // 헤더 스크롤 스타일
@@ -53,19 +47,20 @@ const Header: React.FC = () => {
     const openLogin = () => setIsLoginOpen(true);
     const closeLogin = () => setIsLoginOpen(false);
 
-    // 이동
+    // 공통 이동
     const go = (to: string) => router.push(to);
 
     /* ================================
-     * 프로필/로그인 버튼
-     * - 로그인된 상태: profiles로 이동
-     * - 비로그인 상태: 로그인 모달
+     * 프로필/로그인 버튼 클릭 동작
+     * - 로그인된 상태라면 언제나 profiles로 이동
+     * - 비로그인 상태라면 언제나 로그인 모달 오픈
      * ================================ */
     const handleProfileOrLoginClick = () => {
         if (isAuthed) {
             go(`/${locale}/profiles`);
             return;
         }
+        // 비로그인 상태라면 항상 로그인 모달 오픈
         openLogin();
     };
 
@@ -80,12 +75,12 @@ const Header: React.FC = () => {
                 <div className="max-w-screen-2xl h-full flex items-center justify-between px-6">
                     {/* 로고 + Market */}
                     <div className="flex items-center gap-2">
-                        <Image
-                            src="/logo.svg"
-                            alt="MCP Hub logo"
-                            width={24}
-                            height={24}
-                            priority
+                        <Image 
+                            src="/logo.svg" 
+                            alt="MCP Hub logo" 
+                            width={24} 
+                            height={24} 
+                            priority 
                             loader={imageLoader}
                             unoptimized
                         />
@@ -110,11 +105,10 @@ const Header: React.FC = () => {
                         </button>
                     </div>
 
-                    {/* 검색바 */}
-                    <div className="flex-1 max-w-xl px-4">
-                        <SearchBar />
-                    </div>
-
+          {/* 검색바 */}
+          <div className="flex-1 max-w-xl px-4">
+            <SearchBar />
+          </div>
                     {/* 우측 액션 */}
                     <div className="flex items-center gap-x-2">
                         <PrimaryButton
@@ -137,7 +131,7 @@ const Header: React.FC = () => {
                                     className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                                 >
                                     <Image
-                                        src={avatarSrc}
+                                        src={user?.profileImage || "/catprofile.svg"}
                                         alt={user?.nickname || "Profile"}
                                         width={32}
                                         height={32}
@@ -169,7 +163,7 @@ const Header: React.FC = () => {
                 </div>
             </div>
 
-            {/* 랜딩에서만 열리는 로그인 모달 (isLocaleHome 여부는 유지) */}
+            {/* 랜딩에서만 열리는 로그인 모달 (isLocaleHome인 경우에만 실제로 트리거됨) */}
             <LoginModal isOpen={isLoginOpen} onClose={closeLogin} />
         </header>
     );
