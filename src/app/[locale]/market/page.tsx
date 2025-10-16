@@ -1,17 +1,17 @@
-import { getTranslations } from 'next-intl/server';
-import { getLandingMCPData } from '@/services/landing/apis';
-import type { getLandingMCPDataRequestBody, MCPItem } from '@/types/landing/landingMCPDataType';
-import { DUMMY_MCP_LIST } from '@/constants/mcp-data';
-import type { McpCardData } from '@/features/market/types';
-import { CategoryId } from '@/features/market/constants';
+import { getTranslations } from "next-intl/server";
+import { getLandingMCPData } from "@/services/landing/apis";
+import type { getLandingMCPDataRequestBody, MCPItem } from "@/types/landing/landingMCPDataType";
+import { DUMMY_MCP_LIST } from "@/constants/mcp-data";
+import type { McpCardData } from "@/features/market/types";
+import { CategoryId } from "@/features/market/constants";
 import MarketPage from "@/features/market/components/page/MarketPage";
 
-export const revalidate = 60; // ISR: 60초 간 재검증
+export const revalidate = 60;
 
-// Market 페이지 전용 메타데이터
 export const metadata = {
   title: "MCP Market | MCP HUB",
-  description: "다양한 MCP(Model Context Protocol) 도구들을 발견하고 사용해보세요. 웹 검색, 메모리, 브라우저, 언어 처리 등 카테고리별로 정리된 MCP 컬렉션을 제공합니다.",
+  description:
+      "다양한 MCP(Model Context Protocol) 도구들을 발견하고 사용해보세요. 웹 검색, 메모리, 브라우저, 언어 처리 등 카테고리별로 정리된 MCP 컬렉션을 제공합니다.",
   keywords: "MCP, Model Context Protocol, AI tools, 웹 검색, 메모리, 브라우저, 언어 처리, AI 도구",
   openGraph: {
     title: "MCP Market | MCP HUB",
@@ -20,16 +20,16 @@ export const metadata = {
   },
 };
 
-// 카테고리 매핑 객체
+// 카테고리 매핑
 const CATEGORY_MAPPING = {
   "web-search": 1,
-  "memory": 2,
-  "browser": 3,
-  "language": 4,
-  "etc": 5,
+  memory: 2,
+  browser: 3,
+  language: 4,
+  etc: 5,
 } as const;
 
-// MCPItem을 McpCardData로 변환하는 헬퍼 함수
+/* MCPItem → McpCardData 변환 */
 function convertMCPItemToMcpCardData(item: MCPItem, category: CategoryId): McpCardData {
   return {
     id: item.id.toString(),
@@ -38,57 +38,89 @@ function convertMCPItemToMcpCardData(item: MCPItem, category: CategoryId): McpCa
     iconSrc: item.imageUrl && item.imageUrl.trim() !== "" ? item.imageUrl : "/default-mcp-logo.svg",
     saved: false,
     usersCount: item.savedUserCount,
-    category: category,
+    category,
     developerName: item.developerName,
   };
 }
 
-// 모든 카테고리의 MCP 데이터를 가져오는 함수
-async function fetchAllMCPData(): Promise<McpCardData[]> {
+/* 중복 제거(같은 id) */
+function dedupeById(list: McpCardData[]): McpCardData[] {
+  const map = new Map<string, McpCardData>();
+  for (const it of list) {
+    if (!map.has(it.id)) map.set(it.id, it);
+  }
+  return Array.from(map.values());
+}
+
+/* 모든 카테고리의 MCP 데이터(검색어 포함) 가져오기 */
+async function fetchAllMCPData(search: string): Promise<McpCardData[]> {
   try {
-    // 모든 카테고리의 데이터를 병렬로 가져오기
     const allCategories = Object.entries(CATEGORY_MAPPING) as [CategoryId, number][];
-    
+
     const categoryPromises = allCategories.map(async ([categoryKey, categoryId]) => {
       try {
         const requestData: getLandingMCPDataRequestBody = {
           page: 0,
-          size: 50, // 더 많은 데이터 가져오기
-          sort: "popular",
+          size: 50,               // 자동완성/검색 결과 충분히 담도록
+          sort: search ? "createdAt,desc" : "popular",
           category: categoryId,
-          search: ""
+          search: search ?? "",   // ✅ 검색어 반영
         };
         const response = await getLandingMCPData(requestData);
-        return response.result.content.map(item => convertMCPItemToMcpCardData(item, categoryKey));
+        return response.result.content.map((item) =>
+            convertMCPItemToMcpCardData(item, categoryKey)
+        );
       } catch (error) {
-        console.warn(`카테고리 ${categoryKey} 데이터 가져오기 실패, 더미 데이터 사용:`, error);
-        return DUMMY_MCP_LIST.filter(item => item.category === categoryKey);
+        console.warn(`카테고리 ${categoryKey} API 실패 → 더미 사용:`, error);
+        // 검색어가 있는 경우 더미에도 필터 적용
+        const base = DUMMY_MCP_LIST.filter((d) => d.category === categoryKey);
+        return search
+            ? base.filter(
+                (d) =>
+                    d.title.toLowerCase().includes(search.toLowerCase()) ||
+                    d.description?.toLowerCase().includes(search.toLowerCase())
+            )
+            : base;
       }
     });
 
     const categoryResults = await Promise.all(categoryPromises);
-    
-    // 모든 카테고리 데이터를 하나의 배열로 합치기
-    const allData = categoryResults.flat();
-    
-    // API 데이터가 비어있으면 더미 데이터 사용
-    if (allData.length === 0) {
-      console.warn('모든 카테고리에서 API 데이터가 비어있음, 더미 데이터 사용');
-      return DUMMY_MCP_LIST;
+    const merged = dedupeById(categoryResults.flat());
+
+    if (merged.length === 0) {
+      console.warn("API 결과 비어있음 → 더미 사용");
+      return search
+          ? DUMMY_MCP_LIST.filter(
+              (d) =>
+                  d.title.toLowerCase().includes(search.toLowerCase()) ||
+                  d.description?.toLowerCase().includes(search.toLowerCase())
+          )
+          : DUMMY_MCP_LIST;
     }
-    
-    return allData;
+
+    return merged;
   } catch (error) {
-    console.warn('MCP 데이터 가져오기 실패, 더미 데이터 사용:', error);
-    return DUMMY_MCP_LIST;
+    console.warn("MCP 데이터 가져오기 실패 → 더미 사용:", error);
+    return search
+        ? DUMMY_MCP_LIST.filter(
+            (d) =>
+                d.title.toLowerCase().includes(search.toLowerCase()) ||
+                d.description?.toLowerCase().includes(search.toLowerCase())
+        )
+        : DUMMY_MCP_LIST;
   }
 }
 
-export default async function Page() {
-    const t = await getTranslations('MCPMarket');
-    
-    // MCP 데이터를 서버에서 미리 가져오기 (SEO 최적화)
-    const mcpData = await fetchAllMCPData();
+/* Server Component: URL 쿼리 읽기 */
+export default async function Page({
+                                     searchParams,
+                                   }: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
+  const t = await getTranslations("MCPMarket");
+  const search = (typeof searchParams?.search === "string" ? searchParams?.search : "") || "";
 
-    return <MarketPage initialData={mcpData} />;
+  const mcpData = await fetchAllMCPData(search);
+
+  return <MarketPage initialData={mcpData} />;
 }

@@ -17,9 +17,9 @@ export default async function RootLayout({
                                              params,
                                          }: {
     children: ReactNode;
-    params: { locale: string }; // ✅ Promise 제거
+    params: Promise<{ locale: string }>;
 }) {
-    const { locale } = params;
+    const { locale } = await params;
     const messages = await getMessages();
 
     return (

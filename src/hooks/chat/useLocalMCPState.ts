@@ -25,24 +25,27 @@ export const useLocalMCPState = (workspaceId: string | null, initialMcps: mcpInf
   }, [memoizedInitialMcps]);
 
   // 800ms debounce로 서버 동기화
-  const debouncedSyncToServer = useDebouncedCallback(
-    async (mcps: mcpInfo[]) => {
-      if (!workspaceId || workspaceId.startsWith('new-')) return;
-      
-      try {
-        await updateMcpsMutation.mutateAsync({
-          workspaceId,
-          data: { mcps }
-        });
-        setHasUnsavedChanges(false);
-        console.log('✅ [useLocalMCPState] 서버 동기화 완료. 최종 MCP 리스트:', mcps);
-      } catch (error) {
-        console.error('MCP 상태 동기화 실패:', error);
-        // 실패 시 이전 상태로 롤백
-        setLocalMcps(memoizedInitialMcps);
-      }
-    },
-    800
+  const debouncedSyncToServer = useCallback(
+    useDebouncedCallback(
+      async (mcps: mcpInfo[]) => {
+        if (!workspaceId || workspaceId.startsWith('new-')) return;
+        
+        try {
+          await updateMcpsMutation.mutateAsync({
+            workspaceId,
+            data: { mcps }
+          });
+          setHasUnsavedChanges(false);
+          console.log('✅ [useLocalMCPState] 서버 동기화 완료. 최종 MCP 리스트:', mcps);
+        } catch (error) {
+          console.error('MCP 상태 동기화 실패:', error);
+          // 실패 시 이전 상태로 롤백
+          setLocalMcps(memoizedInitialMcps);
+        }
+      },
+      800
+    ),
+    [workspaceId, updateMcpsMutation, memoizedInitialMcps]
   );
 
   // MCP 상태 토글
@@ -73,7 +76,7 @@ export const useLocalMCPState = (workspaceId: string | null, initialMcps: mcpInf
       
       return updated;
     });
-  }, [debouncedSyncToServer]);
+  }, [debouncedSyncToServer, workspaceId]);
 
   // 강제 동기화 (채팅 전송 시 사용)
   const forceSync = useCallback(async () => {

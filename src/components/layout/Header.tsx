@@ -109,56 +109,56 @@ const Header: React.FC = () => {
           <div className="flex-1 max-w-xl px-4">
             <SearchBar />
           </div>
-                {/* 우측 액션 */}
-                <div className="flex items-center gap-x-2">
-                    <PrimaryButton
-                        onClick={() => go(`/${locale}/upload`)}
-                        variant="primary"
-                        size="md"
-                    >
-                        <span className="text-title5">Upload</span>
-                    </PrimaryButton>
-                    <ThemeToggle />
-                    <LocaleSwitcher />
-
-                    {/* 로그인 전: Log In / 로그인 후: 아바타 */}
-                    {isAuthed ? (
-                        <div className="flex items-center gap-2">
-                            <button
-                                type="button"
-                                onClick={handleProfileOrLoginClick}
-                                aria-label="Open profile"
-                                className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent hover:cursor-pointer"
-                            >
-                                <Image
-                                    src={user?.profileImage || "/catprofile.svg"}
-                                    alt={user?.nickname || "Profile"}
-                                    width={32}
-                                    height={32}
-                                    className="object-cover w-full h-full"
-                                    loader={imageLoader}
-                                    unoptimized
-                                />
-                            </button>
-                            {/* 로그아웃 버튼 */}
-                            <button
-                                type="button"
-                                onClick={() => socialLogin.logout()}
-                                className="hidden md:block text-xs text-muted hover:text-primary transition-colors hover:cursor-pointer"
-                            >
-                                Logout
-                            </button>
-                        </div>
-                    ) : (
+                    {/* 우측 액션 */}
+                    <div className="flex items-center gap-x-2">
                         <PrimaryButton
-                            onClick={handleProfileOrLoginClick}
-                            variant="secondary"
-                            size="sm"
-                            additionalClassName="py-2 px-2"
+                            onClick={() => go(`/${locale}/upload`)}
+                            variant="primary"
+                            size="md"
                         >
-                            Log In
+                            <span className="text-title5">Upload</span>
                         </PrimaryButton>
-                    )}
+                        <ThemeToggle />
+                        <LocaleSwitcher />
+
+                        {/* 로그인 전: Log In / 로그인 후: 아바타 */}
+                        {isAuthed ? (
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={handleProfileOrLoginClick}
+                                    aria-label="Open profile"
+                                    className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                                >
+                                    <Image
+                                        src={user?.profileImage || "/catprofile.svg"}
+                                        alt={user?.nickname || "Profile"}
+                                        width={32}
+                                        height={32}
+                                        className="object-cover w-full h-full"
+                                        loader={imageLoader}
+                                        unoptimized
+                                    />
+                                </button>
+                                {/* 로그아웃 버튼 */}
+                                <button
+                                    type="button"
+                                    onClick={() => socialLogin.logout()}
+                                    className="hidden md:block text-xs text-muted hover:text-primary transition-colors"
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        ) : (
+                            <PrimaryButton
+                                onClick={handleProfileOrLoginClick}
+                                variant="secondary"
+                                size="sm"
+                                additionalClassName="py-2 px-2"
+                            >
+                                Log In
+                            </PrimaryButton>
+                        )}
                     </div>
                 </div>
             </div>
