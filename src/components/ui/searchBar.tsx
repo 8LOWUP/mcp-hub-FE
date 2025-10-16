@@ -100,7 +100,7 @@ export default function SearchBar({
     }, []);
 
     // 입력 시 자동완성 (useDebounce + AbortController)
-    const debouncedQuery = useDebounce(query, 300);
+    const debouncedQuery = useDebounce(query, 500);
     
     // 디버깅용 로그
     console.log("🔍 query:", query, "debouncedQuery:", debouncedQuery);
@@ -131,7 +131,7 @@ export default function SearchBar({
                 }
                 console.log("🔍 검색 결과:", items);
                 setResults(items);
-                setOpen(items.length > 0);
+                setOpen(items.length >= 0);
             } catch (err: any) {
                 console.log("🔍 에러 발생:", err);
                 if (err?.name !== "CanceledError" && err?.code !== "ERR_CANCELED") {
@@ -214,7 +214,7 @@ export default function SearchBar({
                         <div className="px-4 py-2 text-sm text-muted">검색 중...</div>
                     )}
 
-                    {!loading && results.length === 0 && query.trim() && (
+                    {!loading && results.length === 0 && (
                         <div className="px-4 py-2 text-sm text-muted">
                             “{query}”에 대한 결과 없음
                         </div>
