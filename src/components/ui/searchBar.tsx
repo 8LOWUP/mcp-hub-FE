@@ -110,7 +110,7 @@ export default function SearchBar({
 
     // 항목 클릭 → 상세
     const goDetail = (id: number) => {
-        router.push(`/${locale}/market/${id}`);
+        router.push(`/${locale}/detail/${id}`); // ✅ detail 로 맞추기
         setOpen(false);
     };
 
