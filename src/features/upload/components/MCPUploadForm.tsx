@@ -1,7 +1,7 @@
-// src/features/upload/components/MCPUploadForm.tsx 수정
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { CATEGORY_MAP, LICENSE_MAP } from "@/constants/upload/constants";
 import { useSaveMcpMeta, usePublishMcp } from "@/hooks/upload/useMcpUpload";
 import {
@@ -43,6 +43,10 @@ export default function MCPUploadForm({
                                           localMcpId,
                                           setLocalMcpId,
                                       }: MCPUploadFormProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const locale = pathname.split("/")[1] || "ko";
+
     const refs = {
         name: useRef<HTMLInputElement>(null),
         description: useRef<HTMLTextAreaElement>(null),
@@ -58,6 +62,7 @@ export default function MCPUploadForm({
     const [file, setFile] = useState<File | null>(null);
     const [message, setMessage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [draft, setDraft] = useState<any>(null); // ✅ 복원용 상태
 
     const saveMeta = useSaveMcpMeta();
     const publishMeta = usePublishMcp();
@@ -71,28 +76,86 @@ export default function MCPUploadForm({
         [detail?.id]
     );
 
-    const buildMetaData = (): McpMeta => {
-        const categoryText = refs.category.current?.value?.trim().toLowerCase() || "";
-        const licenseText = refs.license.current?.value?.trim() || "";
+    const STORAGE_KEY = `mcp_upload_draft_${locale}`;
 
-        const categoryId = CATEGORY_MAP[categoryText] ?? 0;
-        const licenseId = LICENSE_MAP[licenseText] ?? 0;
+    const buildMetaData = (): McpMeta => {
+        const normalize = (v?: string) => (v || "").replace(/\s+/g, "").toLowerCase();
+
+        const categoryText = normalize(refs.category.current?.value);
+        const licenseText = refs.license.current?.value?.trim() || "MIT License";
+
+        const categoryId = CATEGORY_MAP[categoryText] ?? detail?.categoryId ?? 0;
+        const licenseId = LICENSE_MAP[licenseText] ?? detail?.licenseId ?? 1;
 
         return {
             ...(localMcpId ? { mcpId: localMcpId } : {}),
-            name: refs.name.current?.value || "",
-            description: refs.description.current?.value || "",
+            name: refs.name.current?.value || detail?.name || "",
+            description: refs.description.current?.value || detail?.description || "",
             categoryId,
             licenseId,
-            sourceUrl: refs.sourceCode.current?.value || "",
-            imageUrl: "",
-            platformName: refs.platform.current?.value || "",
-            requestUrl: refs.serverURL.current?.value || "",
-            developerName: refs.developer.current?.value || "",
+            sourceUrl: refs.sourceCode.current?.value || detail?.sourceUrl || "",
+            imageUrl: detail?.imageUrl || "",
+            platformName: refs.platform.current?.value || detail?.platformName || "",
+            requestUrl: refs.serverURL.current?.value || detail?.requestUrl || "",
+            developerName: refs.developer.current?.value || detail?.developerName || "",
             isKeyRequired: false,
             tools,
         };
     };
+
+    // 새 업로드 시작 시 draft 초기화 (Upload 페이지 진입 시 깨끗하게 시작)
+    useEffect(() => {
+        if (!isEditMode) {
+            // 저장 완료 후 다시 돌아왔을 때만 초기화
+            const fromDeployed = sessionStorage.getItem("fromDeployed");
+            if (fromDeployed === "true") {
+                localStorage.removeItem(STORAGE_KEY);
+                sessionStorage.removeItem("fromDeployed");
+            }
+        }
+    }, [isEditMode, locale]);
+
+    // Draft 복원
+    useEffect(() => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                setDraft(parsed);
+                if (parsed) {
+                    if (refs.name.current) refs.name.current.value = parsed.name || "";
+                    if (refs.description.current)
+                        refs.description.current.value = parsed.description || "";
+                    if (refs.category.current)
+                        refs.category.current.value = parsed.categoryName || "";
+                    if (refs.serverURL.current)
+                        refs.serverURL.current.value = parsed.requestUrl || "";
+                    if (refs.platform.current)
+                        refs.platform.current.value = parsed.platformName || "";
+                    if (refs.developer.current)
+                        refs.developer.current.value = parsed.developerName || "";
+                    if (refs.sourceCode.current)
+                        refs.sourceCode.current.value = parsed.sourceUrl || "";
+                    if (refs.license.current)
+                        refs.license.current.value = parsed.licenseName || "MIT License";
+                    setTools(parsed.tools || []);
+                    console.log("✅ Draft 복원됨", parsed);
+                }
+            } catch (err) {
+                console.error("🚨 Draft 복원 실패:", err);
+            }
+        }
+    }, [locale]);
+
+    // 자동 저장 (입력 중 2초마다 저장)
+    useEffect(() => {
+        const autoSave = () => {
+            const meta = buildMetaData();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(meta));
+        };
+        const interval = setInterval(autoSave, 2000);
+        return () => clearInterval(interval);
+    }, [tools]);
 
     const handleAction = async (mode: "save" | "deploy") => {
         try {
@@ -101,10 +164,22 @@ export default function MCPUploadForm({
 
             const meta = buildMetaData();
 
+            if (mode === "save" && !meta.name?.trim()) {
+                setError("❌ MCP 이름을 입력해주세요.");
+                setMessage(null);
+                return;
+            }
+
             if (mode === "deploy") {
                 const errors = validateBeforePublish(meta);
                 if (errors.length) {
                     setError(errors.join(" / "));
+                    setMessage(null);
+                    return;
+                }
+                if (!file && !detail?.imageUrl) {
+                    setError("❌ 파일을 업로드해주세요.");
+                    setMessage(null);
                     return;
                 }
             }
@@ -121,22 +196,39 @@ export default function MCPUploadForm({
             }
 
             const targetMutation = mode === "deploy" ? publishMeta : saveMeta;
-            const res = await targetMutation.mutateAsync({
+            await targetMutation.mutateAsync({
                 file: fileToSend,
                 meta: { ...meta, mcpId: currentId ?? meta.mcpId },
             } as McpMetaRequestFormData);
 
-            setMessage(
+            const successMessage =
                 mode === "deploy"
-                    ? "🚀 MCP deployed successfully."
-                    : "✅ MCP saved successfully."
-            );
+                    ? "MCP deployed successfully."
+                    : "MCP saved successfully.";
+
+            setMessage(successMessage);
+
+            // ✅ 저장/배포 성공 시 draft 제거 + 이후 페이지 진입 시 초기화 플래그 저장
+            localStorage.removeItem(STORAGE_KEY);
+            sessionStorage.setItem("fromDeployed", "true");
+
+            window.alert(`${successMessage}\n\n마이페이지로 이동합니다.`);
+            router.push(`/${locale}/profiles/deployed`);
         } catch (err: any) {
             setError(err.message || "오류 발생");
+            setMessage(null);
         }
     };
 
     const isLoading = saveMeta.isPending || publishMeta.isPending;
+
+    const isDeployDisabled = (() => {
+        const meta = buildMetaData();
+        const missing = validateBeforePublish(meta);
+        const hasExistingImage = !!(detail?.imageUrl && detail.imageUrl.trim() !== "");
+        const isFileMissing = !file && !hasExistingImage;
+        return missing.length > 0 || isFileMissing || isLoading;
+    })();
 
     return (
         <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
@@ -151,16 +243,16 @@ export default function MCPUploadForm({
                 </p>
 
                 <form className="space-y-4">
-                    <MCPNameInput ref={refs.name} defaultValue={detail?.name ?? ""} />
-                    <DescriptionInput ref={refs.description} defaultValue={detail?.description ?? ""} />
-                    <TagsInput ref={refs.category} defaultValue={(detail?.categoryName ?? "").toLowerCase()} />
-                    <ServerURLInput ref={refs.serverURL} defaultValue={detail?.requestUrl ?? ""} />
+                    <MCPNameInput ref={refs.name} defaultValue={draft?.name ?? detail?.name ?? ""} />
+                    <DescriptionInput ref={refs.description} defaultValue={draft?.description ?? detail?.description ?? ""} />
+                    <TagsInput ref={refs.category} defaultValue={(draft?.categoryName ?? detail?.categoryName ?? "").toLowerCase()} />
+                    <ServerURLInput ref={refs.serverURL} defaultValue={draft?.requestUrl ?? detail?.requestUrl ?? ""} />
                     <ToolsDescriptionInput initialTools={memoInitialTools} onChange={setTools} />
-                    <ConnectionPlatformInput ref={refs.platform} defaultValue={detail?.platformName ?? ""} />
-                    <DeveloperNameInput ref={refs.developer} defaultValue={detail?.developerName ?? ""} />
-                    <SourceCodeURLInput ref={refs.sourceCode} defaultValue={detail?.sourceUrl ?? ""} />
-                    <LicenseInput ref={refs.license} defaultValue={detail?.licenseName ?? ""} />
-                    <UploadIcon onFileSelect={setFile} />
+                    <ConnectionPlatformInput ref={refs.platform} defaultValue={draft?.platformName ?? detail?.platformName ?? ""} />
+                    <DeveloperNameInput ref={refs.developer} defaultValue={draft?.developerName ?? detail?.developerName ?? ""} />
+                    <SourceCodeURLInput ref={refs.sourceCode} defaultValue={draft?.sourceUrl ?? detail?.sourceUrl ?? ""} />
+                    <LicenseInput ref={refs.license} defaultValue={draft?.licenseName ?? detail?.licenseName ?? "MIT License"} />
+                    <UploadIcon onFileSelect={setFile} defaultImageUrl={detail?.imageUrl} />
 
                     {file && (
                         <p className="text-sm text-green-400 mt-1">
@@ -183,9 +275,11 @@ export default function MCPUploadForm({
 
                         <button
                             type="button"
-                            disabled={isLoading}
+                            disabled={isDeployDisabled}
                             onClick={() => handleAction("deploy")}
-                            className="px-4 py-2 rounded bg-accent text-black hover:bg-accent-hover"
+                            className={`px-4 py-2 rounded bg-accent text-black hover:bg-accent-hover ${
+                                isDeployDisabled ? "opacity-50 cursor-not-allowed" : ""
+                            }`}
                         >
                             {isEditMode ? "Update & Deploy" : "Deploy"}
                         </button>
