@@ -1,16 +1,17 @@
 :root {
-  --bg-color-1: red;
-  --bg-color-2: red;
-  --bg-color-3: red;
-  --bg-color-4: red;
+  --bg-color-1: #F5F5F5;
+  --bg-color-2: #E8E8E8;
+  --bg-color-3: #b9bdc3;
+  --bg-color-4: #9CA3AF;
+  --bg-color-5: #F3F4F6;
 
-  --accent-color-1: #F6E577;
-  --accent-color-2: #E4D46E;
+  --accent-color-1: #F59E0B;
+  --accent-color-2: #D97706;
 
-  --text-color-1: #6B7280;
-  --text-color-2: #9CA3AF;
-  --text-color-3: #A0A0A0;
-  --text-color-4: #E0E0E0;
+  --text-color-1: #111827;
+  --text-color-2: #374151;
+  --text-color-3: #4B5563;
+  --text-color-4: #6B7280;
 }
 
 /* Dark mode (next-themes가 <html class="dark"> 붙여줌) */
