@@ -4,133 +4,114 @@
 import React from "react";
 import BaseModal from "@/components/ui/modal/BaseModal";
 import PrimaryButton from "@/components/ui/PrimaryButton";
+import { Eye, EyeOff } from "lucide-react";
+import { useWorkspaceMcpToken } from "@/features/profiles/hooks/useWorkspaceMcpToken";
 
 type Step = "manage" | "confirmDelete" | "doneDelete";
 
 export type ApiKeyFlowModalProps = {
     isOpen: boolean;
     onClose: () => void;
-    apiKey?: string;
-    onEdit?: (nextKey: string) => Promise<void> | void;
-    onDelete?: () => Promise<void> | void;
+    platformId: string; // ✅ 반드시 필요!
 };
 
-const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({
-                                                             isOpen,
-                                                             onClose,
-                                                             apiKey = "",
-                                                             onEdit,
-                                                             onDelete,
-                                                         }) => {
+const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({ isOpen, onClose, platformId }) => {
     const [step, setStep] = React.useState<Step>("manage");
-    const [value, setValue] = React.useState(apiKey);
-    const [loading, setLoading] = React.useState(false);
+    const [value, setValue] = React.useState("");
+    const [revealed, setRevealed] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
+    const hasPrefilledRef = React.useRef(false);
+
+    const { tokenQuery, saveToken, deleteToken, isSaving, isDeleting } =
+        useWorkspaceMcpToken(platformId); // ✅ 여기로 전달
+
+    // 모달 열릴 때 최신값 가져오고 한번만 프리필
+    React.useEffect(() => {
+        if (!isOpen || !platformId) return;
+        hasPrefilledRef.current = false;
+        tokenQuery.refetch().catch(() => void 0);
+        setStep("manage");
+        setRevealed(false);
+        setError(null);
+    }, [isOpen, platformId]); // eslint-disable-line
 
     React.useEffect(() => {
         if (!isOpen) return;
-        setStep("manage");
-        setValue(apiKey);
-        setLoading(false);
-        setError(null);
-    }, [isOpen, apiKey]);
-
-    const toConfirmDelete = () => {
-        setError(null);
-        setStep("confirmDelete");
-    };
+        if (!hasPrefilledRef.current) {
+            setValue(tokenQuery.data?.token ?? "");
+            hasPrefilledRef.current = true;
+        }
+    }, [isOpen, tokenQuery.data?.token]);
 
     const handleEdit = async () => {
         setError(null);
+        if (!platformId) {
+            setError("platformId가 없어 저장할 수 없습니다.");
+            return;
+        }
+        const next = value.trim();
+        if (!next) {
+            setError("API 키를 입력해주세요.");
+            return;
+        }
         try {
-            setLoading(true);
-            await onEdit?.(value.trim());
+            await saveToken(next);  // 훅에서 setQueryData로 즉시 반영
             onClose();
-        } catch {
-            setError("저장 중 오류가 발생했습니다. 다시 시도해 주세요.");
-        } finally {
-            setLoading(false);
+        } catch (e: any) {
+            setError(e?.message ?? "저장 중 오류가 발생했습니다. 다시 시도해 주세요.");
         }
     };
 
     const handleDelete = async () => {
         setError(null);
+        if (!platformId) {
+            setError("platformId가 없어 삭제할 수 없습니다.");
+            return;
+        }
         try {
-            setLoading(true);
-            await onDelete?.();
+            await deleteToken();
             setStep("doneDelete");
-        } catch {
-            setError("삭제 중 오류가 발생했습니다. 다시 시도해 주세요.");
-        } finally {
-            setLoading(false);
+        } catch (e: any) {
+            setError(e?.message ?? "삭제 중 오류가 발생했습니다. 다시 시도해 주세요.");
         }
     };
 
-    const ModalHeader = (
-        <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-title1 font-bold">API Key Management</h2>
-            <button aria-label="모달 닫기" onClick={onClose} className="ml-2 shrink-0 transition-opacity hover:opacity-80">
-                <svg width="18" height="20" viewBox="0 0 18 20" fill="none" className="block h-5 w-5">
-                    <path d="M1 19L17 1M17 19L1 1" stroke="#F6E577" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-            </button>
-        </div>
-    );
-
-    // ✅ BaseModal가 어떤 prop을 기대하든 열리도록 양쪽 다 전달
-    const modalProps: any = {
-        isOpen,                // 우리 쪽 prop
-        onClose,               // 우리 쪽 prop
-        open: isOpen,          // shadcn/Dialog 스타일 호환
-        onOpenChange: (v: boolean) => { if (!v) onClose(); },
-        size: "md",
-        className: "z-[9999]", // 가려짐 방지
-    };
-
     return (
-        <BaseModal {...modalProps}>
+        <BaseModal isOpen={isOpen} onClose={onClose} size="md">
             {step === "manage" && (
                 <div className="flex flex-col gap-6">
-                    {ModalHeader}
+                    <h2 className="text-title1 font-bold">API Key Management</h2>
+
                     <div>
-                        <label className="mb-2 block text-body3 text-secondary">API key for confirm</label>
-                        <div
-                            className={[
-                                "group flex items-center gap-3 rounded-[12px] bg-surface-2 px-4 py-3",
-                                "ring-0 transition-all duration-200 hover:opacity-95",
-                                "focus-within:ring-2 focus-within:ring-accent",
-                            ].join(" ")}
-                        >
+                        <label className="mb-2 block text-body3 text-secondary">
+                            API key (입력 시 새 키로 교체됩니다)
+                        </label>
+                        <div className="group flex items-center gap-3 rounded-[12px] bg-surface-2 px-4 py-3">
                             <input
+                                type={revealed ? "text" : "password"}
                                 value={value}
                                 onChange={(e) => setValue(e.target.value)}
                                 className="w-full bg-transparent text-primary outline-none"
                                 placeholder="Enter your API key"
                             />
+                            <button
+                                type="button"
+                                onClick={() => setRevealed((v) => !v)}
+                                className="rounded-md border border-gray-600 p-2 text-gray-200 hover:bg-gray-800"
+                                title={revealed ? "가리기" : "보기"}
+                            >
+                                {revealed ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
                         </div>
                         {error && <p className="mt-2 text-body3 text-danger">{error}</p>}
                     </div>
-                    <div className="flex justify-end gap-3">
-                        <PrimaryButton onClick={toConfirmDelete} disabled={loading}>
-                            Delete
-                        </PrimaryButton>
-                        <PrimaryButton onClick={handleEdit} disabled={loading || !value.trim()}>
-                            {loading ? "Saving..." : "Edit"}
-                        </PrimaryButton>
-                    </div>
-                </div>
-            )}
 
-            {step === "confirmDelete" && (
-                <div className="flex flex-col gap-6">
-                    {ModalHeader}
-                    <div className="w-full rounded-[20px] bg-surface-2 px-6 py-4">
-                        <p className="text-center text-title2 font-semibold">정말 삭제 하시겠습니까?</p>
-                    </div>
-                    {error && <p className="text-body3 text-danger">{error}</p>}
-                    <div className="flex w-full justify-end">
-                        <PrimaryButton onClick={handleDelete} disabled={loading}>
-                            {loading ? "Deleting..." : "Next"}
+                    <div className="flex justify-end gap-3">
+                        <PrimaryButton onClick={handleDelete} disabled={isDeleting || !platformId}>
+                            {isDeleting ? "Deleting..." : "Delete"}
+                        </PrimaryButton>
+                        <PrimaryButton onClick={handleEdit} disabled={isSaving || !platformId || !value.trim()}>
+                            {isSaving ? "Saving..." : "Edit"}
                         </PrimaryButton>
                     </div>
                 </div>
@@ -138,7 +119,7 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({
 
             {step === "doneDelete" && (
                 <div className="flex flex-col gap-6">
-                    {ModalHeader}
+                    <h2 className="text-title1 font-bold">API Key Management</h2>
                     <div className="w-full rounded-[20px] bg-surface-2 px-6 py-4">
                         <p className="text-center text-title2 font-semibold">API 키가 삭제되었습니다.</p>
                     </div>

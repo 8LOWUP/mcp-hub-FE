@@ -159,6 +159,14 @@ axiosInstance.interceptors.request.use(
             }
         }
 
+        // ✅ [추가] 토큰 엔드포인트는 무조건 Private로 강제 (GET/POST 모두)
+        if (config.url?.includes("/workspaces/mcps/token")) {
+            isPublicPath = false;
+            if (process.env.NODE_ENV !== "production") {
+                console.log("🛡️ 토큰 엔드포인트는 항상 Private 처리:", config.url);
+            }
+        }
+
         // ✅ /mcps/dashboard/meta는 강제로 인증 필요하도록 예외 처리
         if (config.url?.includes("/mcps/dashboard/meta")) {
             isPublicPath = false;

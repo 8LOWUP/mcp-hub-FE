@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import BaseModal from "@/components/ui/modal/BaseModal";
 import PrimaryButton from "@/components/ui/PrimaryButton";
-import { usePostMcpToken } from "@/hooks/detail/useMcpToken"; // ✅ MCP 토큰 등록 훅
-import { X } from "lucide-react";
+import { Eye, EyeOff, X } from "lucide-react";
+import { useWorkspaceMcpToken } from "@/features/profiles/hooks/useWorkspaceMcpToken";
+
 type Step = 1 | 2 | 3;
 
 interface Props {
@@ -12,14 +13,14 @@ interface Props {
     onClose: () => void;
     onConnected: () => void;
     mcpName: string;
-    platformId: string;
+    platformId: string; // ✅ 플랫폼 단위 토큰 관리
 }
 
 /**
- * ✅ MCP 토큰 등록 모달
- * - Step 1: API 키 입력
- * - Step 2: 등록 요청 중
- * - Step 3: 등록 완료
+ * ✅ MCP 토큰 등록/교체 모달 (상세 화면)
+ * - 모달이 열릴 때 같은 훅의 쿼리키로 refetch → 현재 저장된 키를 인풋에 프리필
+ * - 저장 성공 시 동일 쿼리키 invalidate → profiles/상세 모두 동기화
+ * - 보기/가리기 토글 지원
  */
 const McpConnectModal: React.FC<Props> = ({
                                               isOpen,
@@ -28,52 +29,88 @@ const McpConnectModal: React.FC<Props> = ({
                                               mcpName,
                                               platformId,
                                           }) => {
-    const [step, setStep] = useState<Step>(1);
-    const [apiKey, setApiKey] = useState("");
+    const [step, setStep] = React.useState<Step>(1);
+    const [apiKey, setApiKey] = React.useState("");
+    const [revealed, setRevealed] = React.useState(false);
+    const hasPrefilledRef = React.useRef(false);
 
-    const { mutateAsync: postToken, isPending } = usePostMcpToken();
+    const { tokenQuery, saveToken, isSaving } = useWorkspaceMcpToken(platformId);
+
+    /** 모달 열릴 때 최신 토큰을 가져온다 */
+    React.useEffect(() => {
+        if (!isOpen || !platformId) return;
+        // 항상 최신 상태로
+        tokenQuery.refetch().catch(() => void 0);
+        // 다음 effect에서 한 번만 프리필하도록 플래그 리셋
+        hasPrefilledRef.current = false;
+        setStep(1);
+        setRevealed(false);
+    }, [isOpen, platformId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    /** 쿼리 결과가 바뀌면 인풋에 한 번만 프리필 (사용자 입력은 덮어쓰지 않음) */
+    React.useEffect(() => {
+        if (!isOpen) return;
+        const token = tokenQuery.data?.token ?? "";
+        if (!hasPrefilledRef.current) {
+            setApiKey(token);
+            hasPrefilledRef.current = true;
+        }
+    }, [isOpen, tokenQuery.data?.token]);
+
+    const reset = () => {
+        setStep(1);
+        setApiKey("");
+        setRevealed(false);
+        hasPrefilledRef.current = false;
+    };
 
     const handleNext = async () => {
         if (step === 1) {
-            if (!apiKey.trim()) {
+            const trimmed = apiKey.trim();
+            if (!trimmed) {
                 alert("API Key를 입력해주세요.");
                 return;
             }
-            console.log("✅ platformId:", platformId);
             setStep(2);
             try {
-                await postToken({
-                    platformId,
-                    body: { token: apiKey },
-                });
+                await saveToken(trimmed); // ✅ 같은 훅/같은 쿼리키 → 프로필/상세 동기화
                 setStep(3);
             } catch (error) {
+                // eslint-disable-next-line no-console
                 console.error("MCP 토큰 등록 실패:", error);
                 alert("❌ MCP 토큰 등록 실패. 다시 시도해주세요.");
                 setStep(1);
             }
         } else if (step === 3) {
-            onConnected();
+            onConnected?.();
             onClose();
+            reset();
         }
     };
 
     const handleBack = () => {
-        if (step > 1) setStep((prev) => ((prev - 1) as Step));
+        if (step > 1 && step < 3) setStep((prev) => ((prev - 1) as Step));
     };
 
     return (
         <BaseModal
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={() => {
+                onClose();
+                reset();
+            }}
             size="md"
             title={
-                <div className="flex justify-between items-center w-full">
+                <div className="flex w-full items-center justify-between">
                     <span>MCP 연결</span>
                     {(step === 1 || step === 3) && (
                         <button
-                            onClick={onClose}
-                            className="text-gray-400 hover:text-white transition"
+                            onClick={() => {
+                                onClose();
+                                reset();
+                            }}
+                            className="transition text-gray-400 hover:text-white"
+                            aria-label="모달 닫기"
                         >
                             <X size={20} />
                         </button>
@@ -89,12 +126,12 @@ const McpConnectModal: React.FC<Props> = ({
                     )}
                     <PrimaryButton
                         onClick={handleNext}
-                        disabled={isPending || (step === 1 && !apiKey)}
+                        disabled={isSaving || (step === 1 && !apiKey.trim())}
                     >
                         {step === 1
                             ? "등록"
                             : step === 2
-                                ? isPending
+                                ? isSaving
                                     ? "등록 중..."
                                     : "완료"
                                 : "닫기"}
@@ -103,22 +140,40 @@ const McpConnectModal: React.FC<Props> = ({
             }
         >
             {step === 1 && (
-                <div>
-                    <p className="mb-2 font-semibold">MCP <b>{mcpName}</b> API Key 등록</p>
-                    <input
-                        type="text"
-                        placeholder="API Key를 입력하세요"
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                        className="border border-gray-500 w-full rounded-md px-3 py-2 bg-black text-white"
-                    />
+                <div className="space-y-2">
+                    <p className="mb-2 font-semibold">
+                        MCP <b>{mcpName}</b> API Key {tokenQuery.isFetching ? "불러오는 중..." : "등록 / 교체"}
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <input
+                            type={revealed ? "text" : "password"}
+                            placeholder="API Key를 입력하세요"
+                            value={apiKey}
+                            onChange={(e) => setApiKey(e.target.value)}
+                            className="w-full rounded-md border border-gray-500 bg-black px-3 py-2 text-white"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setRevealed((v) => !v)}
+                            className="rounded-md border border-gray-600 p-2 text-gray-200 hover:bg-gray-800"
+                            title={revealed ? "가리기" : "보기"}
+                        >
+                            {revealed ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                    </div>
+                    {/* 상태 텍스트 (선택) */}
+                    <p className="text-xs text-gray-400">
+                        {tokenQuery.isFetching
+                            ? "현재 등록된 키를 불러오는 중입니다…"
+                            : tokenQuery.data?.token
+                                ? "현재 저장된 키가 프리필되었습니다. 수정 후 등록하면 교체됩니다."
+                                : "저장된 키가 없습니다. 새 키를 등록하세요."}
+                    </p>
                 </div>
             )}
 
             {step === 2 && (
-                <div className="text-center text-gray-300">
-                    MCP 토큰을 등록 중입니다...
-                </div>
+                <div className="text-center text-gray-300">MCP 토큰을 등록 중입니다...</div>
             )}
 
             {step === 3 && (
