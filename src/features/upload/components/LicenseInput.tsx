@@ -16,17 +16,15 @@ const LicenseInput = forwardRef<HTMLInputElement, Props>(({ defaultValue, onEnte
     // Locale translations
     const t = useTranslations('UploadPage');
     const [selectedLicense, setSelectedLicense] = useState<string>("MIT License");
-    const [customLicense, setCustomLicense] = useState<string>("");
 
     // ✨ 프리필: 기본값이 정해져 있으면 셋업
     useEffect(() => {
         if (!defaultValue) return;
         if (LICENSES.includes(defaultValue)) {
             setSelectedLicense(defaultValue);
-            setCustomLicense("");
         } else {
+            // 기본값이 목록에 없을 때도 기타로 설정
             setSelectedLicense("기타");
-            setCustomLicense(defaultValue);
         }
     }, [defaultValue]);
 
@@ -36,27 +34,24 @@ const LicenseInput = forwardRef<HTMLInputElement, Props>(({ defaultValue, onEnte
 
             <select
                 value={selectedLicense}
-                onChange={(e) => { setSelectedLicense(e.target.value); if (e.target.value !== "기타") setCustomLicense(""); }}
+                onChange={(e) => setSelectedLicense(e.target.value)}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        onEnter?.();
+                    }
+                }}
                 className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-surface-2 text-white focus:outline-none focus:ring-2 focus:ring-yellow-200 transition"
             >
                 {LICENSES.map((license) => (
-                    <option key={license} value={license}>{license}</option>
+                    <option key={license} value={license}>
+                        {license}
+                    </option>
                 ))}
             </select>
 
-            {selectedLicense === "기타" && (
-                <input
-                    type="text"
-                    placeholder={t('licensePlaceholder')}
-                    value={customLicense}
-                    onChange={(e) => setCustomLicense(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onEnter?.(); } }}
-                    className="mt-3 w-full px-4 py-2 border border-gray-600 rounded-lg bg-surface-2 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
-                />
-            )}
-
-            {/* 숨겨진 input: 선택값 or 커스텀 값 전달 */}
-            <input type="hidden" ref={ref} value={selectedLicense === "기타" ? customLicense : selectedLicense} />
+            {/* 숨겨진 input: 선택된 값 전달 */}
+            <input type="hidden" ref={ref} value={selectedLicense} />
         </div>
     );
 });
