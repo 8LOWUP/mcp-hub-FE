@@ -20,7 +20,6 @@ export type McpItemType = {
     platformName?: string;
     licenseName?: string;
     createdAt?: string;
-    apiKey?: string;
     published?: boolean;
 };
 

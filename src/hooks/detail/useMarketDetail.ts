@@ -1,14 +1,15 @@
+// src/hooks/detail/useMarketDetail.ts
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
 import { getMcpDetail } from "@/services/detail/mpc-api";
-import type { getMcpDetailResponse } from "@/types/detail/detail-types";
 
+// ✅ getMcpDetail의 실제 반환 타입을 그대로 사용
+export type MarketDetailType = Awaited<ReturnType<typeof getMcpDetail>>;
 
-// ✅ MCP 상세 조회 훅
 export const useMarketDetail = (mcpId: number) => {
-    return useQuery<getMcpDetailResponse["result"]>({
-        queryKey: ["mcpDetail", mcpId],
+    return useQuery<MarketDetailType>({
+        queryKey: ["mcpDetail", mcpId], // 필요하면 ["mcp","detail", mcpId]로 통일
         queryFn: () => getMcpDetail(mcpId),
         enabled: !!mcpId,
     });

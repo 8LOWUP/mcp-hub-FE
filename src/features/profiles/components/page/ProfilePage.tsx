@@ -1,3 +1,4 @@
+// src/features/profiles/components/page/ProfilePage.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -13,7 +14,8 @@ import { useMyProfile } from "@/hooks/profiles/useMyProfile";
 import { useMyMcps } from "@/features/profiles/hooks/useMyMcps";
 
 import { checkWorkspaceMcpToken } from "@/services/workspaces/mcps/check";
-import { getWorkspaceMcpToken, saveWorkspaceMcpToken } from "@/services/workspaces/mcps/token";
+// ⛳ 아래 두 줄은 더 이상 필요 없습니다.
+// import { getWorkspaceMcpToken, saveWorkspaceMcpToken } from "@/services/workspaces/mcps/token";
 
 const ProfilePage: React.FC = () => {
     const { profile, isLoading: isProfileLoading, error: profileError } = useMyProfile();
@@ -26,7 +28,7 @@ const ProfilePage: React.FC = () => {
         setPage,
         page,
         totalPages,
-    } = useMyMcps({ page: 0, size: 12});
+    } = useMyMcps({ page: 0, size: 12 });
 
     /** 삭제 플로우 */
     const [targetId, setTargetId] = useState<string | null>(null);
@@ -34,108 +36,49 @@ const ProfilePage: React.FC = () => {
     const handleCloseDelete = () => setTargetId(null);
     const handleConfirmDelete = async () => {
         if (!targetId) return;
-        toast.loading("MCP 삭제 중입니다...", { id: "delete" });
         const ok = await deleteOne(targetId);
         toast[ok ? "success" : "error"](
-            ok ? "MCP가 성공적으로 삭제되었습니다." : "MCP 삭제에 실패했습니다.",
-            { id: "delete" }
+            ok ? "MCP가 성공적으로 삭제되었습니다." : "MCP 삭제에 실패했습니다."
         );
         setTargetId(null);
     };
 
-    /** API Key 모달 상태/데이터 */
+    /** API Key 모달 */
     const [isApiModalOpen, setIsApiModalOpen] = useState(false);
-    const [selectedPlatformId, setSelectedPlatformId] = useState<string | null>(null);
-    const [modalApiKey, setModalApiKey] = useState("");
-    const [modalLoading, setModalLoading] = useState(false);
+    const [selectedPlatformId, setSelectedPlatformId] = useState<string>(""); // ✅ 문자열로 보관
 
-    /** API Key 버튼 클릭 → 모달 즉시 오픈 → platformId 확보 → 현재 토큰 프리필 */
+    /** 카드의 API Key 버튼 클릭 */
     const handleOpenApiKey = async (platformIdOrNull: string | null, mcpId: number) => {
-        setIsApiModalOpen(true);
-        setModalLoading(true);
-        setModalApiKey("");
-        setSelectedPlatformId(null);
+        // 1) 우선 카드에서 온 pf 사용
+        let pf = platformIdOrNull ? String(platformIdOrNull) : "";
 
-        try {
+        // 2) 없으면 서버에서 보완
+        if (!pf) {
             const numericId = Number(mcpId);
             if (Number.isNaN(numericId)) {
-                console.warn("[ProfilePage] invalid mcpId for ApiKey modal:", { mcpId });
                 toast.error("유효하지 않은 MCP ID입니다.");
-                setModalLoading(false);
                 return;
             }
-
-            let pf = platformIdOrNull;
-            if (!pf) {
-                const check = await checkWorkspaceMcpToken(numericId);
-                pf = check.platformId; // 서버가 string으로 반환
-                if (!pf) {
-                    toast.error("이 MCP의 platformId를 찾을 수 없습니다.");
-                    setModalLoading(false);
-                    return;
-                }
-            }
-            setSelectedPlatformId(pf);
-
             try {
-                const tokenRes = await getWorkspaceMcpToken(pf);
-                setModalApiKey(tokenRes?.token ?? "");
+                const check = await checkWorkspaceMcpToken(numericId);
+                pf = check.platformId ? String(check.platformId) : "";
             } catch {
-                setModalApiKey("");
+                pf = "";
             }
-        } catch (e) {
-            console.error("[ProfilePage] handleOpenApiKey error:", e);
-            toast.error("플랫폼 정보를 불러오지 못했습니다.");
-        } finally {
-            setModalLoading(false);
         }
+
+        if (!pf) {
+            toast.error("이 MCP의 platformId를 찾을 수 없습니다.");
+            return;
+        }
+
+        setSelectedPlatformId(pf);      // ✅ 반드시 문자열
+        setIsApiModalOpen(true);
     };
 
     const handleCloseApiKey = () => {
         setIsApiModalOpen(false);
-        setSelectedPlatformId(null);
-        setModalApiKey("");
-        setModalLoading(false);
-    };
-
-    /** 저장(등록/수정) */
-    const handleEditApiKey = async (nextKey: string) => {
-        if (!selectedPlatformId) {
-            toast.error("플랫폼 정보를 불러오는 중입니다.");
-            return;
-        }
-        try {
-            setModalLoading(true);
-            await saveWorkspaceMcpToken(selectedPlatformId, nextKey);
-            setModalApiKey(nextKey);
-            toast.success("API Key가 저장되었습니다.");
-            setIsApiModalOpen(false);
-        } catch (e) {
-            console.error("[ProfilePage] handleEditApiKey error:", e);
-            toast.error("저장에 실패했습니다.");
-        } finally {
-            setModalLoading(false);
-        }
-    };
-
-    /** 삭제 (= 빈 문자열 저장) */
-    const handleDeleteApiKey = async () => {
-        if (!selectedPlatformId) {
-            toast.error("플랫폼 정보를 불러오는 중입니다.");
-            return;
-        }
-        try {
-            setModalLoading(true);
-            await saveWorkspaceMcpToken(selectedPlatformId, "");
-            setModalApiKey("");
-            toast.success("API Key가 삭제되었습니다.");
-            setIsApiModalOpen(false);
-        } catch (e) {
-            console.error("[ProfilePage] handleDeleteApiKey error:", e);
-            toast.error("삭제에 실패했습니다.");
-        } finally {
-            setModalLoading(false);
-        }
+        setSelectedPlatformId("");
     };
 
     const nickname = profile?.nickname ?? "사용자";
@@ -188,7 +131,7 @@ const ProfilePage: React.FC = () => {
                                 key={item.id}
                                 item={item}
                                 onClose={() => handleOpenDelete(item.id)}
-                                onClickApiKey={(pf, mid) => handleOpenApiKey(pf, mid)}
+                                onClickApiKey={(pf, mid) => handleOpenApiKey(pf, mid)} // ✅ pf는 문자열이어야 함
                             />
                         ))}
                     </section>
@@ -230,13 +173,11 @@ const ProfilePage: React.FC = () => {
                 onConfirm={handleConfirmDelete}
             />
 
-            {/* API Key 관리 모달 */}
+            {/* ✅ 변경된 모달: platformId만 전달 */}
             <ApiKeyFlowModal
                 isOpen={isApiModalOpen}
                 onClose={handleCloseApiKey}
-                apiKey={modalApiKey}
-                onEdit={handleEditApiKey}
-                onDelete={handleDeleteApiKey}
+                platformId={selectedPlatformId || ""}  // ✅ 문자열 보장
             />
         </section>
     );

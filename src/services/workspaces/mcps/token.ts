@@ -4,7 +4,7 @@ import { API_ENDPOINTS } from "@/constants/apis/key";
 
 export type McpTokenGetResult = {
     platformId: string;
-    token: string;
+    token: string; // 항상 문자열로 보장
 };
 
 export const getWorkspaceMcpToken = async (platformId: string): Promise<McpTokenGetResult> => {
@@ -12,8 +12,13 @@ export const getWorkspaceMcpToken = async (platformId: string): Promise<McpToken
         "{platformId}",
         encodeURIComponent(platformId)
     );
-    const res = await axiosInstance.get(url);
-    return (res.data?.result ?? res.data) as McpTokenGetResult;
+    const { data } = await axiosInstance.get(url);
+    const raw = data?.result ?? data;
+
+    return {
+        platformId: String(raw?.platformId ?? platformId),
+        token: typeof raw?.token === "string" ? raw.token : "", // ✅ 문자열 정규화
+    };
 };
 
 export const saveWorkspaceMcpToken = async (
@@ -24,6 +29,7 @@ export const saveWorkspaceMcpToken = async (
         "{platformId}",
         encodeURIComponent(platformId)
     );
-    const res = await axiosInstance.post(url, { token });
-    return (res.data?.result ?? res.data) as { platformId: string };
+    // 서버가 { token } 바디를 기대한다고 가정
+    const { data } = await axiosInstance.post(url, { token });
+    return (data?.result ?? data) as { platformId: string };
 };
