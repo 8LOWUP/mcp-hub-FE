@@ -1,4 +1,5 @@
 import Image from "next/image";
+import imageLoader from "@/lib/imageLoader";
 
 interface ProfileAvatarProps {
     src?: string; // 이미지 경로, 기본값을 제공
@@ -24,6 +25,8 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
                 width={size}
                 height={size}
                 className="object-cover w-full h-full"
+                loader={imageLoader}
+                unoptimized
             />
         </div>
     );

@@ -5,6 +5,7 @@ import type { ReviewItem } from "@/types/detail/detail-types";
 import Image from "next/image";
 import { Star, Pencil, Trash2, Check, X } from "lucide-react";
 import { useUpdateReview, useDeleteReview } from "@/hooks/detail/useReview";
+import imageLoader from "@/lib/imageLoader";
 import { useLoginStore } from "@/store/login/login-store"; // 🔑 로그인 상태 확인
 
 interface ReviewCardProps {
@@ -55,6 +56,8 @@ export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
                     width={32}
                     height={32}
                     className="object-cover w-full h-full"
+                    loader={imageLoader}
+                    unoptimized
                 />
             </div>
 
