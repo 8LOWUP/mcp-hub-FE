@@ -20,27 +20,44 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({ isOpen, onClose, plat
     const [value, setValue] = React.useState("");
     const [revealed, setRevealed] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
+
+    // 프리필 제어 및 안전 동기화용 레퍼런스
     const hasPrefilledRef = React.useRef(false);
+    const prevFromQueryRef = React.useRef<string | undefined>(undefined);
 
-    const { tokenQuery, saveToken, deleteToken, isSaving, isDeleting } =
-        useWorkspaceMcpToken(platformId); // ✅ 여기로 전달
+    const { tokenQuery, saveToken, deleteToken, isSaving, isDeleting } = useWorkspaceMcpToken(platformId);
 
-    // 모달 열릴 때 최신값 가져오고 한번만 프리필
+    // 모달 열릴 때 상태 초기화 + (선택) 최신값 강제 fetch
     React.useEffect(() => {
         if (!isOpen || !platformId) return;
         hasPrefilledRef.current = false;
-        tokenQuery.refetch().catch(() => void 0);
+        prevFromQueryRef.current = undefined;
+
         setStep("manage");
         setRevealed(false);
         setError(null);
+
+        // 훅에서 onSettled에 invalidate가 있어 자동 동기화되지만,
+        // 열릴 때 항상 최신값을 보고 싶으면 refetch 유지
+        tokenQuery.refetch().catch(() => void 0);
     }, [isOpen, platformId]); // eslint-disable-line
 
+    // ✅ 쿼리값 → 로컬 state 동기화(사용자 입력을 덮어쓰지 않도록 보호)
     React.useEffect(() => {
         if (!isOpen) return;
-        if (!hasPrefilledRef.current) {
-            setValue(tokenQuery.data?.token ?? "");
+        const token = tokenQuery.data?.token ?? "";
+
+        // 1) 최초 1회 프리필, 또는
+        // 2) 사용자가 아직 쿼리에서 가져온 값 그대로 두고 있을 때(value === prevFromQuery)
+        if (!hasPrefilledRef.current || value === prevFromQueryRef.current) {
+            setValue(token);
             hasPrefilledRef.current = true;
         }
+
+        // 다음 비교를 위해 현재 쿼리값 저장
+        prevFromQueryRef.current = token;
+        // value는 의존성에 넣지 말 것(사용자 타이핑 시 동기화가 과하게 개입하게 됨)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, tokenQuery.data?.token]);
 
     const handleEdit = async () => {
@@ -55,8 +72,10 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({ isOpen, onClose, plat
             return;
         }
         try {
-            await saveToken(next);  // 훅에서 setQueryData로 즉시 반영
-            onClose();
+            await saveToken(next);       // 훅 onMutate에서 캐시 즉시 갱신
+            setValue(next);              // ✅ 입력창도 즉시 동기화
+            hasPrefilledRef.current = true;
+            onClose();                   // 필요 시 유지/제거 가능
         } catch (e: any) {
             setError(e?.message ?? "저장 중 오류가 발생했습니다. 다시 시도해 주세요.");
         }
@@ -70,6 +89,8 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({ isOpen, onClose, plat
         }
         try {
             await deleteToken();
+            setValue("");                // ✅ 입력창도 즉시 비우기
+            hasPrefilledRef.current = true;
             setStep("doneDelete");
         } catch (e: any) {
             setError(e?.message ?? "삭제 중 오류가 발생했습니다. 다시 시도해 주세요.");

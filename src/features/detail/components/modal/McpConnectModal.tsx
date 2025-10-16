@@ -1,3 +1,4 @@
+// src/features/detail/components/modal/McpConnectModal.tsx
 "use client";
 
 import React from "react";
@@ -32,29 +33,42 @@ const McpConnectModal: React.FC<Props> = ({
     const [step, setStep] = React.useState<Step>(1);
     const [apiKey, setApiKey] = React.useState("");
     const [revealed, setRevealed] = React.useState(false);
+
+    // 프리필 제어 + 안전 동기화
     const hasPrefilledRef = React.useRef(false);
+    const prevFromQueryRef = React.useRef<string | undefined>(undefined);
 
     const { tokenQuery, saveToken, isSaving } = useWorkspaceMcpToken(platformId);
 
     /** 모달 열릴 때 최신 토큰을 가져온다 */
     React.useEffect(() => {
         if (!isOpen || !platformId) return;
-        // 항상 최신 상태로
-        tokenQuery.refetch().catch(() => void 0);
-        // 다음 effect에서 한 번만 프리필하도록 플래그 리셋
+
+        // 상태 초기화
         hasPrefilledRef.current = false;
+        prevFromQueryRef.current = undefined;
+
         setStep(1);
         setRevealed(false);
-    }, [isOpen, platformId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    /** 쿼리 결과가 바뀌면 인풋에 한 번만 프리필 (사용자 입력은 덮어쓰지 않음) */
+        // 항상 최신 상태로
+        tokenQuery.refetch().catch(() => void 0);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, platformId]);
+
+    /** 쿼리 결과가 바뀌면 인풋에 안전 동기화 (사용자 입력을 덮어쓰지 않음) */
     React.useEffect(() => {
         if (!isOpen) return;
         const token = tokenQuery.data?.token ?? "";
-        if (!hasPrefilledRef.current) {
-            setApiKey(token);
+
+        if (!hasPrefilledRef.current || apiKey === prevFromQueryRef.current) {
+            setApiKey(token);                  // ✅ 안전 동기화
             hasPrefilledRef.current = true;
         }
+
+        prevFromQueryRef.current = token;
+        // apiKey는 의존성에 넣지 말 것
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, tokenQuery.data?.token]);
 
     const reset = () => {
@@ -62,6 +76,7 @@ const McpConnectModal: React.FC<Props> = ({
         setApiKey("");
         setRevealed(false);
         hasPrefilledRef.current = false;
+        prevFromQueryRef.current = undefined;
     };
 
     const handleNext = async () => {
@@ -73,7 +88,9 @@ const McpConnectModal: React.FC<Props> = ({
             }
             setStep(2);
             try {
-                await saveToken(trimmed); // ✅ 같은 훅/같은 쿼리키 → 프로필/상세 동기화
+                await saveToken(trimmed);   // 훅 onMutate에서 캐시 즉시 갱신
+                setApiKey(trimmed);         // ✅ 입력창도 즉시 업데이트
+                hasPrefilledRef.current = true;
                 setStep(3);
             } catch (error) {
                 // eslint-disable-next-line no-console
@@ -89,7 +106,7 @@ const McpConnectModal: React.FC<Props> = ({
     };
 
     const handleBack = () => {
-        if (step > 1 && step < 3) setStep((prev) => ((prev - 1) as Step));
+        if (step > 1 && step < 3) setStep((prev) => (prev - 1) as Step);
     };
 
     return (
@@ -172,9 +189,7 @@ const McpConnectModal: React.FC<Props> = ({
                 </div>
             )}
 
-            {step === 2 && (
-                <div className="text-center text-gray-300">MCP 토큰을 등록 중입니다...</div>
-            )}
+            {step === 2 && <div className="text-center text-gray-300">MCP 토큰을 등록 중입니다...</div>}
 
             {step === 3 && (
                 <div className="text-center">

@@ -13,15 +13,6 @@ const qk = (platformId?: string) => ["workspace", "mcpToken", String(platformId 
 export const useWorkspaceMcpToken = (platformId?: string) => {
     const qc = useQueryClient();
 
-    console.log(
-        "%c[useWorkspaceMcpToken]",
-        "color:#4fc3f7;font-weight:bold;",
-        "platformId=",
-        platformId,
-        "queryKey=",
-        qk(platformId)
-    );
-
     const tokenQuery = useQuery({
         queryKey: qk(platformId),
         queryFn: () => {
@@ -29,7 +20,6 @@ export const useWorkspaceMcpToken = (platformId?: string) => {
                 console.warn("⚠️ platformId 없음 → 빈 데이터 반환");
                 return Promise.resolve({ platformId: "", token: "" } as McpTokenGetResult);
             }
-            console.log("🔍 GET 토큰 요청:", platformId);
             return getWorkspaceMcpToken(platformId);
         },
         enabled: !!platformId,
@@ -38,65 +28,74 @@ export const useWorkspaceMcpToken = (platformId?: string) => {
         refetchOnWindowFocus: false,
     });
 
-    /* ---------------------------
-     * ✅ 저장 (전역 캐시 즉시 갱신)
-     * --------------------------- */
+    /* =========================
+     * 저장: 낙관적 업데이트
+     * ========================= */
     const saveMutation = useMutation({
-        mutationFn: (token: string) => {
-            if (!platformId) {
-                console.error("❌ saveToken 호출 시 platformId 없음");
-                return Promise.reject(new Error("platformId is required"));
-            }
-            console.log("💾 POST 토큰 저장 요청:", { platformId, token });
+        mutationFn: async (token: string) => {
+            if (!platformId) throw new Error("platformId is required");
             return saveWorkspaceMcpToken(platformId, token);
         },
-        onSuccess: (_res, submittedToken) => {
+        // 🔸 서버 응답 전에 캐시를 먼저 바꿔서 모달 즉시 반영
+        onMutate: async (submittedToken) => {
             if (!platformId) return;
             const key = qk(platformId);
-            console.log("✅ 저장 성공! 즉시 캐시 반영:", submittedToken);
 
-            // ✅ 전역 캐시 갱신 → 모든 useWorkspaceMcpToken 구독자가 즉시 최신값으로 동기화됨
+            // 1) 해당 쿼리 중단(경합 방지)
+            await qc.cancelQueries({ queryKey: key });
+
+            // 2) 이전 스냅샷 저장(롤백용)
+            const previous = qc.getQueryData<McpTokenGetResult>(key);
+
+            // 3) 낙관적 캐시 반영
             qc.setQueryData<McpTokenGetResult>(key, {
                 platformId: String(platformId),
-                token: submittedToken,
+                token: submittedToken, // 입력한 값을 즉시 보여줌
             });
 
-            // ✅ 백그라운드 동기화 (서버의 마스킹 정책 반영용)
-            qc.invalidateQueries({ queryKey: key });
+            return { key, previous };
         },
-        onError: (err) => {
+        // 실패 시 롤백
+        onError: (err, _submittedToken, ctx) => {
+            if (ctx?.previous) qc.setQueryData(ctx.key, ctx.previous);
             console.error("❌ 토큰 저장 실패:", err);
+        },
+        // 성공/실패 상관없이 서버와 동기화(마스킹 정책 등 반영)
+        onSettled: () => {
+            if (!platformId) return;
+            qc.invalidateQueries({ queryKey: qk(platformId) });
         },
     });
 
-    /* ---------------------------
-     * ✅ 삭제 (전역 캐시 즉시 비우기)
-     * --------------------------- */
+    /* =========================
+     * 삭제: 낙관적 업데이트
+     * ========================= */
     const deleteMutation = useMutation({
-        mutationFn: () => {
-            if (!platformId) {
-                console.error("❌ deleteToken 호출 시 platformId 없음");
-                return Promise.reject(new Error("platformId is required"));
-            }
-            console.log("🗑️ 토큰 삭제 요청:", platformId);
+        mutationFn: async () => {
+            if (!platformId) throw new Error("platformId is required");
+            // 서버가 같은 엔드포인트로 빈 문자열 저장시 삭제 취급한다고 가정
             return saveWorkspaceMcpToken(platformId, "");
         },
-        onSuccess: () => {
+        onMutate: async () => {
             if (!platformId) return;
             const key = qk(platformId);
-            console.log("✅ 토큰 삭제 완료, 캐시 즉시 초기화");
+            await qc.cancelQueries({ queryKey: key });
+            const previous = qc.getQueryData<McpTokenGetResult>(key);
 
-            // ✅ 전역 캐시 즉시 초기화
             qc.setQueryData<McpTokenGetResult>(key, {
                 platformId: String(platformId),
                 token: "",
             });
 
-            // ✅ 백그라운드 동기화
-            qc.invalidateQueries({ queryKey: key });
+            return { key, previous };
         },
-        onError: (err) => {
+        onError: (err, _vars, ctx) => {
+            if (ctx?.previous) qc.setQueryData(ctx.key, ctx.previous);
             console.error("❌ 토큰 삭제 실패:", err);
+        },
+        onSettled: () => {
+            if (!platformId) return;
+            qc.invalidateQueries({ queryKey: qk(platformId) });
         },
     });
 
