@@ -1,3 +1,4 @@
+//src/services/upload/McpUpload-api.ts
 import { axiosInstance } from "@/services/AxiosInstance";
 import { API_ENDPOINTS } from "@/constants/apis/key";
 import type { McpMetaRequestFormData, McpMetaResponse } from "@/types/upload/upload-types";
