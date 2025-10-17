@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useTokenErrorStore } from "@/store/error/error-store";
 import TokenErrorModal from "@/components/modal/TokenErrorModal";
 import LLMSettingsModal from "@/components/modal/LLMSettingsModal";

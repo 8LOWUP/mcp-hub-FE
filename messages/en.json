@@ -139,7 +139,10 @@
     "noUploadedMcps": "No uploaded MCPs.",
     "draftMcps": "Draft MCPs",
     "draftMcpsDescription": "List of draft MCPs.",
-    "noDraftMcps": "No draft MCPs."
+    "noDraftMcps": "No draft MCPs.",
+    "deleteMcpCompleted": "MCP has been deleted.",
+    "close": "Close",
+    "confirm": "Confirm"
   },
   "DetailPage": {
     "detail": "Detail",

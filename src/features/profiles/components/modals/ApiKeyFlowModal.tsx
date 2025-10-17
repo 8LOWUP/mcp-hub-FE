@@ -101,7 +101,29 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({ isOpen, onClose, plat
         <BaseModal isOpen={isOpen} onClose={onClose} size="md">
             {step === "manage" && (
                 <div className="flex flex-col gap-6">
-                    <h2 className="text-title1 font-bold">API Key Management</h2>
+                    <div className="relative">
+                        <h2 className="text-title1 font-bold">API Key Management</h2>
+                        {/* X 버튼 */}
+                        <button
+                            onClick={onClose}
+                            className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-2 transition-colors"
+                            aria-label="Close modal"
+                        >
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
 
                     <div>
                         <label className="mb-2 block text-body3 text-secondary">
@@ -127,10 +149,14 @@ const ApiKeyFlowModal: React.FC<ApiKeyFlowModalProps> = ({ isOpen, onClose, plat
                         {error && <p className="mt-2 text-body3 text-danger">{error}</p>}
                     </div>
 
-                    <div className="flex justify-end gap-3">
-                        <PrimaryButton onClick={handleDelete} disabled={isDeleting || !platformId}>
+                    <div className="flex justify-end gap-4">
+                        <button
+                            onClick={handleDelete}
+                            disabled={isDeleting || !platformId}
+                            className="text-body3 text-danger hover:text-danger-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                        >
                             {isDeleting ? "Deleting..." : "Delete"}
-                        </PrimaryButton>
+                        </button>
                         <PrimaryButton onClick={handleEdit} disabled={isSaving || !platformId || !value.trim()}>
                             {isSaving ? "Saving..." : "Edit"}
                         </PrimaryButton>

@@ -1,7 +1,6 @@
 // chat/components/ActiveMCPCard.tsx
 "use client";
 
-import { TbCloudCheck, TbCloudX } from "react-icons/tb";
 import { useMcpDetail } from "@/hooks/detail/useMcpDetail";
 import imageLoader from "@/lib/imageLoader";
 import Image from "next/image";
@@ -15,7 +14,6 @@ type ActiveMCPCardProps = {
   active?: boolean;         // 토글 상태
   isLoading?: boolean;      // 로딩 상태
   onToggle?: (active: boolean) => void;
-  detailText?: string;      // 추가 정보 (워크스페이스/MC P정보 등)
 };
 
 export default function ActiveMCPCard({
@@ -24,7 +22,6 @@ export default function ActiveMCPCard({
   active = false,
   isLoading = false,
   onToggle,
-  detailText,
 }: ActiveMCPCardProps) {
   // Locale translations
   const t = useTranslations('ChatPage');

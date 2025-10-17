@@ -5,12 +5,10 @@ import { useEffect, useState } from "react";
 import ActiveMCPContainer from "@/features/chat/components/ActiveMCPContainer";
 import ChattingWindowContainer from "@/features/chat/components/ChattingWindowContainer";
 import HistoryContainer from "@/features/chat/components/HistoryContainer";
-import { useTranslations } from "next-intl";
 import { useModelManager } from "@/hooks/chat/useModelManager";
 import { useTokenErrorStore } from "@/store/error/error-store";
 
 export default function ChatPage() {
-  const t = useTranslations("ChatPage");
 
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);

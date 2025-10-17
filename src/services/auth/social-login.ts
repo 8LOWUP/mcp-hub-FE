@@ -123,7 +123,7 @@ export class SocialLoginService {
         const returnUrl = sessionStorage.getItem("returnUrl");
         
         // 모든 sessionStorage 항목 확인
-        const allSessionStorage = {};
+        const allSessionStorage: { [key: string]: string | null } = {};
         for (let i = 0; i < sessionStorage.length; i++) {
           const key = sessionStorage.key(i);
           if (key) {

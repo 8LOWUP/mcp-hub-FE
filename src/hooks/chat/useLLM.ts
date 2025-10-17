@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
 import { llmApi } from '@/services/chat/apis';
 import { useTokenErrorStore } from '@/store/error/error-store';
 import type { 
@@ -15,7 +14,7 @@ export const useLLMs = (enabled: boolean = true) => {
     enabled: enabled,
     select: (data) => data.llmList,
     staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
-    cacheTime: 10 * 60 * 1000, // 10분간 메모리에 보관
+    gcTime: 10 * 60 * 1000, // 10분간 메모리에 보관
   });
 
 
@@ -24,21 +23,23 @@ export const useLLMs = (enabled: boolean = true) => {
 
 // 특정 LLM 토큰 조회
 export const useLLMTokens = (llmId: string | null) => {
-  return useQuery({
+  const query = useQuery({
     queryKey: ['llm-tokens', llmId],
     queryFn: () => llmApi.getLLMTokens(llmId!),
     select: (data) => data.result,
     enabled: !!llmId,
-    onError: (error: any) => {
-      if (error.response?.status === 400) {
-        const { openTokenErrorModal } = useTokenErrorStore.getState();
-        openTokenErrorModal("LLM 토큰이 유효하지 않습니다.", () => {
-          // 재시도 로직
-          window.location.reload();
-        });
-      }
-    },
   });
+
+  // 에러 처리
+  if (query.error && (query.error as any).response?.status === 400) {
+    const { openTokenErrorModal } = useTokenErrorStore.getState();
+    openTokenErrorModal("LLM 토큰이 유효하지 않습니다.", () => {
+      // 재시도 로직
+      window.location.reload();
+    });
+  }
+
+  return query;
 };
 
 // LLM 토큰 설정

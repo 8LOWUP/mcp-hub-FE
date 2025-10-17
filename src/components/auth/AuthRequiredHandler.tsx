@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useLoginModalStore } from "@/store/login/login-modal-store";
 
@@ -10,7 +10,6 @@ import { useLoginModalStore } from "@/store/login/login-modal-store";
  */
 export default function AuthRequiredHandler() {
     const searchParams = useSearchParams();
-    const router = useRouter();
     const authRequired = searchParams.get("authRequired");
     const redirectTo = searchParams.get("redirectTo");
 

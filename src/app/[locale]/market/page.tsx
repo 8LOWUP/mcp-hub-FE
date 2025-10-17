@@ -1,4 +1,3 @@
-import { getTranslations } from "next-intl/server";
 import { getLandingMCPData } from "@/services/landing/apis";
 import type { getLandingMCPDataRequestBody, MCPItem } from "@/types/landing/landingMCPDataType";
 import { DUMMY_MCP_LIST } from "@/constants/mcp-data";
@@ -117,7 +116,6 @@ export default async function Page({
                                    }: {
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const t = await getTranslations("MCPMarket");
   const search = (typeof searchParams?.search === "string" ? searchParams?.search : "") || "";
 
   const mcpData = await fetchAllMCPData(search);

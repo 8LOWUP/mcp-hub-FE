@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import clsx from "clsx";
 
 interface LandingSearchBarProps {
@@ -18,7 +17,7 @@ const LandingChatStartButton = ({ placeholder }: LandingSearchBarProps) => {
     // 타이핑 애니메이션을 위한 상태
     const [displayedText, setDisplayedText] = useState('');
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [isTyping, setIsTyping] = useState(true);
+    const [isTyping] = useState(true);
     
     // 다국어 placeholder 사용
     const chatPlaceholder = placeholder || t('chatStartPlaceholder');

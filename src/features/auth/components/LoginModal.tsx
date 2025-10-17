@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import BaseModal from "@/components/ui/modal/BaseModal";
 import SocialSignInButton from "./SocialSignInButton";
@@ -13,8 +12,6 @@ type Props = { isOpen: boolean; onClose: () => void };
 const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
     // Locale translations
     const t = useTranslations('Auth');
-    const pathname = usePathname();
-    const locale = pathname.split("/")[1] || "en";
     // 필요한 상태만 선택적으로 구독하여 불필요한 리렌더링 방지
     const isLoading = useLoginStore((s) => s.isLoading);
     const error = useLoginStore((s) => s.error);

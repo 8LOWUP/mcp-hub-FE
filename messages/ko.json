@@ -139,7 +139,10 @@
     "noUploadedMcps": "업로드된 MCP가 없습니다.",
     "draftMcps": "임시저장 MCP",
     "draftMcpsDescription": "임시저장된 MCP 목록입니다.",
-    "noDraftMcps": "임시저장된 MCP가 없습니다."
+    "noDraftMcps": "임시저장된 MCP가 없습니다.",
+    "deleteMcpCompleted": "MCP가 삭제되었습니다.",
+    "close": "닫기",
+    "confirm": "확인"
   },
   "DetailPage": {
     "detail": "Detail",

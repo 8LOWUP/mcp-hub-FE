@@ -1,15 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { socialLogin } from '@/services/auth/social-login';
-import { useLoginStore } from '@/store/login/login-store';
 
 export default function AuthCallbackPage() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [message, setMessage] = useState('로그인 처리 중...');
-  const searchParams = useSearchParams();
-  const { isLoading, error } = useLoginStore();
 
   useEffect(() => {
     const handleCallback = async () => {

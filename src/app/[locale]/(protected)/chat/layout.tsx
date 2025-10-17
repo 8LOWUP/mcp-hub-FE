@@ -1,10 +1,5 @@
 // app/[locale]/chat/layout.tsx
 import type { ReactNode } from "react";
-import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
-import { ThemeProvider } from "@/contexts/theme-provider";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import ChattingHeader from "@/features/chat/components/ChattingHeader";
 
 // (선택) 이 라우트 전용 메타데이터
@@ -24,12 +19,8 @@ export default async function ChatLayout({
   params,
 }: {
   children: ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
-
-  // 해당 로케일 번들 로드
-  const messages = await getMessages({ locale });
 
   return (
     // ★ 서브 레이아웃에는 <html>/<body> 사용 금지 (루트 레이아웃 책임)

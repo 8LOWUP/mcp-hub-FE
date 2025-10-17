@@ -111,7 +111,6 @@ const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
                   id={id}
                   active={mcp.active}
                   onToggle={(next) => toggleMcpActive(id, next)}
-                  detailText={`WS: ${workspaceDetail?.title ?? ''} (${workspaceDetail?.workspaceId ?? ''})`}
                   isLoading={isSyncing}
                 />
               </li>

@@ -41,7 +41,7 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
             setIsLoading(true);
             await onConfirm();
             setStep("done");
-        } catch (e) {
+        } catch {
             // Error handling
         } finally {
             setIsLoading(false);
@@ -100,7 +100,7 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
                     <>
                         {/* 완료 박스 */}
                         <div className="rounded-[20px] bg-surface-2 px-6 py-4 text-center">
-                            <p className="text-title2 font-semibold">삭제되었습니다.</p>
+                            <p className="text-title2 font-semibold">{t('deleteMcpCompleted')}</p>
                         </div>
 
                         <div className="flex justify-end">
@@ -109,7 +109,7 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
                                 additionalClassName="min-w-[96px] justify-center"
                                 onClick={onClose}
                             >
-                                Close
+                                {t('close')}
                             </PrimaryButton>
                         </div>
                     </>

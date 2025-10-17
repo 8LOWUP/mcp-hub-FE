@@ -10,6 +10,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 // 기본 MCP 카드 데이터 생성 함수
 const createDefaultMCPCards = (category: CategoryId, t: any): McpCardData[] => {
   const categoryLabels = {
+    "all": "All",
     "web-search": "Web Search",
     "memory": "Memory", 
     "browser": "Browser",

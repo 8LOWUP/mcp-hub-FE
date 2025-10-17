@@ -2,7 +2,6 @@
 "use client";
 
 import PrimaryButton from "@/components/ui/PrimaryButton";
-import { MdCheckCircle, MdRadioButtonUnchecked } from "react-icons/md";
 import { useMcpDetail } from "@/hooks/detail/useMcpDetail";
 import imageLoader from "@/lib/imageLoader";
 import Image from "next/image";

@@ -1,6 +1,5 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import PrimaryButton from '@/components/ui/PrimaryButton';
 import SecondaryButton from '@/components/ui/SecondaryButton';
 import { 
@@ -17,7 +16,6 @@ import {
 } from 'lucide-react';
 
 export default function SupportPage() {
-  const t = useTranslations('Support');
 
   const supportSections = [
     {

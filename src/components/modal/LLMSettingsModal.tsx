@@ -82,7 +82,7 @@ const LLMSettingsModal: React.FC<LLMSettingsModalProps> = ({
       
       setIsEditing(false);
       toast.success("토큰이 성공적으로 저장되었습니다.");
-    } catch (error) {
+    } catch {
       toast.error("토큰 저장에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsLoading(false);

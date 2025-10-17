@@ -10,10 +10,6 @@ export interface ModelInfo {
 }
 
 
-const STORAGE_KEYS = {
-  MODELS: 'available-models',
-  SELECTED_MODEL: 'selected-model',
-} as const;
 
 export const useModelManager = (enabled: boolean = true) => {
   const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]);

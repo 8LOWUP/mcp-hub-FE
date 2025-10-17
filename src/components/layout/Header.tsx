@@ -35,9 +35,6 @@ const Header: React.FC = () => {
     // locale
     const locale = React.useMemo(() => pathname.split("/")[1] || "en", [pathname]);
 
-    // 현재 페이지가 locale 루트인지 (예: /ko)
-    const isLocaleHome = React.useMemo(() => pathname === `/${locale}`, [pathname, locale]);
-
     // 스크롤 상태 -> 0px 초과일 때만 유리효과 + 경계선/섀도우
     const [scrolled, setScrolled] = React.useState(false);
     React.useEffect(() => {
