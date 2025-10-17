@@ -12,8 +12,11 @@ import ActiveMCPCard from "./ActiveMCPCard";
 import NewWorkspaceMCPCard from "./NewWorkspaceMCPCard";
 import MCPCardSkeleton from "./MCPCardSkeleton";
 import { useMcpSelectionStore } from "@/store/chat/mcp-selection-store";
+import { useTranslations } from "next-intl";
 
 const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
+  // Locale translations
+  const t = useTranslations('ChatPage');
   const { currentWorkspaceId } = useCurrentWorkspace();
   const isWorkspaceSelected = !!(currentWorkspaceId && !currentWorkspaceId.startsWith('new-'));
 
@@ -85,7 +88,7 @@ const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
 
   return (
     <>
-      <h2 className="text-2xl font-bold pb-4">Active MCP</h2>
+      <h2 className="text-2xl font-bold pb-4">{t('activeMCP')}</h2>
       <ul className="flex flex-col w-full rounded-md h-fit overflow-y-auto bg-surface-2 p-2">
         {isWorkspaceSelected ? (
           isWorkspaceLoading ? (
@@ -96,7 +99,7 @@ const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
               </li>
             ))
           ) : localMcps.length === 0 ? (
-            <li className="text-sm text-foreground/60 p-3">MCP가 할당되지 않았습니다.</li>
+            <li className="text-sm text-foreground/60 p-3">{t('noMcpsAssigned')}</li>
           ) : (
             localMcps
               .filter((mcp) => typeof mcp.id === 'string' && mcp.id)
@@ -123,7 +126,7 @@ const ActiveMCPListContainer = memo(function ActiveMCPListContainer() {
             </li>
           ))
         ) : localMcps.length === 0 ? (
-          <li className="text-sm text-foreground/60 p-3">활성화된 MCP가 없습니다</li>
+          <li className="text-sm text-foreground/60 p-3">{t('noActiveMcps')}</li>
         ) : (
           localMcps
             .filter((mcp) => typeof mcp.id === 'string' && mcp.id)

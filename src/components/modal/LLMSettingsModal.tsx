@@ -46,7 +46,7 @@ const LLMSettingsModal: React.FC<LLMSettingsModalProps> = ({
   const currentModelProvider = currentModel?.llmProvider;
   
   // 현재 토큰이 있는지 확인
-  const hasExistingToken = currentTokens && currentTokens.length > 0;
+  const hasExistingToken = Array.isArray(currentTokens) && currentTokens.length > 0;
   const existingToken = hasExistingToken ? currentTokens[0]?.token : null;
 
   useEffect(() => {
@@ -57,21 +57,6 @@ const LLMSettingsModal: React.FC<LLMSettingsModalProps> = ({
     }
   }, [hasExistingToken, existingToken]);
 
-  // 디버깅: 현재 선택된 ID/목록/토큰 상태 출력 (모달 열렸을 때만)
-  useEffect(() => {
-    if (!isOpen) return;
-    console.log("[LLMSettingsModal] currentLLMId:", currentLLMId);
-    console.log("[LLMSettingsModal] resolved model:", currentModel);
-    // (reverted) no modal store resolution
-    console.log(
-      "[LLMSettingsModal] llmList count:",
-      Array.isArray(llmList) ? llmList.length : llmList
-    );
-    console.log("[LLMSettingsModal] tokensLoading:", tokensLoading);
-    console.log("[LLMSettingsModal] tokensError:", tokensError);
-    console.log("[LLMSettingsModal] currentTokens:", currentTokens);
-    console.log("[LLMSettingsModal] hasExistingToken:", hasExistingToken);
-  }, [isOpen, currentLLMId, currentModel, llmList, tokensLoading, tokensError, currentTokens, hasExistingToken]);
 
   const handleSaveToken = async () => {
     if (!currentLLMId || !token.trim()) {
@@ -98,7 +83,6 @@ const LLMSettingsModal: React.FC<LLMSettingsModalProps> = ({
       setIsEditing(false);
       toast.success("토큰이 성공적으로 저장되었습니다.");
     } catch (error) {
-      console.error("토큰 저장 실패:", error);
       toast.error("토큰 저장에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsLoading(false);

@@ -2,6 +2,7 @@
 
 import TextContainer from "@/components/container/TextContainer";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import type { getMcpDetailResponse } from "@/types/detail/detail-types";
 import imageLoader from "@/lib/imageLoader";
 import {BadgeAlert } from "lucide-react";
@@ -11,18 +12,21 @@ interface Props {
 }
 
 export default function McpDetails({ data }: Props) {
+    // Locale translations
+    const t = useTranslations('DetailPage');
+    
     return (
         <>
             <div className="flex items-center gap-2 mb-1">
                 <BadgeAlert  className="w-5 h-5"/>
-                <span className="text-white font-bold text-xl tracking-tight">Detail</span>
+                <span className="text-white font-bold text-xl tracking-tight">{t('detail')}</span>
             </div>
 
             <TextContainer className="w-full">
                 <div className="space-y-5">
                     {/* Developer Name */}
                     <div className="flex justify-between items-center">
-                        <div className="text-secondary">Developer Name</div>
+                        <div className="text-secondary">{t('developerName')}</div>
                         <div className="text-white">
                             {data.developerName || "N/A"}
                         </div>
@@ -30,7 +34,7 @@ export default function McpDetails({ data }: Props) {
 
                     {/* Published */}
                     <div className="flex justify-between items-center">
-                        <div className="text-secondary">Published</div>
+                        <div className="text-secondary">{t('published')}</div>
                         <div className="text-white">
                             {data.publishDate
                                 ? new Date(data.publishDate).toLocaleDateString()
@@ -40,7 +44,7 @@ export default function McpDetails({ data }: Props) {
 
                     {/* Source Code */}
                     <div className="flex justify-between items-center">
-                        <div className="text-secondary">Source Code</div>
+                        <div className="text-secondary">{t('sourceCode')}</div>
                         <div>
                             {data.sourceUrl ? (
                                 <a

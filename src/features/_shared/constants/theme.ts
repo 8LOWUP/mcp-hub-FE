@@ -1,7 +1,7 @@
 // features/_shared/constants/theme.ts
 export const LAYOUT_TOKENS = {
     HEADER_HEIGHT_PX: 80,
-    SIDEBAR_WIDTH_PX: 280,
+    SIDEBAR_WIDTH_PX: 240,
 } as const;
 
 export const THEME_CLASSES = {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, DragEvent, ChangeEvent, useRef } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import imageLoader from "@/lib/imageLoader";
 
@@ -10,6 +11,8 @@ interface UploadIconProps {
 }
 
 export default function UploadIcon({ onFileSelect, defaultImageUrl }: UploadIconProps) {
+    const t = useTranslations('UploadPage');
+    
     const [preview, setPreview] = useState<string | null>(null);
     const [dragOver, setDragOver] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -32,11 +35,11 @@ export default function UploadIcon({ onFileSelect, defaultImageUrl }: UploadIcon
     const handleFile = (file: File) => {
         if (!file) return;
         if (!file.type.startsWith("image/")) {
-            alert("이미지 파일만 업로드 가능합니다.");
+            alert(t('imageOnly'));
             return;
         }
         if (file.size > 10 * 1024 * 1024) {
-            alert("10MB 이하만 업로드 가능합니다.");
+            alert(t('fileSizeLimit'));
             return;
         }
 
@@ -127,7 +130,7 @@ export default function UploadIcon({ onFileSelect, defaultImageUrl }: UploadIcon
                         >
                             <span className="text-yellow-400 font-medium">Upload a file</span> or drag and drop
                         </p>
-                        <p className="text-sm text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                        <p className="text-sm text-gray-500">{t('fileFormat')}</p>
                     </div>
                 )}
 

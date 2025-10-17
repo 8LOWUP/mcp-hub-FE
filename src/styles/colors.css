@@ -11,13 +11,13 @@
   --accent-color-1: #4A7DFF; /* 메인 포인트 */
   --accent-color-2: #3A66D6; /* hover 포인트 */
 
-  /* 라이트 전용 텍스트 */
-  --text-color-1: #111827; /* 기본 텍스트 */
-  --text-color-2: #374151; /* 보조 텍스트 */
-  --text-color-3: #6B7280; /* 설명/뮤트 */
-  --text-color-4: #9CA3AF; /* placeholder/비활성 */
+  --text-color-1: #6B7280;
+  --text-color-2: #9CA3AF;
+  --text-color-3: #A0A0A0;
+  --text-color-4: #E0E0E0;
 
-  --icon-filter: brightness(0) contrast(1);
+  --toggle-color-1: #ffffff;
+  --toggle-color-2: #000000;
 }
 
 /* Dark mode (next-themes가 <html class="dark"> 붙여줌) */
@@ -37,6 +37,9 @@
   --text-color-4: #6B7280;
 
   --icon-filter: invert(1) brightness(1.1) contrast(1.1);
+
+  --toggle-color-1: #000000;
+  --toggle-color-2: #ffffff;
 }
 
 @layer utilities {
@@ -45,6 +48,9 @@
   .text-secondary  { color: var(--text-color-2); } /* 보조 텍스트 */
   .text-muted      { color: var(--text-color-3); } /* 더 옅은 설명 */
   .text-disabled   { color: var(--text-color-4); } /* 비활성, placeholder 유사 */
+
+  .text-toggle-1   { color: var(--toggle-color-1); }
+  .text-toggle-2   { color: var(--toggle-color-2); }
 
   .text-accent     { color: var(--accent-color-1); }
 
@@ -60,7 +66,7 @@
   .hover\:bg-surface-2:hover  { background-color: var(--bg-color-2); }
   .hover\:bg-surface-3:hover  { background-color: var(--bg-color-3); }
   .hover\:bg-surface-4:hover  { background-color: var(--bg-color-4); }
-
+  
   .bg-accent       { background-color: var(--accent-color-1) }
   .bg-accent-hover { background-color: var(--accent-color-2) }
 

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { PROFILES_STYLES, PROFILE_GRID_COLS } from "@/features/profiles/constants";
 import { McpItemType } from "@/features/profiles/types";
 import { DeployedCard, DraftCard } from "./components/cards";
@@ -12,6 +13,8 @@ import { deleteMyUploadedMcp } from "./apis/mcp";
 import { mapToCard } from "./utils/map";
 
 const DeployedPage: React.FC = () => {
+    // Locale translations
+    const t = useTranslations('ProfilePage');
     const router = useRouter();
     const pathname = usePathname();
     const locale = pathname.split("/")[1] || "en";
@@ -66,15 +69,15 @@ const DeployedPage: React.FC = () => {
             {/* ✅ 내가 업로드한 MCP (배포 + 임시저장 전체) */}
             <div className="mt-6">
                 <div className="mb-3">
-                    <h2 className="text-title2">내가 업로드한 MCP</h2>
+                    <h2 className="text-title2">{t('myUploadedMcps')}</h2>
                     <p className="text-body3 text-secondary">
-                        배포된 MCP와 임시저장 MCP를 모두 볼 수 있습니다.
+                        {t('myUploadedMcpsDescription')}
                     </p>
                 </div>
 
                 {isLoading && (
                     <div className="rounded-2xl bg-surface-2 px-6 py-8 text-center text-body3 text-secondary">
-                        Loading...
+                        {t('loading')}
                     </div>
                 )}
                 {error && (
@@ -98,7 +101,7 @@ const DeployedPage: React.FC = () => {
                                     disabled={pagination.isFirst}
                                     onClick={() => setPage(Math.max(0, (pagination.page ?? 0) - 1))}
                                 >
-                                    Prev
+                                    {t('previous')}
                                 </button>
                                 <span className="text-sm opacity-70">
                   {Number(pagination.page ?? 0) + 1} / {pagination.totalPages}
@@ -108,7 +111,7 @@ const DeployedPage: React.FC = () => {
                                     disabled={pagination.isLast}
                                     onClick={() => setPage((pagination.page ?? 0) + 1)}
                                 >
-                                    Next
+                                    {t('next')}
                                 </button>
                             </div>
                         )}
@@ -117,7 +120,7 @@ const DeployedPage: React.FC = () => {
                     !isLoading &&
                     !error && (
                         <div className="rounded-2xl bg-surface-2 px-6 py-8 text-center text-body3 text-secondary">
-                            업로드된 MCP가 없습니다.
+                            {t('noUploadedMcps')}
                         </div>
                     )
                 )}
@@ -126,8 +129,8 @@ const DeployedPage: React.FC = () => {
             {/* ✅ 임시저장 MCP (보조 섹션, 필요 시 유지) */}
             <div className="mt-10">
                 <div className="mb-3">
-                    <h2 className="text-title2">임시저장 MCP</h2>
-                    <p className="text-body3 text-secondary">임시저장된 MCP 목록입니다.</p>
+                    <h2 className="text-title2">{t('draftMcps')}</h2>
+                    <p className="text-body3 text-secondary">{t('draftMcpsDescription')}</p>
                 </div>
 
                 {!isLoading && !error && drafts.length ? (
@@ -140,7 +143,7 @@ const DeployedPage: React.FC = () => {
                     !isLoading &&
                     !error && (
                         <div className="rounded-2xl bg-surface-2 px-6 py-8 text-center text-body3 text-secondary">
-                            임시저장된 MCP가 없습니다.
+                            {t('noDraftMcps')}
                         </div>
                     )
                 )}

@@ -8,6 +8,7 @@ import BaseModal from "./BaseModal";
 import ConfirmModal from "./ConfirmModal";
 import clsx from "clsx";
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 type HistoryMenuModalProps = {
   isOpen: boolean;
@@ -24,6 +25,8 @@ export default function HistoryMenuModal({
   title,
   anchorRect,
 }: HistoryMenuModalProps) {
+  // Locale translations
+  const t = useTranslations('ChatPage');
   const deleteWorkspaceMutation = useDeleteWorkspace();
   const { currentWorkspaceId, openWorkspace } = useCurrentWorkspace();
   const startEditTitle = useModalStore((s) => s.startEditTitle);
@@ -42,10 +45,10 @@ export default function HistoryMenuModal({
 
   const handleDelete = () => {
     openConfirmModal({
-      title: "대화 삭제",
-      message: `"${title}" 대화를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`,
-      confirmText: "삭제",
-      cancelText: "취소",
+      title: t('deleteConversation'),
+      message: t('deleteConversationConfirm', { title }),
+      confirmText: t('delete'),
+      cancelText: t('cancel'),
       isDestructive: true,
       onConfirm: () => {
         
@@ -111,7 +114,7 @@ export default function HistoryMenuModal({
               isSmallScreen ? "px-4 py-3 text-base" : "px-3 py-2 text-sm"
             )}
           >
-            워크스페이스 제목 수정하기
+            {t('editWorkspaceTitle')}
           </button>
           <button
             onClick={handleDelete}
@@ -123,7 +126,7 @@ export default function HistoryMenuModal({
               isSmallScreen ? "px-4 py-3 text-base" : "px-3 py-2 text-sm"
             )}
           >
-            {deleteWorkspaceMutation.isPending ? "삭제 중..." : "워크스페이스 삭제하기"}
+            {deleteWorkspaceMutation.isPending ? t('deleting') : t('deleteWorkspace')}
           </button>
         </div>
       </div>

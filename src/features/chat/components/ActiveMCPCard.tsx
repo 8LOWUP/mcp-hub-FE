@@ -7,6 +7,7 @@ import imageLoader from "@/lib/imageLoader";
 import Image from "next/image";
 import { useState } from "react";
 import { processMcpImageUrl, getFallbackIconProps } from "@/utils/imageUtils";
+import { useTranslations } from "next-intl";
 
 type ActiveMCPCardProps = {
   id: string;
@@ -25,6 +26,8 @@ export default function ActiveMCPCard({
   onToggle,
   detailText,
 }: ActiveMCPCardProps) {
+  // Locale translations
+  const t = useTranslations('ChatPage');
   // MCP 상세 정보 가져오기
   const { data: mcpDetail, isLoading: isDetailLoading } = useMcpDetail(id);
   const [imageError, setImageError] = useState(false);
@@ -73,7 +76,7 @@ export default function ActiveMCPCard({
                 "text-xs transition-colors duration-300",
                 active ? "text-accent" : "text-secondary",
               ].join(" ")}>
-                {active ? "사용중" : "미사용"}
+                {active ? t('inUse') : t('notInUse')}
               </p>
             </div>
           </div>

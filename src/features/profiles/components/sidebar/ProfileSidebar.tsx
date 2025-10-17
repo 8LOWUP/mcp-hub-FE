@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import SidebarHeader from "./SidebarHeader";
 import SidebarNav from "./SidebarNav";
 import { SidebarKeyType } from "./constants";
@@ -45,6 +46,8 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                                            onClickLogout,
                                                            onClickDelete,
                                                        }) => {
+    // Locale translations
+    const t = useTranslations('ProfilePage');
     const router = useRouter();
     const pathname = usePathname();
 
@@ -132,11 +135,11 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
             <div className="mt-auto pt-6 space-y-3">
                 {/* Edit Profile */}
                 <PrimaryButton size="md" additionalClassName="w-full justify-center" onClick={() => setOpenEdit(true)}>
-                    Edit Profile
+                    {t('editProfile')}
                 </PrimaryButton>
 
                 <PrimaryButton size="md" additionalClassName="w-full justify-center" onClick={handleLogout}>
-                    Log Out
+                    {t('logOut')}
                 </PrimaryButton>
 
                 <PrimaryButton
@@ -145,7 +148,7 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                     onClick={() => setOpenDelete(true)}
                     disabled={isDeleting} // 진행 중 비활성화
                 >
-                    {isDeleting ? "Deleting..." : "Delete Account"}
+                    {isDeleting ? t('deleting') : t('deleteAccount')}
                 </PrimaryButton>
             </div>
 

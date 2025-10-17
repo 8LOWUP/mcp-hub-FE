@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, ChangeEvent, forwardRef, KeyboardEvent } from "react";
+import { useTranslations } from "next-intl";
 
 interface MCPNameInputProps {
     defaultValue?: string;      // ✅ 부모가 내려주는 초기값 (편집 모드에서 서버값)
@@ -10,6 +11,8 @@ interface MCPNameInputProps {
 
 const MCPNameInput = forwardRef<HTMLInputElement, MCPNameInputProps>(
     ({ defaultValue, onEnter, onChange }, ref) => {
+        // Locale translations
+        const t = useTranslations('UploadPage');
         const [name, setName] = useState<string>("");
         const [warning, setWarning] = useState<boolean>(false);
 
@@ -43,7 +46,7 @@ const MCPNameInput = forwardRef<HTMLInputElement, MCPNameInputProps>(
         return (
             <div className="mb-4">
                 <label className="block mb-2 text-lg font-semibold text-white">
-                    Mcp Name
+                    {t('mcpName')}
                 </label>
                 <input
                     ref={ref}
@@ -51,13 +54,13 @@ const MCPNameInput = forwardRef<HTMLInputElement, MCPNameInputProps>(
                     value={name}                            
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
-                    placeholder="e.g., My Awesome Server"
+                    placeholder={t('mcpNamePlaceholder')}
                     className={`w-full px-3 py-2 border rounded bg-surface-2 text-white focus:outline-none focus:ring-2 transition
             ${warning ? "border-red-500 focus:ring-red-400" : "border-contrast focus:ring-yellow-200"}`}
                 />
                 {warning && (
                     <p className="mt-1 text-sm text-red-500 animate-pulse">
-                        이름은 30자 이하로 입력해주세요.
+                        {t('nameLimit')}
                     </p>
                 )}
             </div>

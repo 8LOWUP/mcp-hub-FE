@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import BaseModal from "@/components/ui/modal/BaseModal";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 
@@ -17,11 +18,13 @@ const TokenErrorModal: React.FC<TokenErrorModalProps> = ({
   onRetry,
   onGoToSettings,
 }) => {
+  // Locale translations
+  const t = useTranslations('Common');
   return (
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title="LLM 토큰 오류"
+      title={t('tokenError')}
       size="md"
       footer={
         <>
@@ -29,14 +32,14 @@ const TokenErrorModal: React.FC<TokenErrorModalProps> = ({
             onClick={onClose}
             additionalClassName="bg-secondary text-black hover:bg-secondary-hover"
           >
-            닫기
+            {t('close')}
           </PrimaryButton>
           {onRetry && (
             <PrimaryButton 
               onClick={onRetry}
               additionalClassName="bg-accent text-black hover:bg-accent-hover"
             >
-              다시 시도
+              {t('retry')}
             </PrimaryButton>
           )}
           {onGoToSettings && (
@@ -44,7 +47,7 @@ const TokenErrorModal: React.FC<TokenErrorModalProps> = ({
               onClick={onGoToSettings}
               additionalClassName="bg-primary text-black hover:bg-primary-hover"
             >
-              설정으로 이동
+              {t('goToSettings')}
             </PrimaryButton>
           )}
         </>

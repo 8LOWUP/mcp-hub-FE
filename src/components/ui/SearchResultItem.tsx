@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import imageLoader from "@/lib/imageLoader";
+import { useTranslations } from "next-intl";
 
 type SearchResultItemProps = {
     id: number;
@@ -19,6 +20,8 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     imageUrl,
     onClick,
 }) => {
+    // Locale translations
+    const t = useTranslations('MCPMarket');
     const [imageError, setImageError] = React.useState(false);
 
     return (
@@ -33,7 +36,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
                     {!imageError ? (
                         <Image
                             src={imageUrl || "/placeholder.png"}
-                            alt={`${name} MCP Logo`}
+                            alt={`${name} ${t('mcpLogo')}`}
                             width={35}
                             height={35}
                             className="w-11 h-11 ml-1 flex-shrink-0"

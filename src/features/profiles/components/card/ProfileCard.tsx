@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { McpItemType } from "../../types/mcps";
 import { PROFILES_STYLES } from "../../constants";
 import SecondaryButton from "@/components/ui/SecondaryButton";
@@ -14,6 +15,8 @@ type ProfileCardProps = {
 };
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose }) => {
+    // Locale translations
+    const t = useTranslations('ProfilePage');
     const router = useRouter();
     const pathname = usePathname();
     const locale = pathname.split("/")[1] || "en";
@@ -61,13 +64,13 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
                 "cursor-pointer transition-colors outline-none",
                 "focus:ring-2 focus:ring-yellow-300/60 rounded-xl",
             ].join(" ")}
-            aria-label={`${item.title} 카드`}
+            aria-label={`${item.title} ${t('card')}`}
         >
             <div className="flex items-start justify-between">
                 <h2 className={PROFILES_STYLES.CARD_TITLE}>{item.title}</h2>
                 <button
                     type="button"
-                    aria-label="카드 닫기"
+                    aria-label={t('closeCard')}
                     onClick={handleClose}
                     className="ml-2 shrink-0 transition-opacity hover:opacity-80"
                 >
@@ -82,7 +85,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
             <div className={PROFILES_STYLES.CARD_ACTIONS}>
                 <div onClick={(e) => e.stopPropagation()}>
                     <SecondaryButton variant="secondary" size="sm" hoverOnly onClick={handleClickApiKey}>
-                        API Key
+                        {t('apiKey')}
                     </SecondaryButton>
                 </div>
             </div>

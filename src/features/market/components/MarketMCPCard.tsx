@@ -58,7 +58,7 @@ const MCPCard: React.FC<MCPCardProps> = ({
         <Link
             href={`/${locale}/detail/${id}`}
             className={clsx(
-                "flex flex-col p-3 py-3.5 justify-between justify-items-center items-center w-[300px] h-[165px] rounded-md",
+                "flex flex-col p-4 justify-between justify-items-center items-center w-full h-[165px] rounded-md",
                 "border border-white/20 bg-surface-1",
                 "transition-all duration-400 ease-in-out",
                 "hover:border-accent",
@@ -70,46 +70,47 @@ const MCPCard: React.FC<MCPCardProps> = ({
             
 
             {/* 본문 */}
-            <div className="flex flex-col w-full">
-                <div className="flex w-full h-full justify-between items-start gap-3 flex-1">
-                    <div className="flex h-full items-center justify-center">
+            <div className="flex flex-col w-full flex-1">
+                <div className="flex w-full items-start gap-3 mb-2">
+                    <div className="flex-shrink-0">
                         {!imageError ? (
                             <Image
                                 src={safeIconSrc}
                                 alt={`${title} MCP Logo`}
-                                width={35}
-                                height={35}
-                                className="w-11 h-11 ml-1 flex-shrink-0"
+                                width={40}
+                                height={40}
+                                className="w-10 h-10"
                                 onError={() => setImageError(true)}
                                 loader={imageLoader}
                                 unoptimized
                             />
                         ) : (
-                            <div className="w-11 h-11 ml-1 flex-shrink-0 flex items-center justify-center bg-surface-2 rounded text-xs text-secondary font-bold">
+                            <div className="w-10 h-10 flex items-center justify-center bg-surface-2 rounded text-xs text-secondary font-bold">
                                 {title.charAt(0).toUpperCase()}
                             </div>
                         )}
                     </div>
-                    <div className="flex w-4/5 flex-col justify-start flex-1">
-                        <div className="text-primary text-[18px] font-extrabold truncate mt-1">{title}</div>
+                    <div className="flex-1 min-w-0">
+                        <div className="text-primary text-base font-bold truncate">{title}</div>
                         {developerName && (
-                            <div className="text-sm text-secondary">by {developerName}</div>
+                            <div className="text-xs text-secondary truncate">by {developerName}</div>
                         )}
                     </div>
                 </div>
-                <div className="text-secondary text-sm line-clamp-2 my-2 m-1 overflow-hidden">{description}</div>
+                <div className="text-secondary text-sm line-clamp-2 leading-relaxed mt-2">{description}</div>
             </div>
 
-            {/* 상단 라벨 */}
-            <div className="flex w-full justify-between items-center">
+            {/* 하단 라벨 */}
+            <div className="flex w-full justify-between items-center mt-auto">
                 <div className="flex gap-2">
-                    {/* saved 상태에 따라 하나만 렌더링 */}
                     <span
                         className={clsx(
-                            "text-xs px-2 py-1 font-semibold text-secondary rounded-lg",
-                            saved ? "bg-surface-2  text-accent" : "bg-surface-2 text-disabled"
+                            "text-xs px-2 py-1 font-medium rounded-full",
+                            saved ? "bg-accent/20 text-accent" : "bg-surface-2 text-secondary"
                         )}
-                    >{saved ? "Saved" : "Unsaved"}</span>
+                    >
+                        {saved ? "Saved" : "Save"}
+                    </span>
                 </div>
 
                 {usersCount !== undefined && (
@@ -117,13 +118,13 @@ const MCPCard: React.FC<MCPCardProps> = ({
                         <Image
                             src="/downLoader.svg"
                             alt="downloads"
-                            width={16}
-                            height={16}
-                            className="w-4 h-4 opacity-80"
+                            width={14}
+                            height={14}
+                            className="w-3.5 h-3.5 opacity-70"
                             loader={imageLoader}
                             unoptimized
                         />
-                        {usersCount}
+                        <span className="font-medium">{usersCount}</span>
                     </div>
                 )}
             </div>

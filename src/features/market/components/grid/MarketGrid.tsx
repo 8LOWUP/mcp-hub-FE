@@ -2,7 +2,8 @@
 "use client";
 
 import React from "react";
-import MCPCard from "@/components/container/McpCard";
+import { useTranslations } from "next-intl";
+import MarketMCPCard from "../MarketMCPCard";
 
 export type MCPCardData = {
     id: string;
@@ -18,17 +19,24 @@ type Props = {
     items: MCPCardData[];
 };
 
-const GRID = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
+const GRID = "grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full mx-auto";
+const GRID_1 = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full mx-auto";
 
 const MarketGrid: React.FC<Props> = ({ items }) => {
+    const t = useTranslations('MCPMarket');
+    
     if (!items?.length) {
         return <div className="text-secondary">No results</div>;
     }
 
     return (
-        <section className={GRID}>
+        <section className={items.length === 1 ? GRID_1 : GRID}>
             {items.map((item) => (
-                <MCPCard key={item.id} {...item} />
+                <MarketMCPCard 
+                    key={item.id} 
+                    {...item} 
+                    className={items.length === 1 ? "w-[300px]" : ""}
+                />
             ))}
         </section>
     );

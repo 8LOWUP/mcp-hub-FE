@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import BaseModal from "./BaseModal";
 import clsx from "clsx";
 
@@ -20,10 +21,12 @@ export default function ConfirmModal({
   onConfirm,
   title,
   message,
-  confirmText = "확인",
-  cancelText = "취소",
+  confirmText,
+  cancelText,
   isDestructive = false,
 }: ConfirmModalProps) {
+  // Locale translations
+  const t = useTranslations('ChatPage');
   const handleConfirm = () => {
     onConfirm();
     onClose();
@@ -46,7 +49,7 @@ export default function ConfirmModal({
               "text-foreground transition-colors"
             )}
           >
-            {cancelText}
+            {cancelText || t('cancel')}
           </button>
           <button
             onClick={handleConfirm}
@@ -57,7 +60,7 @@ export default function ConfirmModal({
                 : "bg-accent hover:bg-accent/90 text-black"
             )}
           >
-            {confirmText}
+            {confirmText || t('confirm')}
           </button>
         </div>
       </div>

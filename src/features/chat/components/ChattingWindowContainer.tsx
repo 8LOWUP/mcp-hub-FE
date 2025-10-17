@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useMemo, useState, useCallback } from "react";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 import ChatContainer from "./ChatContainer";
 import AssistantSkeletonBubble from "./skeleton/AssistantSkeletonBubble";
 import LoadingSkeleton from "./skeleton/LoadingSkeleton";
@@ -28,6 +29,8 @@ export default function ChattingWindowContainer({
   modelsLoading,
   selectModel,
 }: ChattingWindowContainerProps) {
+  // Locale translations
+  const t = useTranslations('ChatPage');
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
   // 채팅 전송 중인지 확인하는 상태
@@ -147,8 +150,6 @@ export default function ChattingWindowContainer({
         
         // 새 워크스페이스용 MCP 리스트: 우측 패널 선택(전역 스토어) → 없으면 localMcps
         const storeMcps = useMcpSelectionStore.getState().selectedMcps;
-        console.log('🧩 localMcps (raw):', localMcps);
-        console.log('🧩 storeMcps (raw):', storeMcps);
         const source = Array.isArray(storeMcps) && storeMcps.length > 0 ? storeMcps : localMcps;
         const mcpsForNewWorkspace: mcpInfo[] = (Array.isArray(source) ? source : [])
           .filter((m) => !!m && typeof m.id !== 'undefined' && m.active === true)
@@ -161,17 +162,7 @@ export default function ChattingWindowContainer({
           chatMessage: text
         };
         
-        console.log('🚀 워크스페이스 생성 요청 데이터:', {
-          llmId: finalModelId,
-          mcps: mcpsForNewWorkspace,
-          chatMessage: text,
-          mcpsType: typeof mcpsForNewWorkspace,
-          mcpsLength: mcpsForNewWorkspace.length,
-          mcpsPreview: mcpsForNewWorkspace.slice(0, 5)
-        });
-        
         const createResponse = await createWorkspaceMutation.mutateAsync(requestData);
-        console.log('✅ 워크스페이스 생성 응답:', createResponse);
         
         const newWorkspaceId = createResponse.result.workspaceId;
         openWorkspace(newWorkspaceId);
@@ -181,7 +172,6 @@ export default function ChattingWindowContainer({
         setIsSendingMessage(false);
         
       } catch (error: any) {
-        console.error('워크스페이스 생성 실패:', error?.response?.data ?? error);
         setTempUserMessage(null);
         setHasNewResponse(false); // 실패 시 리셋
         setIsCreatingWorkspace(false);
@@ -322,12 +312,12 @@ export default function ChattingWindowContainer({
           )}
         >
           <div className="text-2xl font-bold mb-2">
-            {isNew ? "새 채팅을 시작할까요?" : "대화를 시작해보세요"}
+            {isNew ? t('newChat') : t('startConversation')}
           </div>
           <p className="text-sm text-foreground/70 mb-6">
             {isNew
-              ? "아래 입력창에 메시지를 입력하여 새로운 대화를 시작하세요. 원하는 모델을 선택할 수 있습니다."
-              : "메시지를 입력하면 대화가 시작됩니다. 우측 MCP를 켜서 도구를 함께 사용해도 좋아요."
+              ? t('newChatDescription')
+              : t('conversationDescription')
             }
           </p>
 
@@ -336,21 +326,21 @@ export default function ChattingWindowContainer({
               <>
                 <button
                   className="px-3 py-2 rounded-lg bg-foreground/10 hover:bg-foreground/15 text-sm"
-                  onClick={() => sendMessage("안녕하세요! 새로운 대화를 시작합니다.")}
+                  onClick={() => sendMessage(t('sampleMessage1'))}
                 >
-                  안녕하세요!
+                  {t('sampleButton1')}
                 </button>
                 <button
                   className="px-3 py-2 rounded-lg bg-foreground/10 hover:bg-foreground/15 text-sm"
-                  onClick={() => sendMessage("오늘 날씨는 어떤가요?")}
+                  onClick={() => sendMessage(t('sampleMessage2'))}
                 >
-                  날씨 알려줘
+                  {t('sampleButton2')}
                 </button>
                 <button
                   className="px-3 py-2 rounded-lg bg-foreground/10 hover:bg-foreground/15 text-sm"
-                  onClick={() => sendMessage("코딩 도움이 필요해요")}
+                  onClick={() => sendMessage(t('sampleMessage3'))}
                 >
-                  코딩 도움
+                  {t('sampleButton3')}
                 </button>
               </>
             ) : (

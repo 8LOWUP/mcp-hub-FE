@@ -7,6 +7,7 @@ import imageLoader from "@/lib/imageLoader";
 import { serverAxios } from "@/lib/serverAxios";
 import SearchResultItem from "./SearchResultItem";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useTranslations } from "next-intl";
 
 type SearchItem = {
     id: number;
@@ -18,6 +19,14 @@ type SearchItem = {
 // 이미지 URL 처리 함수
 const processImageUrl = (path?: string | null) => {
     if (!path || path.trim() === "") return null;
+    
+    // https://img.com으로 시작하는 경우 API URL로 변환
+    if (path.startsWith('https://img.com')) {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:8080';
+        const cleanApiUrl = apiUrl.replace(/\/+$/, '');
+        return path.replace('https://img.com', `${cleanApiUrl}/img.com`);
+    }
+    
     if (/^https?:\/\//i.test(path)) return path; // 절대 URL은 그대로
     // 중복 슬래시 방지
     return path.startsWith("/") ? `/__api${path}` : `/__api/${path}`;
@@ -41,7 +50,8 @@ export default function SearchBar({
 }: {
     placeholder?: string;
 }) {
-    console.log("🔍 SearchBar 컴포넌트 렌더링됨");
+    // Locale translations
+    const t = useTranslations('MCPMarket');
     const router = useRouter();
     const pathname = usePathname() || "/";
     const locale = pathname.split("/")[1] || "en";
@@ -53,7 +63,6 @@ export default function SearchBar({
 
     // 입력 핸들러들
     const handleInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log("🔍 입력 변경:", e.target.value);
         setQuery(e.target.value);
     }, []);
 
@@ -102,40 +111,30 @@ export default function SearchBar({
     // 입력 시 자동완성 (useDebounce + AbortController)
     const debouncedQuery = useDebounce(query, 500);
     
-    // 디버깅용 로그
-    console.log("🔍 query:", query, "debouncedQuery:", debouncedQuery);
     
     React.useEffect(() => {
-        console.log("🔍 useEffect 실행됨, debouncedQuery:", debouncedQuery);
         const controller = new AbortController();
         const q = debouncedQuery.trim();
 
         if (!q) {
-            console.log("🔍 빈 쿼리, 결과 초기화");
             setResults([]);
             setOpen(false);
             return;
         }
 
-        console.log("🔍 검색 시작:", q);
         let active = true;
         (async () => {
             try {
                 setLoading(true);
-                console.log("🔍 API 호출 시작");
                 const items = await fetchSearchResults(q, controller.signal);
 
                 if (!active) {
-                    console.log("🔍 컴포넌트가 비활성화됨, 결과 무시");
                     return;
                 }
-                console.log("🔍 검색 결과:", items);
                 setResults(items);
                 setOpen(items.length >= 0);
             } catch (err: any) {
-                console.log("🔍 에러 발생:", err);
                 if (err?.name !== "CanceledError" && err?.code !== "ERR_CANCELED") {
-                    console.warn("MCP 검색 실패:", err);
                     if (!active) return;
                     setResults([]);
                     setOpen(false);
@@ -146,7 +145,6 @@ export default function SearchBar({
         })();
 
         return () => {
-            console.log("🔍 cleanup 실행");
             active = false;
             controller.abort();
         };
@@ -185,21 +183,21 @@ export default function SearchBar({
                 onChange={handleInputChange}
                 onFocus={handleInputFocus}
                 onKeyDown={handleKeyDown}
-                placeholder={placeholder}
+                placeholder={placeholder || t('searchPlaceholder')}
                 className="w-full rounded-md bg-surface-3 py-2 pl-4 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:ring-primary"
-                aria-label="Search MCPs"
+                aria-label={t('searchMcps')}
             />
 
             {/* 검색 버튼 */}
             <button
                 type="button"
-                aria-label="Search"
+                aria-label={t('search')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-2"
                 onClick={handleSearch}
             >
                 <Image
                     src="/search.svg"
-                    alt="Search Icon"
+                    alt={t('searchIcon')}
                     width={18}
                     height={18}
                     loader={imageLoader}
@@ -211,12 +209,12 @@ export default function SearchBar({
             {open && (
                 <div className="absolute left-0 right-0 mt-2 bg-surface-1 py-0.5 border border-accent/20 rounded-xl shadow-lg z-[9999] overflow-hidden">
                     {loading && (
-                        <div className="px-4 py-2 text-sm text-muted">검색 중...</div>
+                        <div className="px-4 py-2 text-sm text-muted">{t('searching')}</div>
                     )}
 
                     {!loading && results.length === 0 && (
                         <div className="px-4 py-2 text-sm text-muted">
-                            “{query}”에 대한 결과 없음
+                            {t('noResultsFor', { query })}
                         </div>
                     )}
 
