@@ -61,9 +61,12 @@ export class SocialLoginService {
         code: code ? `${code}` : null,
         codeLength: code ? code.length : 0,
         searchParams: window.location.search,
+        pathname: window.location.pathname,
+        hash: window.location.hash,
       });
 
       if (!code) {
+        console.error("❌ Authorization code가 없습니다. URL:", window.location.href);
         throw new Error("Authorization code를 찾을 수 없습니다.");
       }
 
@@ -119,19 +122,33 @@ export class SocialLoginService {
         const redirectAfterLogin = sessionStorage.getItem("redirectAfterLogin");
         const returnUrl = sessionStorage.getItem("returnUrl");
         
+        // 모든 sessionStorage 항목 확인
+        const allSessionStorage = {};
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const key = sessionStorage.key(i);
+          if (key) {
+            allSessionStorage[key] = sessionStorage.getItem(key);
+          }
+        }
+        
         const redirectUrl = redirectAfterLogin || returnUrl || "/";
+        
+        console.log("🔄 로그인 성공! 리다이렉트 중...", { 
+          redirectAfterLogin, 
+          returnUrl, 
+          finalRedirect: redirectUrl,
+          allSessionStorage,
+          currentUrl: window.location.href
+        });
         
         // 세션 스토리지 정리
         sessionStorage.removeItem("redirectAfterLogin");
         sessionStorage.removeItem("returnUrl");
         
-        console.log("🔄 로그인 성공! 리다이렉트 중...", { 
-          redirectAfterLogin, 
-          returnUrl, 
-          finalRedirect: redirectUrl 
-        });
+        console.log("⏰ 1초 후 리다이렉트 실행 예정:", redirectUrl);
         
         setTimeout(() => {
+          console.log("🚀 리다이렉트 실행:", redirectUrl);
           window.location.href = redirectUrl;
         }, 1000);
       }

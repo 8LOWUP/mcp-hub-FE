@@ -21,11 +21,11 @@ function isLoggedIn(req: NextRequest): boolean {
         allCookies: req.cookies.getAll().map(c => c.name)
     });
     
-    // 🧪 테스트용: 강제로 로그아웃 상태로 시뮬레이션
-    if (req.nextUrl.pathname.includes("/chat")) {
-        console.log("🧪 테스트: /chat 경로는 강제로 로그아웃 상태로 처리");
-        return false;
-    }
+    // 🧪 테스트용: 강제로 로그아웃 상태로 시뮬레이션 (비활성화)
+    // if (req.nextUrl.pathname.includes("/chat")) {
+    //     console.log("🧪 테스트: /chat 경로는 강제로 로그아웃 상태로 처리");
+    //     return false;
+    // }
     
     return isLoggedIn;
 }
@@ -58,10 +58,10 @@ export function middleware(req: NextRequest) {
         return NextResponse.next();
     }
 
-    // 2. 로그인/콜백 경로는 항상 통과
+    // 2. 로그인/콜백 경로는 항상 통과 (국제화 처리 없이)
     if (pathname.includes("/login") || pathname.includes("/auth/callback")) {
         console.log("🔐 로그인/콜백 경로 통과:", pathname);
-        return intlMiddleware(req);
+        return NextResponse.next();
     }
 
     // 3. 보호된 경로 체크
