@@ -1,6 +1,6 @@
 :root {
   /* 🌕 Light (화이트 모드) — Neo Neutral */
-  --bg-color-1: #F9FAFB; /* 페이지 전체 */
+  --bg-color-1: #F7F1F1; /* 페이지 전체 */
   --bg-color-2: #FFFFFF; /* 카드 / 컨테이너 */
   --bg-color-3: #F3F4F6; /* 호버 영역 */
   --bg-color-4: #E5E7EB; /* 비활성 / 경계선 */
@@ -8,8 +8,8 @@
 
 
   /* 라이트 전용 primary(=accent) */
-  --accent-color-1: #4A7DFF; /* 메인 포인트 */
-  --accent-color-2: #3A66D6; /* hover 포인트 */
+  --accent-color-1: #FFD3D3; /* 메인 포인트, 컴포넌트 카드 */
+  --accent-color-2: #E38D8D; /* hover 포인트 */
 
   --text-color-1: #6B7280;
   --text-color-2: #9CA3AF;
