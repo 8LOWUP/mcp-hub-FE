@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import BaseModal from "@/components/ui/modal/BaseModal";
 
 export type EditProfileFormType = {
@@ -23,6 +24,8 @@ const EditProfileModal: React.FC<Props> = ({
                                                onClose,
                                                onSubmit,
                                            }) => {
+    // Locale translations
+    const t = useTranslations('ProfilePage');
     const [email, setEmail] = React.useState(defaultValues.email ?? "");
     const [nickname, setNickname] = React.useState(defaultValues.nickname ?? "");
 
@@ -41,7 +44,7 @@ const EditProfileModal: React.FC<Props> = ({
         <BaseModal
             isOpen={isOpen}
             onClose={onClose}
-            title="Edit Profile"
+            title={t('editProfile')}
             size="sm"
             footer={
                 <div className="flex w-full justify-end gap-2">
@@ -50,14 +53,14 @@ const EditProfileModal: React.FC<Props> = ({
                         onClick={onClose}
                         disabled={isSubmitting}
                     >
-                        Cancel
+                        {t('cancel')}
                     </button>
                     <button
                         className="px-4 py-2 rounded-2xl bg-accent text-black"
                         onClick={handleSubmit}
                         disabled={isSubmitting}
                     >
-                        {isSubmitting ? "Saving..." : "Save"}
+                        {isSubmitting ? t('saving') : t('save')}
                     </button>
                 </div>
             }
@@ -65,24 +68,24 @@ const EditProfileModal: React.FC<Props> = ({
             <div className="space-y-4">
                 {/* ✅ 이메일은 수정 불가 (readOnly + 회색처리) */}
                 <div>
-                    <label className="block text-body3 mb-1">Email</label>
+                    <label className="block text-body3 mb-1">{t('email')}</label>
                     <input
                         className="w-full rounded-xl border border-contrast bg-surface-1 px-3 py-2 text-gray-400 cursor-not-allowed focus:outline-none focus:ring-0 focus:border-contrast"
                         value={email}
                         readOnly
-                        placeholder="you@example.com"
+                        placeholder={t('emailPlaceholder')}
                     />
                 </div>
 
 
                 {/* 닉네임은 수정 가능 */}
                 <div>
-                    <label className="block text-body3 mb-1">Nickname</label>
+                    <label className="block text-body3 mb-1">{t('nickname')}</label>
                     <input
                         className="w-full rounded-xl border border-contrast bg-surface-1 px-3 py-2"
                         value={nickname}
                         onChange={(e) => setNickname(e.target.value)}
-                        placeholder="닉네임"
+                        placeholder={t('nicknamePlaceholder')}
                     />
                 </div>
             </div>

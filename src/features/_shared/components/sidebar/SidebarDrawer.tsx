@@ -48,7 +48,7 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ isOpen, onClose, children
                 aria-modal="true"
                 aria-label="Sidebar"
                 className={[
-                    "absolute left-0 top-0 h-full w-[80%] max-w-[320px] bg-surface-1 border-r border-contrast",
+                    "absolute left-0 top-0 h-full w-[50%] max-w-[280px] bg-surface-1 border-r border-contrast",
                     "transition-transform duration-300 ease-out",
                     isOpen ? "translate-x-0" : "-translate-x-full",
                     "shadow-xl",

@@ -2,6 +2,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import BaseModal from "@/components/ui/modal/BaseModal";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 
@@ -21,6 +22,8 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
                                                                    onConfirm,
                                                                    title = "Delete MCP",
                                                                }) => {
+    // Locale translations
+    const t = useTranslations('ProfilePage');
     const [step, setStep] = React.useState<Step>("confirm");
     const [isLoading, setIsLoading] = React.useState(false);
     const isConfirm = step === "confirm";
@@ -30,22 +33,16 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
         if (isOpen) {
             setStep("confirm");
             setIsLoading(false);
-            // 디버깅용
-            // eslint-disable-next-line no-console
-            console.log("[MODAL] mounted (isOpen=true)");
         }
     }, [isOpen]);
 
     const handleConfirm = async () => {
         try {
             setIsLoading(true);
-            // eslint-disable-next-line no-console
-            console.log("[MODAL] confirm clicked");
             await onConfirm();
             setStep("done");
         } catch (e) {
-            // eslint-disable-next-line no-console
-            console.error("[MODAL] confirm error", e);
+            // Error handling
         } finally {
             setIsLoading(false);
         }
@@ -70,12 +67,12 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
                     <>
                         {/* 질문 박스 */}
                         <div className="rounded-[20px] bg-surface-2 px-6 py-4 text-center">
-                            <p className="text-title2 font-semibold">MCP를 삭제하시겠습니까?</p>
+                            <p className="text-title2 font-semibold">{t('deleteMcpConfirm')}</p>
                         </div>
 
                         {/* 보조 설명 */}
                         <p className="text-body3 text-secondary text-center">
-                            해당 API KEY 값과 관련 정보가 모두 삭제됩니다.
+                            {t('deleteMcpWarning')}
                         </p>
 
                         {/* 하단 버튼 */}
@@ -87,7 +84,7 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
                                 onClick={handleRequestClose}
                                 disabled={isLoading}
                             >
-                                Cancel
+                                {t('cancel')}
                             </PrimaryButton>
                             <PrimaryButton
                                 size="md"
@@ -95,7 +92,7 @@ const DeleteMcpFlowModal: React.FC<DeleteMcpFlowModalProps> = ({
                                 onClick={handleConfirm}
                                 disabled={isLoading}
                             >
-                                {isLoading ? "Processing..." : "Confirm"}
+                                {isLoading ? t('processing') : t('confirm')}
                             </PrimaryButton>
                         </div>
                     </>

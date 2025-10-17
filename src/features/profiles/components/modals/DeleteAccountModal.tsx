@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import BaseModal from "@/components/ui/modal/BaseModal";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import { useRouter } from "next/navigation";
@@ -22,6 +23,8 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
                                                                    onClose,
                                                                    onRequestDelete,
                                                                }) => {
+    // Locale translations
+    const t = useTranslations('ProfilePage');
     const router = useRouter();
     const [step, setStep] = React.useState<DeleteStep>(DeleteStep.confirm);
     const [isLoading, setIsLoading] = React.useState(false);
@@ -54,7 +57,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
         <BaseModal
             isOpen={isOpen}
             onClose={onClose}
-            title="Delete Account"
+            title={t('deleteAccount')}
             size="md"
         >
             {/* 본문 */}
@@ -62,15 +65,15 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
                 {isConfirm ? (
                     <>
                         <div className="rounded-2xl bg-surface-2 px-6 py-5 text-center">
-                            <p className="text-title3">정말 탈퇴하시겠습니까?</p>
+                            <p className="text-title3">{t('deleteAccountConfirm')}</p>
                         </div>
                         <p className="text-body3 text-secondary text-center">
-                            탈퇴하면 남는거 뭐도 없는데 괜춘?
+                            {t('deleteAccountWarning')}
                         </p>
                     </>
                 ) : (
                     <div className="rounded-2xl bg-surface-2 px-6 py-5 text-center">
-                        <p className="text-title3">회원탈퇴가 완료되었습니다.</p>
+                        <p className="text-title3">{t('deleteAccountComplete')}</p>
                     </div>
                 )}
             </div>

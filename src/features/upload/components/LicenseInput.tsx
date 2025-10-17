@@ -1,5 +1,6 @@
 "use client";
 import { forwardRef, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 type Props = { defaultValue?: string; onEnter?: () => void };
 
@@ -12,6 +13,8 @@ const LICENSES = [
 ];
 
 const LicenseInput = forwardRef<HTMLInputElement, Props>(({ defaultValue, onEnter }, ref) => {
+    // Locale translations
+    const t = useTranslations('UploadPage');
     const [selectedLicense, setSelectedLicense] = useState<string>("MIT License");
 
     // ✨ 프리필: 기본값이 정해져 있으면 셋업
@@ -27,7 +30,7 @@ const LicenseInput = forwardRef<HTMLInputElement, Props>(({ defaultValue, onEnte
 
     return (
         <div className="mb-6">
-            <label className="block mb-2 text-lg font-semibold text-white">License</label>
+            <label className="block mb-2 text-lg font-semibold text-white">{t('license')}</label>
 
             <select
                 value={selectedLicense}

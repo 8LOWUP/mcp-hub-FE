@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ReviewItem } from "@/types/detail/detail-types";
 import Image from "next/image";
 import { Star, Pencil, Trash2, Check, X } from "lucide-react";
@@ -14,6 +15,8 @@ interface ReviewCardProps {
 }
 
 export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
+    // Locale translations
+    const t = useTranslations('DetailPage');
     const [isEditing, setIsEditing] = useState(false);
     const [editedComment, setEditedComment] = useState(review.comment);
     const [editedRating, setEditedRating] = useState(review.rating);
@@ -100,7 +103,7 @@ export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
                                 setEditedComment(e.target.value);
                             }
                         }}
-                        placeholder="리뷰는 최대 100자까지 작성할 수 있습니다."
+                        placeholder={t('reviewPlaceholder')}
                         className="w-full p-2 rounded-md bg-[#1e1e1e] border border-gray-600 text-sm flex-1"
                     />
                 ) : (

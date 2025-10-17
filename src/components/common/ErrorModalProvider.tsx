@@ -15,14 +15,6 @@ const ErrorModalProvider: React.FC = () => {
     selectedLLMId
   } = useTokenErrorStore();
 
-  // 디버깅: Provider에서 전달/보관 중인 값 확인
-  useEffect(() => {
-    console.log("[ErrorModalProvider] state:", {
-      isTokenErrorModalOpen,
-      isLLMSettingsModalOpen,
-      selectedLLMId,
-    });
-  }, [isTokenErrorModalOpen, isLLMSettingsModalOpen, selectedLLMId]);
 
 
   const handleRetry = () => {
@@ -36,7 +28,6 @@ const ErrorModalProvider: React.FC = () => {
     closeTokenErrorModal();
     // LLM 설정 모달 열기
     const { openLLMSettingsModal } = useTokenErrorStore.getState();
-    console.log("[ErrorModalProvider] openLLMSettingsModal with store.selectedLLMId:", selectedLLMId);
     openLLMSettingsModal(selectedLLMId);
   };
 

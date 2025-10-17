@@ -4,6 +4,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { CATEGORY_PRESET } from "@/features/market/constants";
 import { FaLayerGroup } from "react-icons/fa";
 
@@ -11,6 +12,9 @@ const SidebarClient: React.FC<{ onItemClick?: () => void }> = ({ onItemClick }) 
     const pathname = usePathname();                   // e.g. "/ko/market"
     const sp = useSearchParams();
     const active = (sp.get("cat") ?? "all").toLowerCase();
+    
+    // Locale translations
+    const t = useTranslations('MCPMarket');
 
     // 현재 로케일 추출
     const locale = React.useMemo(() => pathname.split("/")[1] || "en", [pathname]);
@@ -19,7 +23,7 @@ const SidebarClient: React.FC<{ onItemClick?: () => void }> = ({ onItemClick }) 
         <nav aria-label="Market sidebar" className="px-4 py-15 space-y-10">
             <div className="flex items-center gap-3">
                 <FaLayerGroup size={22} className="opacity-80 text-secondary" />
-                <h3 className="text-[20px] font-semibold text-primary">Categories</h3>
+                <h3 className="text-[20px] font-semibold text-primary">{t('categories')}</h3>
             </div>
 
             <section>

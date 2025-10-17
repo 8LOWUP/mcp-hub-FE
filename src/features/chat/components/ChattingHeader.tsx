@@ -13,10 +13,13 @@ import { MdExtension } from "react-icons/md";
 import clsx from "clsx";
 import { useLoginStore } from "@/store/login/login-store";
 import LoginModal from "@/features/auth/components/LoginModal";
+import { useTranslations } from "next-intl";
 
 type ChattingHeaderProps = { additionalClassName?: string };
 
 export default function ChattingHeader({ additionalClassName }: ChattingHeaderProps) {
+  // Locale translations
+  const t = useTranslations('Header');
   const router = useRouter();
   const pathname = usePathname();
 
@@ -70,14 +73,14 @@ export default function ChattingHeader({ additionalClassName }: ChattingHeaderPr
               type="button"
               onClick={() => emit("chat:toggle-left")}
               className="lg:hidden cursor-pointer"
-              aria-label="히스토리 열기/닫기"
-              title="히스토리"
+              aria-label={t('historyToggle')}
+              title={t('history')}
             >
               <IoListSharp className="w-8 h-8" />
             </button>
 
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push(`/${locale}`)}>
-              <Image src="/logo.svg" alt="MCP Hub logo" width={30} height={30} priority loader={imageLoader} unoptimized />
+              <Image src="/logo.svg" alt={t('logo')} width={30} height={30} priority loader={imageLoader} unoptimized />
               <span className="hidden pr-1 md:block text-primary text-xl font-bold hover:underline underline-offset-4">
                 MCPHub
               </span>
@@ -98,12 +101,12 @@ export default function ChattingHeader({ additionalClassName }: ChattingHeaderPr
                     <button
                         type="button"
                         onClick={handleProfileOrLoginClick}
-                        aria-label="Open profile"
+                        aria-label={t('openProfile')}
                         className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent hover:cursor-pointer"
                     >
                         <Image
                             src={user?.avatarUrl || "/catprofile.svg"}
-                            alt={user?.nickname || "Profile"}
+                            alt={user?.nickname || t('profile')}
                             width={32}
                             height={32}
                             className="object-cover w-full h-full"
@@ -119,15 +122,15 @@ export default function ChattingHeader({ additionalClassName }: ChattingHeaderPr
                     size="sm"
                     additionalClassName="py-2 px-2"
                 >
-                    Log In
+                    {t('login')}
                 </PrimaryButton>
             )}
             <button
               type="button"
               onClick={() => emit("chat:toggle-right")}
               className="lg:hidden cursor-pointer pb-0.5 hover:bg-foreground/10"
-              aria-label="MCP 열기/닫기"
-              title="MCP"
+              aria-label={t('mcpToggle')}
+              title={t('mcp')}
             >
               <MdExtension className="w-7 h-7" />
             </button>
