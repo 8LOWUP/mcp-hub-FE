@@ -27,7 +27,7 @@ export default function McpUrlCopy({ url }: Props) {
         <div className="info-block relative mb-5">
             <div className="flex items-center gap-2 mb-1">
                 <Link className="w-5 h-5"/>
-                <span className="text-white font-bold text-xl tracking-tight">URL</span>
+                <span className="--text-color-1 font-bold text-xl tracking-tight">URL</span>
             </div>
 
             {!url ? (
@@ -38,20 +38,20 @@ export default function McpUrlCopy({ url }: Props) {
                 <>
                     <TextContainer className="w-full flex items-center justify-between gap-2">
                         {/* ✅ 왼쪽에 URL */}
-                        <span className="truncate text-white flex-1">{url}</span>
+                        <span className="truncate --text-color-1 flex-1">{url}</span>
 
                         {/* ✅ 오른쪽에 버튼 (url 있을 때만 렌더링) */}
                         <button
                             onClick={handleCopy}
                             className="hover:opacity-70 flex-shrink-0"
                         >
-                            <CopyCheck className="w-5 h-5 text-white" />
+                            <CopyCheck className="w-5 h-5 --text-color-1" />
                         </button>
                     </TextContainer>
 
                     {/* ✅ 복사 안내 문구 */}
                     {copied && (
-                        <div className="absolute top-0 right-0 mt-[-28px] bg-black text-white text-xs px-2 py-1 rounded shadow">
+                        <div className="absolute top-0 right-0 mt-[-28px] bg-black --text-color-1 text-xs px-2 py-1 rounded shadow">
                             Copied!
                         </div>
                     )}

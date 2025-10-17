@@ -232,7 +232,7 @@ export default function MCPUploadForm({
 
     return (
         <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
-            <div className="w-full max-w-3xl p-6 bg-surface-1 text-white rounded shadow-lg">
+            <div className="w-full max-w-3xl p-6 bg-surface-1 --text-color-1 rounded shadow-lg">
                 <h1 className="text-2xl font-bold mb-2">
                     {isEditMode ? "Edit MCP" : "Upload MCP"}
                 </h1>

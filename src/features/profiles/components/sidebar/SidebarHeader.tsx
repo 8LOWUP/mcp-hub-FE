@@ -22,7 +22,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({ username, avatarSrc }) =>
 
             <button
                 type="button"
-                className="rounded-md border border-[#EDE7A0] px-6 py-2 text-lg font-bold tracking-wide text-[#EDE7A0]"
+                className="rounded-md border border-accent px-6 py-2 text-lg font-bold tracking-wide border-accent"
             >
                 {username.toUpperCase()}
             </button>

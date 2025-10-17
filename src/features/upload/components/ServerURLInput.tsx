@@ -43,7 +43,7 @@ const ServerURLInput = forwardRef<HTMLInputElement, ServerURLInputProps>(({ defa
                     value={url}
                     onChange={(e) => checkUrl(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className={`w-full px-4 py-3 rounded-lg bg-surface-2 text-white pr-10
+                    className={`w-full px-4 py-3 rounded-lg bg-surface-2 --text-color-1 pr-10
             ${status === "invalid" ? "border-2 border-red-500" : "border-contrast focus:outline-none focus:ring-2 focus:ring-yellow-200 transition"} focus:outline-none`}
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
