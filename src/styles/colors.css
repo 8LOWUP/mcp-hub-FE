@@ -8,8 +8,8 @@
 
 
   /* 라이트 전용 primary(=accent) */
-  --accent-color-1: #2563EB; /* 메인 포인트 */
-  --accent-color-2: #1E40AF; /* hover 포인트 */
+  --accent-color-1: #4A7DFF; /* 메인 포인트 */
+  --accent-color-2: #3A66D6; /* hover 포인트 */
 
   /* 라이트 전용 텍스트 */
   --text-color-1: #111827; /* 기본 텍스트 */
