@@ -4,6 +4,7 @@ import LandingChatStartButton from '@/features/landing/components/LandingChatSta
 import LandingMarketGrid from '@/features/landing/components/LandingMarketGrid';
 import AnimatedGradient from '@/components/animations/AnimatedGradient';
 import FadeInOnScroll from '@/components/animations/FadeInOnScroll';
+// import AuthRequiredHandler from '@/components/auth/AuthRequiredHandler'; // layout으로 이동됨
 import { CategoryId } from '@/features/market/constants';
 import type { McpCardData } from '@/features/market/types';
 import { getLandingMCPData } from '@/services/landing/apis';
@@ -183,6 +184,7 @@ export default async function LandingPage() {
 
   return (
     <AnimatedGradient>
+      {/* AuthRequiredHandler는 layout으로 이동됨 */}
       <div className='flex-1 min-h-screen pt-20'>
         <div className="mt-6 flex flex-col justify-center items-center max-w-7xl mx-auto px-8">
               <h1 className='font-bold text-4xl pt-10 pb-2'>{t('title')}</h1>

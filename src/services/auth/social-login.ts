@@ -115,10 +115,22 @@ export class SocialLoginService {
 
       // 7) 원래 페이지로 리다이렉트
       if (typeof window !== "undefined") {
+        // 우선순위: redirectAfterLogin > returnUrl > 홈
+        const redirectAfterLogin = sessionStorage.getItem("redirectAfterLogin");
         const returnUrl = sessionStorage.getItem("returnUrl");
+        
+        const redirectUrl = redirectAfterLogin || returnUrl || "/";
+        
+        // 세션 스토리지 정리
+        sessionStorage.removeItem("redirectAfterLogin");
         sessionStorage.removeItem("returnUrl");
-        const redirectUrl = returnUrl || "/";
-        console.log("🔄 로그인 성공! 리다이렉트 중...", { redirectUrl });
+        
+        console.log("🔄 로그인 성공! 리다이렉트 중...", { 
+          redirectAfterLogin, 
+          returnUrl, 
+          finalRedirect: redirectUrl 
+        });
+        
         setTimeout(() => {
           window.location.href = redirectUrl;
         }, 1000);

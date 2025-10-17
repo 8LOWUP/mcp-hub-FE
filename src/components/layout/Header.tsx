@@ -4,7 +4,7 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+// import { useSession } from "next-auth/react"; // 커스텀 로그인 시스템 사용
 import { useTranslations } from "next-intl";
 import imageLoader from "@/lib/imageLoader";
 
@@ -28,10 +28,9 @@ const Header: React.FC = () => {
     // Locale translations
     const t = useTranslations('Header');
 
-    // 세션 (로그인 여부)
-    const { status } = useSession();
+    // 로그인 상태 (커스텀 로그인 시스템 사용)
     const { isLoggedIn, user } = useLoginStore();
-    const isAuthed = status === "authenticated" || isLoggedIn;
+    const isAuthed = isLoggedIn;
 
     // locale
     const locale = React.useMemo(() => pathname.split("/")[1] || "en", [pathname]);
@@ -98,7 +97,7 @@ const Header: React.FC = () => {
                     scrolled ? "border-b-2 border-accent" : "border-b border-transparent",
                 ].join(" ")}
             >
-                <div className="max-w-screen-2xl h-full flex items-center justify-between">
+                <div className="max-w-screen h-full flex items-center justify-between">
                     {/* 로고 + Market */}
                     <div className="flex items-center gap-1 md:gap-2">
                         <button

@@ -49,13 +49,27 @@ export const useLoginStore = create<LoginState>()(
 
             setUser: (user) => set({ user }),
 
-            login: (user, accessToken, refreshToken) =>
-                set({ user, accessToken, refreshToken, isLoggedIn: true, error: null }),
+            login: (user, accessToken, refreshToken) => {
+                set({ user, accessToken, refreshToken, isLoggedIn: true, error: null });
+                
+                // 쿠키도 설정 (미들웨어에서 확인용)
+                if (typeof document !== "undefined") {
+                    document.cookie = `accessToken=${accessToken}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7일
+                    document.cookie = `refreshToken=${refreshToken}; path=/; max-age=${30 * 24 * 60 * 60}`; // 30일
+                }
+            },
 
-            logout: () =>
-                set({ isLoggedIn: false, accessToken: null, refreshToken: null, user: null }),
+            logout: () => {
+                set({ isLoggedIn: false, accessToken: null, refreshToken: null, user: null });
+                
+                // 쿠키도 삭제
+                if (typeof document !== "undefined") {
+                    document.cookie = "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                    document.cookie = "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                }
+            },
 
-            // ✅ 하드 로그아웃: 메모리 + 퍼시스트 + 로컬키 + 1회 가드
+            // ✅ 하드 로그아웃: 메모리 + 퍼시스트 + 로컬키 + 쿠키 + 1회 가드
             hardLogout: () => {
                 set({ hasJustDeleted: true });
                 set({ isLoggedIn: false, accessToken: null, refreshToken: null, user: null });
@@ -70,6 +84,12 @@ export const useLoginStore = create<LoginState>()(
                     localStorage.removeItem("login-storage"); // ✅ 추가: persist 저장키 직접 삭제
 
                     sessionStorage.setItem("BLOCK_AUTH_ONCE", "1"); // 1회 차단 플래그
+                }
+
+                // 쿠키도 삭제
+                if (typeof document !== "undefined") {
+                    document.cookie = "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                    document.cookie = "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
                 }
             },
 

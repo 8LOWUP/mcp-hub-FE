@@ -11,7 +11,7 @@ export const AFTER_LOGIN_DEFAULT_BASE_PATH = "/market";
 export const PUBLIC_BASE_PATHS: string[] = ["/", "/market"];           // 정확히 일치용
 export const PUBLIC_PREFIXES: string[] = ["/market"];                   // ex) /market/123
 
-// 보호 prefix (locale 제거한 경로 기준) ✅ 오타 수정 + 업로드 추가
+// 보호 prefix (locale 제거한 경로 기준) - 특정 라우트만 보호
 export const PROTECTED_BASE_PREFIXES: string[] = ["/chat", "/profiles", "/upload"];
 
 export const stripLocale = (pathname: string): { locale: LocaleType; basePath: string } => {

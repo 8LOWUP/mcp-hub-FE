@@ -1,34 +1,25 @@
 "use client";
 
-import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { useLoginStore } from "@/store/login/login-store";
-import { useLoginModalStore } from "@/store/login/login-modal-store";
 
 export default function ProtectedGroupLayout({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-    const router = useRouter();
-    const accessToken = useLoginStore((s) => s.accessToken);
-    const isLoggedIn = !!accessToken;
+    const isLoggedIn = useLoginStore((s) => s.isLoggedIn);
 
-    useEffect(() => {
-        if (isLoggedIn) return;
-
-        const parts = (pathname || "/").split("/").filter(Boolean);
-        const locale = ["ko", "en"].includes(parts[0]) ? parts[0] : "ko";
-        toast.warning("로그인이 필요한 기능입니다.");
-
-        const open = useLoginModalStore.getState().open;
-        if (open) {
-            open();
-            return;
-        }
-
-        const search = typeof window !== "undefined" ? window.location.search : "";
-        router.replace(`/${locale}/login?next=${encodeURIComponent((pathname || "/") + search)}&authRequired=1`);
-    }, [isLoggedIn, pathname, router]);
-
-    if (!isLoggedIn) return null;
+    // 미들웨어에서 이미 인증 확인을 했으므로, 여기서는 단순히 로그인 상태만 확인
+    if (!isLoggedIn) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-foreground mb-4">
+                        로그인이 필요합니다
+                    </h1>
+                    <p className="text-muted-foreground">
+                        이 페이지에 접근하려면 로그인해주세요.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+    
     return <>{children}</>;
 }

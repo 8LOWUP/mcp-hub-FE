@@ -18,7 +18,7 @@ const externalLinks = [
 export default function Footer() {
     return (
         <footer className="bg-surface-1 border-t border-contrast">
-            <div className="max-w-screen-2xl mx-auto px-20 py-8">
+            <div className="max-w-screen mx-auto px-20 py-8">
                 <div className="flex justify-between items-center">
 
                     {/* 왼쪽: 로고 및 서비스 이름 */}
