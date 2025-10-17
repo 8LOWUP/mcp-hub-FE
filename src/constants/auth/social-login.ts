@@ -17,11 +17,18 @@ export const SOCIAL_CLIENT_IDS = {
   github: '', // 깃허브 클라이언트 ID는 환경변수에서 가져올 예정
 } as const;
 
-// 리다이렉트 URI
+// 리다이렉트 URI (환경별 설정)
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+};
+
 export const REDIRECT_URIS = {
-  google: 'http://localhost:3000/auth-callback.html',
-  kakao: 'http://localhost:3000/auth-callback.html',
-  github: 'http://localhost:3000/auth-callback.html',
+  google: `${getBaseUrl()}/auth-callback.html`,
+  kakao: `${getBaseUrl()}/auth-callback.html`,
+  github: `${getBaseUrl()}/auth-callback.html`,
 } as const;
 
 // 소셜 로그인 파라미터 생성 함수
