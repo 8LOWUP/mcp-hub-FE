@@ -1,16 +1,23 @@
 :root {
-  --bg-color-1: red;
-  --bg-color-2: red;
-  --bg-color-3: red;
-  --bg-color-4: red;
+  /* 🌕 Light (화이트 모드) — Neo Neutral */
+  --bg-color-1: #F9FAFB; /* 페이지 전체 */
+  --bg-color-2: #FFFFFF; /* 카드 / 컨테이너 */
+  --bg-color-3: #F3F4F6; /* 호버 영역 */
+  --bg-color-4: #E5E7EB; /* 비활성 / 경계선 */
+  --bg-color-5: #F9FAFB; /* 보조 surface */
 
-  --accent-color-1: #F6E577;
-  --accent-color-2: #E4D46E;
 
-  --text-color-1: #6B7280;
-  --text-color-2: #9CA3AF;
-  --text-color-3: #A0A0A0;
-  --text-color-4: #E0E0E0;
+  /* 라이트 전용 primary(=accent) */
+  --accent-color-1: #2563EB; /* 메인 포인트 */
+  --accent-color-2: #1E40AF; /* hover 포인트 */
+
+  /* 라이트 전용 텍스트 */
+  --text-color-1: #111827; /* 기본 텍스트 */
+  --text-color-2: #374151; /* 보조 텍스트 */
+  --text-color-3: #6B7280; /* 설명/뮤트 */
+  --text-color-4: #9CA3AF; /* placeholder/비활성 */
+
+  --icon-filter: brightness(0) contrast(1);
 }
 
 /* Dark mode (next-themes가 <html class="dark"> 붙여줌) */
@@ -28,6 +35,8 @@
   --text-color-2: #A0A0A0;
   --text-color-3: #9CA3AF;
   --text-color-4: #6B7280;
+
+  --icon-filter: invert(1) brightness(1.1) contrast(1.1);
 }
 
 @layer utilities {
@@ -51,7 +60,7 @@
   .hover\:bg-surface-2:hover  { background-color: var(--bg-color-2); }
   .hover\:bg-surface-3:hover  { background-color: var(--bg-color-3); }
   .hover\:bg-surface-4:hover  { background-color: var(--bg-color-4); }
-  
+
   .bg-accent       { background-color: var(--accent-color-1) }
   .bg-accent-hover { background-color: var(--accent-color-2) }
 
@@ -89,4 +98,6 @@
     cursor: not-allowed;
     opacity: .7;
   }
+  /* 아이콘 색상을 모드에 맞게 강제 전환 */
+  .icon-tone { filter: var(--icon-filter); }
 }
