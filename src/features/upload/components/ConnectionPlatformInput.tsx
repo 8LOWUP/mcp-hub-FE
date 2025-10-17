@@ -1,3 +1,4 @@
+//src/featrues/upload/components/ConnectionPlatformInput.tsx
 "use client";
 import { useState, useEffect, ChangeEvent, forwardRef, KeyboardEvent } from "react";
 
