@@ -175,7 +175,7 @@ const Header: React.FC = () => {
                                 />
                             </svg>
                             {/* sm 이상: 텍스트 표시 */}
-                            <span className="hidden sm:inline text-toggle-1">{t('upload')}</span>
+                            <span className="hidden sm:inline text-black">{t('upload')}</span>
                         </button>
                         <ThemeToggle />
                         <LocaleSwitcher />

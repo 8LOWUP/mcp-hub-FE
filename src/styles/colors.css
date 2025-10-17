@@ -6,7 +6,7 @@
   --bg-color-3: #FFFFFF; /* 입력 컨테이너 */
   --bg-color-4: #E5E7EB; /* 비활성 / 경계선 */
   --bg-color-5: #F9FAFB; /* 보조 surface */
-    --bg-color-6: #F2F2F7; /*마켓페이지 용*/
+  --bg-color-6: #F2F2F7; /*마켓페이지 용*/
 
   /* 라이트 전용 primary(=accent) */
   --accent-color-1: #FFD3D3; /* 메인 포인트, 컴포넌트 카드 */
@@ -20,6 +20,11 @@
 
   --toggle-color-1: #ffffff;
   --toggle-color-2: #000000;
+  
+  /* 아이콘 색상 */
+  --icon-color-1: #000000; /* 라이트모드 아이콘 색상 */
+  --icon-color-2: #666666; /* 라이트모드 아이콘 hover 색상 */
+  --icon-color-3: #ffffff; /* 라이트모드 아이콘 hover 색상 */
 }
 
 /* Dark mode (next-themes가 <html class="dark"> 붙여줌) */
@@ -29,7 +34,7 @@
   --bg-color-3: #404248;
   --bg-color-4: #4B5563;
   --bg-color-5: #1F1F1F;
-    --bg-color-6: #1A1A1A; /*마켓페이지 용*/
+  --bg-color-6: #1A1A1A; /*마켓페이지 용*/
 
   --accent-color-1: #F6E577;
   --accent-color-2: #E4D46E;
@@ -43,6 +48,11 @@
 
   --toggle-color-1: #000000;
   --toggle-color-2: #ffffff;
+  
+  /* 다크모드 아이콘 색상 */
+  --icon-color-1: #ffffff; /* 다크모드 아이콘 색상 */
+  --icon-color-2: #cccccc; /* 다크모드 아이콘 hover 색상 */
+  --icon-color-3: #000000; /* 다크모드 아이콘 hover 색상 */
 }
 
 @layer utilities {
@@ -56,6 +66,11 @@
   .text-toggle-2   { color: var(--toggle-color-2); }
 
   .text-accent     { color: var(--accent-color-1); }
+  
+  /* 아이콘 색상 */
+  .icon-color-1    { color: var(--icon-color-1); }
+  .icon-color-2    { color: var(--icon-color-2); }
+  .icon-color-3    { color: var(--icon-color-3); }
 
   /* Background (surface 층위) */
   .bg-surface-1    { background-color: var(--bg-color-1); } /* 페이지 전체/루트 */
@@ -63,7 +78,7 @@
   .bg-surface-3    { background-color: var(--bg-color-3); } /* 섹션/패널 */
   .bg-surface-4    { background-color: var(--bg-color-4); } /* 카드/비활성 영역 */
   .bg-surface-5    { background-color: var(--bg-color-5); } /* 카드/비활성 영역 */
-    .bg-surface-6    { background-color: var(--bg-color-6); }
+  .bg-surface-6    { background-color: var(--bg-color-6); }
 
   /* Hover helpers (Tailwind와 함께 사용) */
   .hover\:bg-surface-1:hover  { background-color: var(--bg-color-1); }
