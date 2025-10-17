@@ -75,7 +75,7 @@ export default function UploadIcon({ onFileSelect, defaultImageUrl }: UploadIcon
 
     return (
         <div className="mb-6">
-            <label className="block mb-2 text-lg font-semibold text-white">
+            <label className="block mb-2 text-lg font-semibold --text-color-1">
                 Upload Icon
             </label>
 

@@ -24,31 +24,31 @@ const Header: React.FC = () => {
     const router = useRouter();
     const pathnameRaw = usePathname() || "/";
     const pathname = trimSlash(pathnameRaw);
-    
+
     // Locale translations
     const t = useTranslations('Header');
 
-    // 세션 (로그인 여부) - NextAuth와 우리 로그인 스토어 둘 다 확인
+    // 세션 (로그인 여부)
     const { status } = useSession();
     const { isLoggedIn, user } = useLoginStore();
     const isAuthed = status === "authenticated" || isLoggedIn;
 
-    // locale 추출 (URL의 첫 세그먼트)
+    // locale
     const locale = React.useMemo(() => pathname.split("/")[1] || "en", [pathname]);
 
     // 현재 페이지가 locale 루트인지 (예: /ko)
     const isLocaleHome = React.useMemo(() => pathname === `/${locale}`, [pathname, locale]);
 
-    // 헤더 스크롤 스타일
+    // 스크롤 상태 -> 0px 초과일 때만 유리효과 + 경계선/섀도우
     const [scrolled, setScrolled] = React.useState(false);
     React.useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 0);
+        onScroll();
         window.addEventListener("scroll", onScroll);
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-
-    // 로그인 모달 상태(로컬 관리)
+    // 로그인 모달
     const [isLoginOpen, setIsLoginOpen] = React.useState(false);
     const openLogin = () => setIsLoginOpen(true);
     const closeLogin = () => setIsLoginOpen(false);
@@ -71,7 +71,27 @@ const Header: React.FC = () => {
     };
 
     return (
-        <header className="sticky top-0 z-50 shadow-md">
+        <header
+            className={[
+                "sticky top-0 z-50 transition-all duration-300",
+                // 기본은 배경/경계 표시 최소화 → 히어로와 자연스럽게 이어짐
+                scrolled
+                    ? [
+                        // ✅ 스크롤되면 유리 효과 + 반투명 배경 + 경계선 + 살짝 섀도우
+                        "backdrop-blur-md supports-[backdrop-filter]:bg-surface-1/70",
+                        "bg-surface-1/85",
+                        "border-b border-black/10 dark:border-white/10 shadow-sm",
+                    ].join(" ")
+                    : [
+                        // ✅ 최상단에서는 배경/경계 거의 투명 → 메인과 블렌딩
+                        "supports-[backdrop-filter]:backdrop-blur-sm",
+                        "bg-transparent",
+                        "border-b border-transparent",
+                    ].join(" "),
+            ].join(" ")}
+            aria-label="Global header"
+        >
+            {/* 상단 헤더 콘텐츠 */}
             <div
                 className={[
                     "absolute top-0 left-0 right-0 z-50 h-20 px-5 bg-surface-1 transition-colors duration-200",
@@ -86,14 +106,15 @@ const Header: React.FC = () => {
                             className="flex gap-2 cursor-pointer"
                             onClick={() => go(`/${locale}`)}
                         >
-                            <Image 
-                                src="/logo.svg" 
-                                alt="MCP Hub logo" 
-                                width={35} 
-                                height={35} 
-                                priority 
+                            <Image
+                                src="/logo.svg"
+                                alt="MCP Hub logo"
+                                width={35}
+                                height={35}
+                                priority
                                 loader={imageLoader}
                                 unoptimized
+                                className="icon-tone"
                             />
                             <div className="justify-center items-center text-primary hidden md:flex font-bold hover:decoration-accent hover:underline decoration-yellow-200 underline-offset-10">
                                 {"MCP Hub"}
@@ -108,17 +129,17 @@ const Header: React.FC = () => {
                             aria-label={t('market')}
                         >
                             {/* sm 이하: 아이콘만 표시 */}
-                            <svg 
-                                className="w-5 h-5 text-primary sm:hidden" 
-                                fill="none" 
-                                stroke="currentColor" 
+                            <svg
+                                className="w-5 h-5 text-primary sm:hidden"
+                                fill="none"
+                                stroke="currentColor"
                                 viewBox="0 0 24 24"
                             >
-                                <path 
-                                    strokeLinecap="round" 
-                                    strokeLinejoin="round" 
-                                    strokeWidth={2} 
-                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" 
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                                 />
                             </svg>
                             {/* sm 이상: 텍스트 표시 */}
@@ -141,17 +162,17 @@ const Header: React.FC = () => {
                             aria-label={t('upload')}
                         >
                             {/* sm 이하: 아이콘만 표시 */}
-                            <svg 
-                                className="w-5 h-5 sm:hidden" 
-                                fill="none" 
-                                stroke="currentColor" 
+                            <svg
+                                className="w-5 h-5 sm:hidden"
+                                fill="none"
+                                stroke="currentColor"
                                 viewBox="0 0 24 24"
                             >
-                                <path 
-                                    strokeLinecap="round" 
-                                    strokeLinejoin="round" 
-                                    strokeWidth={2} 
-                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                                 />
                             </svg>
                             {/* sm 이상: 텍스트 표시 */}

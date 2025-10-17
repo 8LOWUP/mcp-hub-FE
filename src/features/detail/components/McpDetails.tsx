@@ -19,7 +19,7 @@ export default function McpDetails({ data }: Props) {
         <>
             <div className="flex items-center gap-2 mb-1">
                 <BadgeAlert  className="w-5 h-5"/>
-                <span className="text-white font-bold text-xl tracking-tight">{t('detail')}</span>
+                <span className="--text-color-1 font-bold text-xl tracking-tight">{t('detail')}</span>
             </div>
 
             <TextContainer className="w-full">
@@ -27,7 +27,7 @@ export default function McpDetails({ data }: Props) {
                     {/* Developer Name */}
                     <div className="flex justify-between items-center">
                         <div className="text-secondary">{t('developerName')}</div>
-                        <div className="text-white">
+                        <div className="--text-color-1">
                             {data.developerName || "N/A"}
                         </div>
                     </div>
@@ -35,7 +35,7 @@ export default function McpDetails({ data }: Props) {
                     {/* Published */}
                     <div className="flex justify-between items-center">
                         <div className="text-secondary">{t('published')}</div>
-                        <div className="text-white">
+                        <div className="--text-color-1">
                             {data.publishDate
                                 ? new Date(data.publishDate).toLocaleDateString()
                                 : "N/A"}
@@ -51,7 +51,7 @@ export default function McpDetails({ data }: Props) {
                                     href={data.sourceUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center text-white space-x-2 hover:underline"
+                                    className="flex items-center --text-color-1 space-x-2 hover:underline"
                                 >
                                     <span className="truncate block max-w-[160px] text-right">
                                       {data.sourceUrl}
@@ -67,7 +67,7 @@ export default function McpDetails({ data }: Props) {
                                     />
                                 </a>
                             ) : (
-                                <span className="text-white">N/A</span>
+                                <span className="--text-color-1">N/A</span>
                             )}
                         </div>
                     </div>
@@ -75,7 +75,7 @@ export default function McpDetails({ data }: Props) {
                     {/* License */}
                     <div className="flex justify-between items-center">
                         <div className="text-secondary">License</div>
-                        <div className="text-white">
+                        <div className="--text-color-1">
                             {data.licenseName || "N/A"}
                         </div>
                     </div>
@@ -83,7 +83,7 @@ export default function McpDetails({ data }: Props) {
                     {/* Connection Platform */}
                     <div className="flex justify-between items-center">
                         <div className="text-secondary">Connection Platform</div>
-                        <div className="text-white">
+                        <div className="--text-color-1">
                             {data.platformName || "N/A"}
                         </div>
                     </div>

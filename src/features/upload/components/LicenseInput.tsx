@@ -30,7 +30,7 @@ const LicenseInput = forwardRef<HTMLInputElement, Props>(({ defaultValue, onEnte
 
     return (
         <div className="mb-6">
-            <label className="block mb-2 text-lg font-semibold text-white">{t('license')}</label>
+            <label className="block mb-2 text-lg font-semibold --text-color-2">{t('license')}</label>
 
             <select
                 value={selectedLicense}
@@ -41,7 +41,7 @@ const LicenseInput = forwardRef<HTMLInputElement, Props>(({ defaultValue, onEnte
                         onEnter?.();
                     }
                 }}
-                className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-surface-2 text-white focus:outline-none focus:ring-2 focus:ring-yellow-200 transition"
+                className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-surface-2 --text-color-2 focus:outline-none focus:ring-2 focus:ring-yellow-200 transition"
             >
                 {LICENSES.map((license) => (
                     <option key={license} value={license}>

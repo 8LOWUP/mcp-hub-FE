@@ -19,7 +19,7 @@ type Props = {
     items: MCPCardData[];
 };
 
-const GRID = "grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full mx-auto";
+const GRID = "grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full mx-auto ";
 const GRID_1 = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full mx-auto";
 
 const MarketGrid: React.FC<Props> = ({ items }) => {

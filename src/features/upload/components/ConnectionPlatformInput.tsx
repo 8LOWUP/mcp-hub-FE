@@ -43,7 +43,7 @@ const ConnectionPlatformInput = forwardRef<HTMLInputElement, ConnectionPlatformI
 
         return (
             <div className="mb-5">
-                <label className="block mb-2 text-lg font-semibold text-white">Connection Platform</label>
+                <label className="block mb-2 text-lg font-semibold --text-color-1">Connection Platform</label>
                 <input
                     ref={ref}
                     type="text"
@@ -52,7 +52,7 @@ const ConnectionPlatformInput = forwardRef<HTMLInputElement, ConnectionPlatformI
                     onChange={handleChange}
                     onBlur={handleBlur}
                     onKeyDown={handleKeyDown}
-                    className={`w-full px-3 py-2 border rounded bg-surface-2 text-white focus:outline-none focus:ring-2 transition
+                    className={`w-full px-3 py-2 border rounded bg-surface-2 --text-color-2 focus:outline-none focus:ring-2 transition
             ${warning ? "border-red-500 focus:ring-red-400" : "border-contrast focus:ring-yellow-200"}`}
                 />
                 {warning && (

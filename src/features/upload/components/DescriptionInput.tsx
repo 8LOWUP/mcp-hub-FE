@@ -34,14 +34,14 @@ const DescriptionInput = forwardRef<HTMLTextAreaElement, DescriptionInputProps>(
 
         return (
             <div className="mb-4">
-                <label className="block mb-2 text-lg font-semibold text-white">{t('description')}</label>
+                <label className="block mb-2 text-lg font-semibold --text-color-1">{t('description')}</label>
                 <textarea
                     ref={ref}
                     value={description}
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
                     placeholder={t('descriptionPlaceholder')}
-                    className={`w-full px-3 py-2 border rounded bg-surface-2 text-white focus:outline-none focus:ring-2 transition
+                    className={`w-full px-3 py-2 border rounded bg-surface-2 --text-color-1 focus:outline-none focus:ring-2 transition
             ${warning ? "border-red-500 focus:ring-red-400" : "border-contrast focus:ring-yellow-200"}`}
                 />
                 {warning && <p className="mt-1 text-sm text-red-500 animate-pulse">{t('descriptionLimit')}</p>}

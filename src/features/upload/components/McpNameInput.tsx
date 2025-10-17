@@ -45,7 +45,7 @@ const MCPNameInput = forwardRef<HTMLInputElement, MCPNameInputProps>(
 
         return (
             <div className="mb-4">
-                <label className="block mb-2 text-lg font-semibold text-white">
+                <label className="block mb-2 text-lg font-semibold --text-color-2">
                     {t('mcpName')}
                 </label>
                 <input
@@ -55,7 +55,7 @@ const MCPNameInput = forwardRef<HTMLInputElement, MCPNameInputProps>(
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
                     placeholder={t('mcpNamePlaceholder')}
-                    className={`w-full px-3 py-2 border rounded bg-surface-2 text-white focus:outline-none focus:ring-2 transition
+                    className={`w-full px-3 py-2 border rounded bg-surface-2 --text-color-2 focus:outline-none focus:ring-2 transition
             ${warning ? "border-red-500 focus:ring-red-400" : "border-contrast focus:ring-yellow-200"}`}
                 />
                 {warning && (

@@ -77,7 +77,7 @@ export default function ToolsDescriptionInput({
 
     return (
         <div className="mb-6">
-            <label className="block mb-2 text-lg font-semibold text-white">
+            <label className="block mb-2 text-lg font-semibold --text-color-1">
                 Tools Description
             </label>
 
@@ -87,7 +87,7 @@ export default function ToolsDescriptionInput({
                         <input
                             type="text"
                             placeholder="e.g., Tool name"
-                            className="w-1/3 px-3 py-2 border border-contrast rounded bg-surface-2 text-white focus:outline-none focus:ring-2 focus:ring-yellow-200 transition"
+                            className="w-1/3 px-3 py-2 border border-contrast rounded bg-surface-2 --text-color-2 focus:outline-none focus:ring-2 focus:ring-yellow-200 transition"
                             value={tool.name ?? ""}
                             onChange={(e) =>
                                 handleChange(index, "name", e.target.value)
@@ -96,7 +96,7 @@ export default function ToolsDescriptionInput({
                         <input
                             type="text"
                             placeholder="e.g., Finding word function"
-                            className="w-2/3 px-3 py-2 border border-contrast rounded bg-surface-2 text-white focus:outline-none focus:ring-2 focus:ring-yellow-200 transition"
+                            className="w-2/3 px-3 py-2 border border-contrast rounded bg-surface-2 --text-color-2 focus:outline-none focus:ring-2 focus:ring-yellow-200 transition"
                             value={tool.content ?? ""}
                             onChange={(e) =>
                                 handleChange(index, "content", e.target.value)

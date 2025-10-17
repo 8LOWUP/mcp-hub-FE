@@ -61,7 +61,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
                 PROFILES_STYLES.CARD_BASE,
                 PROFILES_STYLES.CARD_BORDER_HIGHLIGHT,
                 "hover:border-transparent hover:bg-surface-2 active:bg-surface-2",
-                "cursor-pointer transition-colors outline-none",
+                "cursor-pointer transition-colors outline-none bg-surface-6",
                 "focus:ring-2 focus:ring-yellow-300/60 rounded-xl",
             ].join(" ")}
             aria-label={`${item.title} ${t('card')}`}

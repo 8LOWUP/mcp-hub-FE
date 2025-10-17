@@ -21,7 +21,7 @@ const DeveloperNameInput = forwardRef<HTMLInputElement, DeveloperNameInputProps>
 
         return (
             <div className="mb-5">
-                <label className="block mb-2 text-lg font-semibold text-white">Developer Name</label>
+                <label className="block mb-2 text-lg font-semibold --text-color-1">Developer Name</label>
                 <input
                     ref={ref}
                     type="text"
@@ -29,7 +29,7 @@ const DeveloperNameInput = forwardRef<HTMLInputElement, DeveloperNameInputProps>
                     value={val}
                     onChange={(e) => setVal(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="w-full px-3 py-2 border-contrast rounded bg-surface-2 text-white focus:outline-none focus:ring-2 focus:ring-yellow-200 transition"
+                    className="w-full px-3 py-2 border-contrast rounded bg-surface-2 --text-color-2 focus:outline-none focus:ring-2 focus:ring-yellow-200 transition"
                 />
             </div>
         );

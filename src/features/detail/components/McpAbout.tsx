@@ -15,10 +15,10 @@ export default function McpAbout({ about }: Props) {
         <>
             <div className="flex items-center gap-2 mb-1">
                 <FlagTriangleRight className="w-5 h-5"/>
-                <span className="text-white font-bold text-xl tracking-tight">{t('about')}</span>
+                <span className="--text-color-1 font-bold text-xl tracking-tight">{t('about')}</span>
             </div>
 
-            <TextContainer className="w-full border border-contrast text-left tracking-wide leading-relaxed text-white">
+            <TextContainer className="w-full border border-contrast text-left tracking-wide leading-relaxed --text-color-1">
                 {about || t('noDescription')}
             </TextContainer>
         </>

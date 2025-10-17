@@ -1,17 +1,23 @@
 :root {
-  --bg-color-1: red;
-  --bg-color-2: red;
-  --bg-color-3: red;
-  --bg-color-4: red;
+  /* 🌕 Light (화이트 모드) — Neo Neutral */
+  --bg-color-1: #F9FAFB; /* 페이지 전체 */
+  --bg-color-2: #F2F2F7; /* 카드 / 컨테이너 */
 
-  --accent-color-1: #F6E577;
-  --accent-color-2: #E4D46E;
+  --bg-color-3: #FFFFFF; /* 입력 컨테이너 */
+  --bg-color-4: #E5E7EB; /* 비활성 / 경계선 */
+  --bg-color-5: #F9FAFB; /* 보조 surface */
+    --bg-color-6: #F2F2F7; /*마켓페이지 용*/
 
-  --text-color-1: #6B7280;
-  --text-color-2: #9CA3AF;
+  /* 라이트 전용 primary(=accent) */
+  --accent-color-1: #FFD3D3; /* 메인 포인트, 컴포넌트 카드 */
+  --accent-color-2: #E38D8D; /* hover 포인트 */
+
+
+  --text-color-1: #00071E; /*큰제목*/
+  --text-color-2: #35455E; /*상세내용*/
   --text-color-3: #A0A0A0;
   --text-color-4: #E0E0E0;
-  
+
   --toggle-color-1: #ffffff;
   --toggle-color-2: #000000;
 }
@@ -23,6 +29,7 @@
   --bg-color-3: #404248;
   --bg-color-4: #4B5563;
   --bg-color-5: #1F1F1F;
+    --bg-color-6: #1A1A1A; /*마켓페이지 용*/
 
   --accent-color-1: #F6E577;
   --accent-color-2: #E4D46E;
@@ -31,7 +38,9 @@
   --text-color-2: #A0A0A0;
   --text-color-3: #9CA3AF;
   --text-color-4: #6B7280;
-  
+
+  --icon-filter: invert(1) brightness(1.1) contrast(1.1);
+
   --toggle-color-1: #000000;
   --toggle-color-2: #ffffff;
 }
@@ -42,7 +51,7 @@
   .text-secondary  { color: var(--text-color-2); } /* 보조 텍스트 */
   .text-muted      { color: var(--text-color-3); } /* 더 옅은 설명 */
   .text-disabled   { color: var(--text-color-4); } /* 비활성, placeholder 유사 */
-  
+
   .text-toggle-1   { color: var(--toggle-color-1); }
   .text-toggle-2   { color: var(--toggle-color-2); }
 
@@ -54,6 +63,7 @@
   .bg-surface-3    { background-color: var(--bg-color-3); } /* 섹션/패널 */
   .bg-surface-4    { background-color: var(--bg-color-4); } /* 카드/비활성 영역 */
   .bg-surface-5    { background-color: var(--bg-color-5); } /* 카드/비활성 영역 */
+    .bg-surface-6    { background-color: var(--bg-color-6); }
 
   /* Hover helpers (Tailwind와 함께 사용) */
   .hover\:bg-surface-1:hover  { background-color: var(--bg-color-1); }
@@ -97,5 +107,14 @@
     color: var(--text-color-3);
     cursor: not-allowed;
     opacity: .7;
+  }
+  /* 아이콘 래핑: 라이트=무필터(검정), 다크=반전(흰색) */
+  .icon-tone-wrap img,
+  .icon-tone-wrap svg {
+    filter: none;
+  }
+  .dark .icon-tone-wrap img,
+  .dark .icon-tone-wrap svg {
+    filter: invert(1) brightness(1.05) contrast(1.05);
   }
 }
