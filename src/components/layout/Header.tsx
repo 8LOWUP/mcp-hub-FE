@@ -119,17 +119,23 @@ const Header: React.FC = () => {
                         >
                             <span className="text-title5">Upload</span>
                         </PrimaryButton>
-                        <ThemeToggle />
-                        <LocaleSwitcher />
 
-                        {/* 로그인 전: Log In / 로그인 후: 아바타 */}
+                        {/* ✅ 아이콘 색상 강제 래퍼 */}
+                        <div className="icon-tone-wrap">
+                            <ThemeToggle />
+                        </div>
+                        <div className="icon-tone-wrap">
+                            <LocaleSwitcher />
+                        </div>
+
+                        {/* 로그인 전/후 */}
                         {isAuthed ? (
                             <div className="flex items-center gap-2">
                                 <button
                                     type="button"
                                     onClick={handleProfileOrLoginClick}
                                     aria-label="Open profile"
-                                    className="w-8 h-8 mx-1 rounded-full border border-accent-color-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+                                    className="w-8 h-8 mx-1 rounded-full border overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
                                 >
                                     <Image
                                         src={user?.avatarUrl || "/catprofile.svg"}
@@ -141,7 +147,6 @@ const Header: React.FC = () => {
                                         unoptimized
                                     />
                                 </button>
-                                {/* 로그아웃 버튼 */}
                                 <button
                                     type="button"
                                     onClick={() => socialLogin.logout()}
@@ -161,6 +166,7 @@ const Header: React.FC = () => {
                             </PrimaryButton>
                         )}
                     </div>
+
                 </div>
             </div>
 
