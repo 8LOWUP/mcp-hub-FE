@@ -8,6 +8,7 @@ import imageLoader from "@/lib/imageLoader";
 import Image from "next/image";
 import { useState } from "react";
 import { processMcpImageUrl, getFallbackIconProps } from "@/utils/imageUtils";
+import { useTranslations } from "next-intl";
 
 type NewWorkspaceMCPCardProps = {
   id: string;
@@ -24,6 +25,8 @@ export default function NewWorkspaceMCPCard({
   isLoading = false,
   onSelect,
 }: NewWorkspaceMCPCardProps) {
+  // Locale translations
+  const t = useTranslations('ChatPage');
   // MCP 상세 정보 가져오기
   const { data: mcpDetail, isLoading: isDetailLoading } = useMcpDetail(id);
   const [imageError, setImageError] = useState(false);
@@ -37,11 +40,6 @@ export default function NewWorkspaceMCPCard({
   
   // 이미지 URL 처리
   const imageUrl = processMcpImageUrl(rawImageUrl);
-  
-  // 디버깅용 로그
-  console.log('🔍 NewWorkspaceMCPCard - mcpDetail:', mcpDetail);
-  console.log('🔍 NewWorkspaceMCPCard - rawImageUrl:', rawImageUrl);
-  console.log('🔍 NewWorkspaceMCPCard - processed imageUrl:', imageUrl);
   const buttonClass = [
     "h-8 py-0 px-3 text-sm transition-colors",
     selected
@@ -82,7 +80,7 @@ export default function NewWorkspaceMCPCard({
             "text-xs transition-colors duration-300",
             selected ? "text-accent" : "text-secondary",
           ].join(" ")}>
-            {selected ? "선택됨" : "미선택"}
+            {selected ? t('selected') : t('notSelected')}
           </p>
         </div>
       </div>
@@ -90,7 +88,7 @@ export default function NewWorkspaceMCPCard({
       {/* 우측: 사용하기 / 해제 버튼 */}
       <div onClick={(e) => e.stopPropagation()}>
         <PrimaryButton additionalClassName={buttonClass} variant={"custom"} onClick={handleClick}>
-          {selected ? "해제" : "사용"}
+          {selected ? t('remove') : t('use')}
         </PrimaryButton>
       </div>
     </div>

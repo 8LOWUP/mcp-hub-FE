@@ -2,11 +2,14 @@
 import { useState, useEffect, forwardRef, KeyboardEvent } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, XCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type UrlStatus = "valid" | "invalid" | null;
 interface SourceCodeURLInputProps { defaultValue?: string; onEnter?: () => void; }
 
 const SourceCodeURLInput = forwardRef<HTMLInputElement, SourceCodeURLInputProps>(({ defaultValue, onEnter }, ref) => {
+    // Locale translations
+    const t = useTranslations('UploadPage');
     const [url, setUrl] = useState<string>("");
     const [status, setStatus] = useState<UrlStatus>(null);
     const [message, setMessage] = useState<string>("");
@@ -17,7 +20,7 @@ const SourceCodeURLInput = forwardRef<HTMLInputElement, SourceCodeURLInputProps>
         setUrl(value);
         if (!value) { setStatus(null); setMessage(""); return; }
         if (urlRegex.test(value)) { setStatus("valid"); setMessage(""); }
-        else { setStatus("invalid"); setMessage("⚠️ 유효하지 않은 URL 형식입니다."); }
+        else { setStatus("invalid"); setMessage(t('invalidUrlFormat')); }
     };
 
     // ✨ 프리필
@@ -31,12 +34,12 @@ const SourceCodeURLInput = forwardRef<HTMLInputElement, SourceCodeURLInputProps>
 
     return (
         <motion.div className="mb-6 w-full" animate={status === "invalid" ? { x: [-5, 5, -5, 5, 0] } : {}} transition={{ duration: 0.4 }}>
-            <label className="block mb-2 text-lg font-semibold">Source Code URL</label>
+            <label className="block mb-2 text-lg font-semibold">{t('sourceCodeUrl')}</label>
             <div className="relative w-full">
                 <input
                     ref={ref}
                     type="url"
-                    placeholder="https://github.com/username/repo"
+                    placeholder={t('sourceCodeUrlPlaceholder')}
                     value={url}
                     onChange={(e) => checkUrl(e.target.value)}
                     onKeyDown={handleKeyDown}

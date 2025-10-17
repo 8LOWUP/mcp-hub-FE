@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import MCPCard from "@/components/container/McpCard";
 import { McpCardData } from "@/features/market/types";
 import { CATEGORY_PRESET, CategoryId } from "@/features/market/constants";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // 기본 MCP 카드 데이터 생성 함수
-const createDefaultMCPCards = (category: CategoryId): McpCardData[] => {
+const createDefaultMCPCards = (category: CategoryId, t: any): McpCardData[] => {
   const categoryLabels = {
     "web-search": "Web Search",
     "memory": "Memory", 
@@ -58,6 +59,8 @@ interface LandingMarketGridProps {
 }
 
 const LandingMarketGrid: React.FC<LandingMarketGridProps> = ({ category, items }) => {
+  // Locale translations
+  const t = useTranslations('MCPMarket');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -113,7 +116,7 @@ const LandingMarketGrid: React.FC<LandingMarketGridProps> = ({ category, items }
   };
 
   // 데이터가 없으면 기본 카드 사용
-  const displayItems = items?.length > 0 ? items : createDefaultMCPCards(category);
+  const displayItems = items?.length > 0 ? items : createDefaultMCPCards(category, t);
 
   return (
     <div className="w-full">

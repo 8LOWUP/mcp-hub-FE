@@ -1,9 +1,12 @@
 "use client";
 import { useState, useEffect, forwardRef } from "react";
+import { useTranslations } from "next-intl";
 
 interface Props { defaultValue?: string; } // ⬅️ 추가
 
 const TagsInput = forwardRef<HTMLInputElement, Props>(({ defaultValue }, ref) => {
+    // Locale translations
+    const t = useTranslations('UploadPage');
     const tags = ["web server", "memory", "browser", "language", "etc"];
     const [selectedTag, setSelectedTag] = useState<string>("etc");
 
@@ -18,7 +21,7 @@ const TagsInput = forwardRef<HTMLInputElement, Props>(({ defaultValue }, ref) =>
 
     return (
         <div className="mb-6 w-full">
-            <label className="block mb-3 text-lg font-bold">Category</label>
+            <label className="block mb-3 text-lg font-bold">{t('category')}</label>
             <div className="flex flex-wrap gap-4 w-full">
                 {tags.map((tag) => (
                     <span

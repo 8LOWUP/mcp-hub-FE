@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback, useMemo, memo } from "react";
+import { useTranslations } from "next-intl";
 import { useModalStore } from "@/features/chat/modal/modal-store";
 import ModelSelectorModal from "@/features/chat/modal/ModelSelectorModal";
 
@@ -20,6 +21,8 @@ const ChattingInputContainer = memo(function ChattingInputContainer({
   modelsLoading?: boolean;
   selectModel?: (id: string) => void;
 }) {
+  // Locale translations
+  const t = useTranslations('ChatPage');
   const [value, setValue] = useState("");
   const [isComposing, setIsComposing] = useState(false); // 한글 입력 중인지 확인
   const hasText = value.trim().length > 0;
@@ -103,7 +106,7 @@ const ChattingInputContainer = memo(function ChattingInputContainer({
         onKeyDown={handleKeyDown}
         onCompositionStart={handleCompositionStart}
         onCompositionEnd={handleCompositionEnd}
-        placeholder="메시지를 입력하세요…"
+        placeholder={t('messagePlaceholder')}
         rows={1}
         className={[
           // 크기/텍스트/모양

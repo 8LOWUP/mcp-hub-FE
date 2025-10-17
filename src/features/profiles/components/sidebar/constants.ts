@@ -17,7 +17,7 @@ export type SidebarItem = {
 };
 
 export const PROFILE_NAV_ITEMS: SidebarItem[] = [
-    { key: "stored",   label: "Stored MCP",   href: ROUTES.profiles, icon: MonitorPlay },
-    { key: "deployed", label: "Deployed MCP", href: ROUTES.deployed, icon: Package },
-    { key: "support",  label: "Support",      href: ROUTES.support,  icon: HelpCircle },
+    { key: "stored",   label: "storedMcp",   href: ROUTES.profiles, icon: MonitorPlay },
+    { key: "deployed", label: "deployedMcp", href: ROUTES.deployed, icon: Package },
+    { key: "support",  label: "support",      href: ROUTES.support,  icon: HelpCircle },
 ];

@@ -34,7 +34,7 @@ export default function MarketLayout({ children }: { children: React.ReactNode }
             <div className={`flex h-[calc(100vh-var(--header-h))] border-t ${THEME_CLASSES.BORDER_CONTRAST}`}>
                 {/* 사이드바 (md 이상 고정) */}
                 <aside
-                    className={`hidden md:flex w-[${LAYOUT_TOKENS.SIDEBAR_WIDTH_PX}px] shrink-0 border-r ${THEME_CLASSES.BORDER_CONTRAST} h-full`}
+                    className={`hidden md:flex w-60 shrink-0 border-r ${THEME_CLASSES.BORDER_CONTRAST} h-full`}
                 >
                     <div className="sticky top-0 h-full overflow-auto w-full">
                         <SidebarClient />

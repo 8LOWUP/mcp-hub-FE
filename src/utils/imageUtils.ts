@@ -19,7 +19,9 @@ export const processMcpImageUrl = (rawImageUrl?: string | null): string | null =
 
   // https://img.com으로 시작하는 경우 API URL로 변환
   if (rawImageUrl.startsWith('https://img.com')) {
-    return rawImageUrl.replace('https://img.com', process.env.NEXT_PUBLIC_API_URL || 'https://localhost:8080');
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:8080';
+    const cleanApiUrl = apiUrl.replace(/\/+$/, '');
+    return rawImageUrl.replace('https://img.com', `${cleanApiUrl}/img.com`);
   }
 
   // 다른 URL은 그대로 반환

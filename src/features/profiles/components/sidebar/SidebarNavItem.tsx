@@ -3,6 +3,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import { SidebarItem } from "./constants";
 
@@ -12,6 +13,8 @@ type SidebarNavItemProps = {
 };
 
 const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ item, isActive }) => {
+    // Locale translations
+    const t = useTranslations('ProfilePage');
     const router = useRouter();
     const { icon: Icon, label, href } = item;
 
@@ -28,7 +31,7 @@ const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ item, isActive }) => {
                 ].join(" ")}
             >
                 <Icon className="h-5 w-5 shrink-0" aria-hidden />
-                <span className="truncate">{label}</span>
+                <span className="truncate">{t(label)}</span>
             </PrimaryButton>
         </div>
     );

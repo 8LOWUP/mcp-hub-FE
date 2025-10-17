@@ -3,6 +3,7 @@
 
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
+import { useTranslations } from "next-intl";
 
 import ProfileHeader from "../header/ProfileHeader";
 import { ProfileCard } from "../card";
@@ -18,6 +19,8 @@ import { checkWorkspaceMcpToken } from "@/services/workspaces/mcps/check";
 // import { getWorkspaceMcpToken, saveWorkspaceMcpToken } from "@/services/workspaces/mcps/token";
 
 const ProfilePage: React.FC = () => {
+    // Locale translations
+    const t = useTranslations('ProfilePage');
     const { profile, isLoading: isProfileLoading, error: profileError } = useMyProfile();
     const {
         list,
@@ -38,7 +41,7 @@ const ProfilePage: React.FC = () => {
         if (!targetId) return;
         const ok = await deleteOne(targetId);
         toast[ok ? "success" : "error"](
-            ok ? "MCP가 성공적으로 삭제되었습니다." : "MCP 삭제에 실패했습니다."
+            ok ? t('mcpDeleteSuccess') : t('mcpDeleteError')
         );
         setTargetId(null);
     };
@@ -56,7 +59,7 @@ const ProfilePage: React.FC = () => {
         if (!pf) {
             const numericId = Number(mcpId);
             if (Number.isNaN(numericId)) {
-                toast.error("유효하지 않은 MCP ID입니다.");
+                toast.error(t('invalidMcpId'));
                 return;
             }
             try {
@@ -68,7 +71,7 @@ const ProfilePage: React.FC = () => {
         }
 
         if (!pf) {
-            toast.error("이 MCP의 platformId를 찾을 수 없습니다.");
+            toast.error(t('platformIdNotFound'));
             return;
         }
 
@@ -81,7 +84,7 @@ const ProfilePage: React.FC = () => {
         setSelectedPlatformId("");
     };
 
-    const nickname = profile?.nickname ?? "사용자";
+    const nickname = profile?.nickname ?? t('defaultUser');
     const email = profile?.email ?? "";
     const isLoading = isProfileLoading || isMcpsLoading;
     const error = profileError || mcpsError;
@@ -90,7 +93,7 @@ const ProfilePage: React.FC = () => {
         return (
             <section className={PROFILES_STYLES.PAGE_PADDING}>
                 <div className="rounded-2xl bg-surface-2 px-6 py-10 text-center">
-                    <p className="text-title2 font-semibold">데이터 불러오는 중...</p>
+                    <p className="text-title2 font-semibold">{t('loading')}</p>
                 </div>
             </section>
         );
@@ -100,7 +103,7 @@ const ProfilePage: React.FC = () => {
         return (
             <section className={PROFILES_STYLES.PAGE_PADDING}>
                 <div className="rounded-2xl bg-surface-2 px-6 py-10 text-center">
-                    <p className="text-title2 font-semibold text-red-500">데이터 로드 실패</p>
+                    <p className="text-title2 font-semibold text-red-500">{t('loadError')}</p>
                     <p className="mt-2 text-body3 text-secondary">{String(error)}</p>
                 </div>
             </section>
@@ -110,18 +113,18 @@ const ProfilePage: React.FC = () => {
     return (
         <section className={PROFILES_STYLES.PAGE_PADDING}>
             <ProfileHeader
-                title={`${nickname}님의 MCP`}
+                title={t('userMcps', { nickname })}
                 subtitle={
                     email
-                        ? `${email} 계정에서 저장한 MCP를 관리합니다.`
-                        : "자신이 즐겨찾는 MCP를 관리할 수 있습니다."
+                        ? t('manageMcpsFromAccount', { email })
+                        : t('manageFavoriteMcps')
                 }
             />
 
             {list.length === 0 ? (
                 <div className="rounded-2xl bg-surface-2 px-6 py-10 text-center">
-                    <p className="text-title2 font-semibold">저장된 MCP가 없습니다.</p>
-                    <p className="mt-2 text-body3 text-secondary">MCP Market에서 새로운 MCP를 추가해보세요.</p>
+                    <p className="text-title2 font-semibold">{t('noStoredMcps')}</p>
+                    <p className="mt-2 text-body3 text-secondary">{t('addNewMcpsFromMarket')}</p>
                 </div>
             ) : (
                 <>
@@ -148,7 +151,7 @@ const ProfilePage: React.FC = () => {
                                 }}
                                 disabled={page <= 0}
                             >
-                                이전
+                                {t('previous')}
                             </button>
                             <button
                                 className="rounded border px-3 py-1 disabled:opacity-40"
@@ -160,7 +163,7 @@ const ProfilePage: React.FC = () => {
                                 }}
                                 disabled={page >= totalPages - 1}
                             >
-                                다음
+                                {t('next')}
                             </button>
                         </div>
                     )}

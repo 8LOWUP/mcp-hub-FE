@@ -3,18 +3,21 @@
 import TextContainer from "@/components/container/TextContainer";
 import type { getMcpDetailResponse } from "@/types/detail/detail-types";
 import { Hammer } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Props {
     data: getMcpDetailResponse["result"];
 }
 
 export default function MarketTools({ data }: Props) {
+    // Locale translations
+    const t = useTranslations('DetailPage');
     const tools = data?.tools ?? [];
 
     if (tools.length === 0) {
         return (
             <div>
-                <div className="text-secondary font-semibold text-lg">Tools</div>
+                <div className="text-secondary font-semibold text-lg">{t('tools')}</div>
                 <TextContainer className="w-full text-gray-400 text-sm p-4">
                     등록된 Tool이 없습니다.
                 </TextContainer>
@@ -26,13 +29,13 @@ export default function MarketTools({ data }: Props) {
         <>
             <div className="flex items-center gap-2">
                 <Hammer className="w-5 h-5" />
-                <span className="text-white font-bold text-xl tracking-tight">Tools</span>
+                <span className="text-white font-bold text-xl tracking-tight">{t('tools')}</span>
             </div>
             {/* ✅ 전체 배경색 제거 */}
             <TextContainer className="w-full flex flex-col gap-3  border border-contrast bg-transparent">
                 {tools.map((tool, index) => {
-                    const safeName = tool?.name || "이름 없음";
-                    const safeContent = tool?.content || "내용 없음";
+                    const safeName = tool?.name || t('noName');
+                    const safeContent = tool?.content || t('noContent');
 
                     return (
                         <div

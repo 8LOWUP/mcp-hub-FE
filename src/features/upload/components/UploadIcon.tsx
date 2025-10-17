@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, DragEvent, ChangeEvent, useRef } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import imageLoader from "@/lib/imageLoader";
 
@@ -9,6 +10,8 @@ interface UploadIconProps {
 }
 
 export default function UploadIcon({ onFileSelect }: UploadIconProps) {
+    // Locale translations
+    const t = useTranslations('UploadPage');
     const [preview, setPreview] = useState<string | null>(null);
     const [dragOver, setDragOver] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -17,23 +20,17 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
     const handleFile = (file: File) => {
         if (!file) return;
         if (!file.type.startsWith("image/")) {
-            alert("이미지 파일만 업로드 가능합니다.");
+            alert(t('imageOnly'));
             return;
         }
         if (file.size > 10 * 1024 * 1024) {
-            alert("10MB 이하만 업로드 가능합니다.");
+            alert(t('fileSizeLimit'));
             return;
         }
 
         // ✅ 미리보기 URL 생성 (이거 빠져서 안 보였던 거!)
         const previewUrl = URL.createObjectURL(file);
         setPreview(previewUrl);
-
-        console.log("이미지 생성됨:", {
-            name: file.name,
-            type: file.type,
-            size: `${Math.round(file.size / 1024)}KB`,
-        });
 
         // 상위 훅에 전달
         if (onFileSelect) onFileSelect(file);
@@ -97,9 +94,9 @@ export default function UploadIcon({ onFileSelect }: UploadIconProps) {
                                   d="M3 15a4 4 0 01.88-7.903A5.001 5.001 0 0115 6h1a5 5 0 010 10H5a4 4 0 01-2-7.528" />
                         </svg>
                         <p className="cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                            <span className="text-yellow-400 font-medium">Upload a file</span> or drag and drop
+                            <span className="text-yellow-400 font-medium">{t('uploadFile')}</span> {t('dragAndDrop')}
                         </p>
-                        <p className="text-sm text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                        <p className="text-sm text-gray-500">{t('fileFormat')}</p>
                     </div>
                 )}
 

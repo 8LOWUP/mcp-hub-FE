@@ -3,6 +3,7 @@
 import { useState } from "react";
 import BaseModal from "./BaseModal";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 type ModelSelectorModalProps = {
   isOpen: boolean;
@@ -25,6 +26,8 @@ export default function ModelSelectorModal({
   isLoading = false,
   error = null,
 }: ModelSelectorModalProps) {
+  // Locale translations
+  const t = useTranslations('ChatPage');
   const [selectedModel, setSelectedModel] = useState(currentModel);
 
   const handleDirectSelect = (modelId: string) => {
@@ -37,11 +40,11 @@ export default function ModelSelectorModal({
       <div className="bg-surface-2 rounded-2xl z-50 p-2">
         {isLoading ? (
           <div className="p-4 text-center text-sm text-foreground/70">
-            모델 목록을 불러오는 중...
+            {t('loading')}
           </div>
         ) : error ? (
           <div className="p-4 text-center text-sm text-red-500">
-            모델 목록을 불러올 수 없습니다.
+            {t('workspaceError')}
           </div>
         ) : (
           <div className="flex flex-col gap-1">

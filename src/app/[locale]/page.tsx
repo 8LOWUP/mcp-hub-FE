@@ -184,7 +184,7 @@ export default async function LandingPage() {
   return (
     <AnimatedGradient>
       <div className='flex-1 min-h-screen pt-20'>
-        <div className="mt-6 flex flex-col justify-center items-center max-w-7xl mx-auto px-10">
+        <div className="mt-6 flex flex-col justify-center items-center max-w-7xl mx-auto px-8">
               <h1 className='font-bold text-4xl pt-10 pb-2'>{t('title')}</h1>
               <p className='text-secondary mb-5'>{t('about')}</p>
               <LandingChatStartButton />

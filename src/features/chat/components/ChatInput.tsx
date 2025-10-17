@@ -2,6 +2,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
 
 type ChatInputProps = {
   placeholder?: string;
@@ -20,6 +21,8 @@ export default function ChatInput({
   onOpenModal,
   onSend,
 }: ChatInputProps) {
+  // Locale translations
+  const t = useTranslations('ChatPage');
   const [text, setText] = useState(defaultValue);
 
   const send = useCallback(() => {
@@ -78,7 +81,7 @@ export default function ChatInput({
             send();
           }
         }}
-        placeholder={placeholder}
+        placeholder={placeholder || t('messagePlaceholder')}
         disabled={disabled}
         className="flex-1 bg-transparent outline-none placeholder:text-foreground/40 min-w-0 text-sm sm:text-base"
       />

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import BaseModal from "@/components/ui/modal/BaseModal";
 import SocialSignInButton from "./SocialSignInButton";
 import { ProviderId } from "@/features/auth/constants";
@@ -10,6 +11,8 @@ import { useLoginStore } from "@/store/login/login-store";
 type Props = { isOpen: boolean; onClose: () => void };
 
 const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
+    // Locale translations
+    const t = useTranslations('Auth');
     const pathname = usePathname();
     const locale = pathname.split("/")[1] || "en";
     // 필요한 상태만 선택적으로 구독하여 불필요한 리렌더링 방지
@@ -77,7 +80,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             </div>
                             <div className="ml-3">
                                 <h3 className="text-sm font-medium text-red-800">
-                                    로그인 오류
+                                    {t('loginError')}
                                 </h3>
                                 <div className="mt-1 text-sm text-red-700">
                                     {error}
@@ -104,7 +107,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 />
             </div>
             <p className="mt-5 text-center text-muted text-caption">
-                로그인 시 약관 및 개인정보처리방침에 동의합니다.
+                {t('loginAgreement')}
             </p>
         </BaseModal>
     );

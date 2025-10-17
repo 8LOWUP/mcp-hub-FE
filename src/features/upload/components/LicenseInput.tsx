@@ -1,5 +1,6 @@
 "use client";
 import { forwardRef, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 type Props = { defaultValue?: string; onEnter?: () => void };
 
@@ -12,6 +13,8 @@ const LICENSES = [
 ];
 
 const LicenseInput = forwardRef<HTMLInputElement, Props>(({ defaultValue, onEnter }, ref) => {
+    // Locale translations
+    const t = useTranslations('UploadPage');
     const [selectedLicense, setSelectedLicense] = useState<string>("MIT License");
     const [customLicense, setCustomLicense] = useState<string>("");
 
@@ -29,7 +32,7 @@ const LicenseInput = forwardRef<HTMLInputElement, Props>(({ defaultValue, onEnte
 
     return (
         <div className="mb-6">
-            <label className="block mb-2 text-lg font-semibold text-white">License</label>
+            <label className="block mb-2 text-lg font-semibold text-white">{t('license')}</label>
 
             <select
                 value={selectedLicense}
@@ -44,7 +47,7 @@ const LicenseInput = forwardRef<HTMLInputElement, Props>(({ defaultValue, onEnte
             {selectedLicense === "기타" && (
                 <input
                     type="text"
-                    placeholder="직접 입력"
+                    placeholder={t('licensePlaceholder')}
                     value={customLicense}
                     onChange={(e) => setCustomLicense(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onEnter?.(); } }}

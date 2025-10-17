@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 
 import { CATEGORY_MAP, LICENSE_MAP } from "@/constants/upload/constants";
 import MCPNameInput from "@/features/upload/components/McpNameInput";
@@ -75,6 +76,9 @@ const validateBeforePublish = (meta: any) => {
 };
 
 export default function MCPUploadPage() {
+    // Locale translations
+    const t = useTranslations('UploadPage');
+    
     /* ----------------------------- Refs ----------------------------- */
     const refs = {
         mcpNameRef: useRef<HTMLInputElement>(null),
@@ -170,21 +174,21 @@ export default function MCPUploadPage() {
     const handleSave = async () => {
         try {
             setError(null);
-            setMessage(isEditMode ? "Updating MCP metadata..." : "Saving MCP metadata...");
+            setMessage(isEditMode ? t('updatingMetadata') : t('savingMetadata'));
 
             const meta = buildMetaData();
             const fileToSend = file || new File([], "empty.txt");
 
             const res = await saveMcpMetaMutation.mutateAsync({ file: fileToSend, meta });
-            if (!isOk(res.code)) throw new Error(res.message || "메타데이터 저장 실패");
+            if (!isOk(res.code)) throw new Error(res.message || t('metadataSaveFailed'));
 
             if (res.result && !localMcpId) {
                 setLocalMcpId(Number(res.result));
             }
 
-            setMessage(isEditMode ? "✅ MCP metadata updated successfully." : "✅ MCP metadata saved successfully.");
+            setMessage(isEditMode ? t('metadataUpdatedSuccess') : t('metadataSavedSuccess'));
         } catch (err: any) {
-            setError(`❌ Failed to save MCP metadata. ${err?.message ?? ""}`);
+            setError(`${t('metadataSaveError')} ${err?.message ?? ""}`);
             setMessage(null);
         }
     };
@@ -193,13 +197,13 @@ export default function MCPUploadPage() {
     const handleDeploy = async () => {
         try {
             setError(null);
-            setMessage(isEditMode ? "Updating and deploying MCP..." : "Deploying MCP...");
+            setMessage(isEditMode ? t('updatingAndDeploying') : t('deploying'));
 
             // 필수값 검증
             const meta = buildMetaData();
             const errors = validateBeforePublish(meta);
             if (errors.length) {
-                setError(`❌ 배포 전 확인: ${errors.join(" / ")}`);
+                setError(`${t('deployValidationError')} ${errors.join(" / ")}`);
                 setMessage(null);
                 return;
             }
@@ -210,7 +214,7 @@ export default function MCPUploadPage() {
                 const fileToSend = file || new File([], "empty.txt");
                 const saved = await saveMcpMetaMutation.mutateAsync({ file: fileToSend, meta });
                 if (!isOk(saved?.code) || !saved?.result) {
-                    throw new Error(saved?.message || "임시저장 실패: mcpId를 받을 수 없습니다.");
+                    throw new Error(saved?.message || t('tempSaveFailed'));
                 }
                 id = Number(saved.result);
                 setLocalMcpId(id);
@@ -220,11 +224,11 @@ export default function MCPUploadPage() {
             // 배포: PATCH /mcps/dashboard/publish (multipart)
             const fileToSend = file || new File([], "empty.txt");
             const res = await publishMcpMutation.mutateAsync({ file: fileToSend, meta });
-            if (!isOk(res?.code)) throw new Error(res?.message || "배포 실패");
+            if (!isOk(res?.code)) throw new Error(res?.message || t('deployFailed'));
 
-            setMessage(isEditMode ? "🚀 MCP updated & deployed successfully." : "🚀 MCP deployed successfully.");
+            setMessage(isEditMode ? t('mcpUpdatedAndDeployed') : t('mcpDeployedSuccess'));
         } catch (err: any) {
-            setError(`❌ Failed to deploy MCP. ${err?.message ?? ""}`);
+            setError(`${t('deployError')} ${err?.message ?? ""}`);
             setMessage(null);
         }
     };
@@ -234,7 +238,7 @@ export default function MCPUploadPage() {
         return (
             <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
                 <div className="w-full max-w-3xl p-6 bg-surface-1 text-white rounded shadow-lg">
-                    <p className="text-sm opacity-70">기존 내용을 불러오는 중…</p>
+                    <p className="text-sm opacity-70">{t('loadingExistingContent')}</p>
                 </div>
             </div>
         );
@@ -243,7 +247,7 @@ export default function MCPUploadPage() {
         return (
             <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
                 <div className="w-full max-w-3xl p-6 bg-surface-1 text-white rounded shadow-lg">
-                    <p className="text-sm text-red-500">기존 내용 조회 실패. 권한이나 ID를 확인해주세요.</p>
+                    <p className="text-sm text-red-500">{t('contentFetchFailed')}</p>
                 </div>
             </div>
         );
@@ -256,12 +260,12 @@ export default function MCPUploadPage() {
         <div className="flex pt-20 justify-center items-center min-h-screen bg-surface-1 px-4">
             <div className="w-full max-w-3xl p-6 bg-surface-1 text-white rounded shadow-lg">
                 <h1 className="text-2xl font-bold mb-2">
-                    {isEditMode ? "Edit MCP" : "Upload MCP"}
+                    {isEditMode ? t('editMCP') : t('uploadMCP')}
                 </h1>
                 <p className="pb-10 text-muted">
                     {isEditMode
-                        ? "Update your existing MCP information below."
-                        : "Provide the necessary information to share your MCP with the community."}
+                        ? t('editMCPDescription')
+                        : t('uploadMCPDescription')}
                 </p>
 
                 <form key={detail?.id ?? "new"} className="space-y-4">
@@ -313,7 +317,7 @@ export default function MCPUploadPage() {
                     <UploadIcon onFileSelect={handleFileSelect} />
                     {file && (
                         <p className="text-sm text-green-400 mt-1">
-                            ✅ 선택된 파일: {file.name} ({Math.round(file.size / 1024)} KB)
+                            ✅ {t('selectedFile')}: {file.name} ({Math.round(file.size / 1024)} KB)
                         </p>
                     )}
 
@@ -331,7 +335,7 @@ export default function MCPUploadPage() {
                                 isLoading ? "opacity-50 cursor-not-allowed" : "hover:underline hover:decoration-accent underline-offset-8"
                             }`}
                         >
-                            {isEditMode ? "Update" : "Storage"}
+                            {isEditMode ? t('update') : t('storage')}
                         </button>
                         <button
                             type="button"
@@ -341,7 +345,7 @@ export default function MCPUploadPage() {
                                 isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-accent-hover"
                             }`}
                         >
-                            {isEditMode ? "Update & Deploy" : "Deploy"}
+                            {isEditMode ? t('updateAndDeploy') : t('deploy')}
                         </button>
                     </div>
                 </form>

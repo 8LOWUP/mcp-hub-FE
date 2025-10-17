@@ -5,6 +5,7 @@ import React from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import imageLoader from "@/lib/imageLoader";
 
 import LocaleSwitcher from "@/components/ui/LocaleSwitcher";
@@ -23,6 +24,9 @@ const Header: React.FC = () => {
     const router = useRouter();
     const pathnameRaw = usePathname() || "/";
     const pathname = trimSlash(pathnameRaw);
+    
+    // Locale translations
+    const t = useTranslations('Header');
 
     // 세션 (로그인 여부) - NextAuth와 우리 로그인 스토어 둘 다 확인
     const { status } = useSession();
@@ -69,39 +73,39 @@ const Header: React.FC = () => {
         <header className="sticky top-0 z-50 shadow-md">
             <div
                 className={[
-                    "absolute top-0 left-0 right-0 z-50 h-20 px-10 bg-surface-1 transition-colors duration-200",
+                    "absolute top-0 left-0 right-0 z-50 h-20 px-5 bg-surface-1 transition-colors duration-200",
                     scrolled ? "border-b-2 border-accent" : "border-b border-transparent",
                 ].join(" ")}
             >
-                <div className="max-w-screen-2xl h-full flex items-center justify-between px-6">
+                <div className="max-w-screen-2xl h-full flex items-center justify-between">
                     {/* 로고 + Market */}
-                    <div className="flex items-center gap-2">
-                        <Image 
-                            src="/logo.svg" 
-                            alt="MCP Hub logo" 
-                            width={24} 
-                            height={24} 
-                            priority 
-                            loader={imageLoader}
-                            unoptimized
-                        />
+                    <div className="flex items-center gap-4">
                         <button
                             type="button"
-                            className="flex flex-col cursor-pointer"
+                            className="flex gap-2 cursor-pointer"
                             onClick={() => go(`/${locale}`)}
                         >
-              <span className="text-primary font-bold hover:decoration-accent hover:underline decoration-yellow-200 underline-offset-10">
-                MCP Hub
-              </span>
+                            <Image 
+                                src="/logo.svg" 
+                                alt="MCP Hub logo" 
+                                width={35} 
+                                height={35} 
+                                priority 
+                                loader={imageLoader}
+                                unoptimized
+                            />
+                            <div className="justify-center items-center text-primary hidden md:flex font-bold hover:decoration-accent hover:underline decoration-yellow-200 underline-offset-10">
+                                {"MCP Hub"}
+                            </div>
                         </button>
 
                         <button
                             type="button"
-                            className="cursor-pointer px-4 py-2 rounded-md flex items-center justify-center relative"
+                            className="cursor-pointer rounded-md md:flex items-center justify-center relative hidden"
                             onClick={() => go(`/${locale}/market`)}
                         >
               <span className="hidden md:flex text-primary font-semibold hover:decoration-accent hover:underline decoration-yellow-200 underline-offset-10">
-                MCP Market
+                {t('market')}
               </span>
                         </button>
                     </div>
@@ -117,7 +121,7 @@ const Header: React.FC = () => {
                             variant="primary"
                             size="md"
                         >
-                            <span className="text-title5">Upload</span>
+                            <span className="text-title5">{t('upload')}</span>
                         </PrimaryButton>
                         <ThemeToggle />
                         <LocaleSwitcher />
@@ -147,7 +151,7 @@ const Header: React.FC = () => {
                                     onClick={() => socialLogin.logout()}
                                     className="hidden md:block text-xs text-muted hover:text-primary transition-colors"
                                 >
-                                    Logout
+                                    {t('logout')}
                                 </button>
                             </div>
                         ) : (
@@ -157,7 +161,7 @@ const Header: React.FC = () => {
                                 size="sm"
                                 additionalClassName="py-2 px-2"
                             >
-                                Log In
+                                {t('login')}
                             </PrimaryButton>
                         )}
                     </div>
