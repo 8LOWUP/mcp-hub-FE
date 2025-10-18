@@ -14,15 +14,8 @@
 /coverage
 
 #.env files
-.env.local
-.env.development
+.env.local.test
 .env.production
-.env.test
-.env.development.local
-.env.production.local
-.env.test.local
-.env.development.local.example
-.env.production.local.example
 
 # next.js
 /.next/
