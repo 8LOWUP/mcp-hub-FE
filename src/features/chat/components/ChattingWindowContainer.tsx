@@ -259,12 +259,12 @@ export default function ChattingWindowContainer({
         <div
           ref={scrollContainerRef}
           className={clsx(
-            "flex flex-col h-full w-full overflow-y-scroll transition-all duration-300 px-2",
+            "flex flex-col h-full w-full overflow-y-auto transition-all duration-300 px-2",
             // 입력창 공간 확보 (하단 패딩: 입력 박스 높이)
-            "pb-28 scrollbar-gutter-stable scrollbar-gutter-both-edges"
+            "pb-28 scrollbar-hide"
           )}
         >
-          <div className="max-w-2xl mx-auto w-full px-2 py-1 overflow-y-scroll">
+          <div className="max-w-2xl mx-auto w-full px-2 py-1">
             {(isLoading && !isNew) || (isCreatingWorkspace && !tempUserMessage) ? (
               <LoadingSkeleton />
             ) : error ? (
@@ -365,7 +365,7 @@ export default function ChattingWindowContainer({
         {/* ✅ 입력창: 같은 DOM 유지, 위치만 transform으로 이동 */}
         <div
           className={clsx(
-            "absolute left-1/2 -translate-x-1/2 w-full max-w-2xl bottom-0 transition-transform duration-300"
+            "absolute left-1/2 -translate-x-1/2 w-full max-w-2xl mt-3 bottom-0 transition-transform duration-300 bg-surface-5"
           )}
         >
           <ChatContainer 

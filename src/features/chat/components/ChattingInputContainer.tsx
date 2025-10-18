@@ -113,8 +113,8 @@ const ChattingInputContainer = memo(function ChattingInputContainer({
           "w-full bg-transparent outline-none text-secondary break-all resize-none",
           // 텍스트 사이즈 & 내부 패딩: 반응형
           "text-base px-4 py-1",
-          // 자동 리사이즈 + 최대높이 도달 시 내부 스크롤
-          "resize-none overflow-y-auto",
+          // 자동 리사이즈 + 최대높이 도달 시 내부 스크롤 (스크롤바 숨김)
+          "resize-none overflow-y-auto scrollbar-hide",
           // 최대 높이: 디바이스별
           "max-h-[140px] ",
           // 색상 토큰

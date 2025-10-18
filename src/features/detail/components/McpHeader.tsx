@@ -86,7 +86,7 @@ export default function MarketHeader({ data, isSaved }: Props) {
                     {/* 오른쪽: 다운로드 수 */}
                     <div className="flex items-center gap-1">
                         <Image
-                            src="/downloader.svg"
+                            src="/downLoader.svg"
                             alt="Downloader Icon"
                             width={16}
                             height={16}

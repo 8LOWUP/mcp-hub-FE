@@ -10,7 +10,7 @@ const nextConfig : NextConfig = {
     loader: 'custom',
     loaderFile: './src/lib/imageLoader.js',
     // 간단히 domains 사용
-    domains: ["img.com", "k.kakaocdn.net"], // ✅ 카카오 CDN 추가
+    domains: ["img.com", "k.kakaocdn.net", "mcphubcorp.site"], // ✅ 새로운 이미지 서버 추가
     remotePatterns: [
       {
         protocol: 'http',
@@ -22,6 +22,16 @@ const nextConfig : NextConfig = {
         protocol: 'https',
         hostname: '61.109.236.22',
         pathname: '/mcps/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'mcphubcorp.site',
+        pathname: '/mcps/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'mcphubcorp.site',
+        pathname: '/img.com/**',
       },
     ],
   },

@@ -22,7 +22,7 @@ const processImageUrl = (path?: string | null) => {
     
     // https://img.com으로 시작하는 경우 API URL로 변환
     if (path.startsWith('https://img.com')) {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:8080';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://mcphubcorp.site';
         const cleanApiUrl = apiUrl.replace(/\/+$/, '');
         return path.replace('https://img.com', `${cleanApiUrl}/img.com`);
     }
