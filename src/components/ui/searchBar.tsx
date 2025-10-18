@@ -28,6 +28,14 @@ const processImageUrl = (path?: string | null) => {
     }
     
     if (/^https?:\/\//i.test(path)) return path; // 절대 URL은 그대로
+    
+    // /mcps로 시작하는 경우 API URL을 붙임
+    if (path.startsWith('/mcps')) {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://mcphubcorp.site';
+        const cleanApiUrl = apiUrl.replace(/\/+$/, '');
+        return `${cleanApiUrl}${path}`;
+    }
+    
     // 중복 슬래시 방지
     return path.startsWith("/") ? `/__api${path}` : `/__api/${path}`;
 };
