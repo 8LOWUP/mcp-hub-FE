@@ -58,7 +58,7 @@ const MCPCard: React.FC<MCPCardProps> = ({
     };
 
     //const safeIconSrc = buildImageUrl(iconSrc);
-    const safeIconSrc = processMcpImageUrl(iconSrc);
+    const safeIconSrc = processMcpImageUrl(iconSrc) || "/default-mcp-logo.svg";
 
     const locale = useLocale();
 
