@@ -12,6 +12,11 @@
   /*  --font-mono: var(--font-geist-mono);*/
 }
 
+/* 전역 폰트 설정 */
+body {
+  font-family: 'Pretendard', system-ui, sans-serif;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

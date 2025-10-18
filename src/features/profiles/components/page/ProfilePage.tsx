@@ -13,6 +13,7 @@ import { PROFILE_GRID_COLS, PROFILES_STYLES } from "../../constants";
 
 import { useMyProfile } from "@/hooks/profiles/useMyProfile";
 import { useMyMcps } from "@/features/profiles/hooks/useMyMcps";
+import { ProfileGridSkeleton } from "../ui/Skeleton";
 
 import { checkWorkspaceMcpToken } from "@/services/workspaces/mcps/check";
 // ⛳ 아래 두 줄은 더 이상 필요 없습니다.
@@ -89,15 +90,6 @@ const ProfilePage: React.FC = () => {
     const isLoading = isProfileLoading || isMcpsLoading;
     const error = profileError || mcpsError;
 
-    if (isLoading) {
-        return (
-            <section className={PROFILES_STYLES.PAGE_PADDING}>
-                <div className="rounded-2xl bg-surface-2 px-6 py-10 text-center">
-                    <p className="text-title2 font-semibold">{t('loading')}</p>
-                </div>
-            </section>
-        );
-    }
 
     if (error) {
         return (
@@ -121,7 +113,9 @@ const ProfilePage: React.FC = () => {
                 }
             />
 
-            {list.length === 0 ? (
+            {isLoading ? (
+                <ProfileGridSkeleton count={2} />
+            ) : list.length === 0 ? (
                 <div className="rounded-2xl bg-surface-2 px-6 py-10 text-center">
                     <p className="text-title2 font-semibold">{t('noStoredMcps')}</p>
                     <p className="mt-2 text-body3 text-secondary">{t('addNewMcpsFromMarket')}</p>

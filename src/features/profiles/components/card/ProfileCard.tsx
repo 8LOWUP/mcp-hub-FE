@@ -1,11 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { McpItemType } from "../../types/mcps";
 import { PROFILES_STYLES } from "../../constants";
 import SecondaryButton from "@/components/ui/SecondaryButton";
+import { processMcpImageUrl } from "@/utils/imageUtils";
+import Image from "next/image";
+import imageLoader from "@/lib/imageLoader";
 
 type ProfileCardProps = {
     item: McpItemType;
@@ -20,6 +23,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
     const router = useRouter();
     const pathname = usePathname();
     const locale = pathname.split("/")[1] || "en";
+    const [imageError, setImageError] = useState(false);
 
     const mcpId = item.mcpId ?? Number(item.id);
 
@@ -51,6 +55,9 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
         onClose?.(item.id);
     };
 
+
+    const safeIconSrc = processMcpImageUrl(item.imageUrl) || "/default-mcp-logo.svg";
+    
     return (
         <article
             onClick={handleOpenDetail}
@@ -67,7 +74,26 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ item, onClickApiKey, onClose 
             aria-label={`${item.title} ${t('card')}`}
         >
             <div className="flex items-start justify-between">
-                <h2 className={PROFILES_STYLES.CARD_TITLE}>{item.title}</h2>
+                <div className="flex items-center gap-3">
+                    {!imageError ? (
+                        <Image
+                            src={safeIconSrc}
+                            alt={`${item.title} MCP Logo`}
+                            width={35}
+                            height={35}
+                            className="w-11 h-11 ml-1 flex-shrink-0"
+                            onError={() => setImageError(true)}
+                            loader={imageLoader}
+                            unoptimized
+                        />
+                    ) : (
+                        <div className="w-11 h-11 ml-1 flex-shrink-0 flex items-center justify-center bg-surface-2 rounded text-xs text-secondary font-bold">
+                            {item.title.charAt(0).toUpperCase()}
+                        </div>
+                    )}
+                    <h2 className={PROFILES_STYLES.CARD_TITLE}>{item.title}</h2>
+                </div>
+               
                 <button
                     type="button"
                     aria-label={t('closeCard')}

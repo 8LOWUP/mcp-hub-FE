@@ -42,7 +42,7 @@ export default function ProfilesLayout({ children }: { children: React.ReactNode
 
                 {/* 메인 콘텐츠 */}
                 <main className="flex-1 h-full overflow-y-auto">
-                    <div className="min-h-full px-6 pb-24 pt-6">{children}</div>
+                    <div className="min-h-full p-6 pb-24">{children}</div>
                 </main>
             </div>
 

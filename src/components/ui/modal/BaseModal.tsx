@@ -62,10 +62,6 @@ const BaseModal: React.FC<BaseModalProps> = ({
         if (e.target === e.currentTarget) onClose();
     };
 
-    if (isOpen && mounted) {
-        console.log('[BaseModal] 렌더링됨 - 포털 생성됨');
-    }
-
     return createPortal(
         <div
             className="fixed inset-0 z-[100000] flex items-center justify-center"

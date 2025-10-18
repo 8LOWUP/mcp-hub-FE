@@ -45,8 +45,6 @@ function getLocale(pathname: string): string {
 
 export function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
-    
-    console.log("🚀 Middleware 시작:", { pathname });
 
     // 1. 정적 파일, API 경로는 패스
     if (
@@ -90,13 +88,12 @@ export function middleware(req: NextRequest) {
             redirectUrl.searchParams.set("authRequired", "1");
             redirectUrl.searchParams.set("redirectTo", pathname);
             
-            console.log("🚫 로그인 필요 - 리다이렉트:", redirectUrl.toString());
+            console.log("🔒 로그인 필요 - 리다이렉트:", redirectUrl.toString());
             return NextResponse.redirect(redirectUrl);
         }
     }
 
-    // 4. 일반 경로는 next-intl 처리
-    console.log("✅ 일반 경로 처리:", pathname);
+    // 4. 국제화 처리
     return intlMiddleware(req);
 }
 

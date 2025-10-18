@@ -7,7 +7,12 @@ const tailwindConfig = {
         './components/**/*.{js,ts,jsx,tsx}',
     ],
     theme: {
-        extend: {},
+        extend: {
+            fontFamily: {
+                'sans': ['Pretendard', 'system-ui', 'sans-serif'],
+                'pretendard': ['Pretendard', 'system-ui', 'sans-serif'],
+            },
+        },
     },
     plugins: [
         plugin(function({ addUtilities }) {

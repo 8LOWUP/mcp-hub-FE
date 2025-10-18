@@ -11,10 +11,5 @@ export default function GlobalLoginModal() {
     const isOpen = useLoginModalStore((state) => state.isOpen);
     const close = useLoginModalStore((state) => state.close);
 
-    console.log("🔍 GlobalLoginModal - 상태 확인:", {
-        isOpen,
-        timestamp: new Date().toISOString()
-    });
-
     return <LoginModal isOpen={isOpen} onClose={close} />;
 }

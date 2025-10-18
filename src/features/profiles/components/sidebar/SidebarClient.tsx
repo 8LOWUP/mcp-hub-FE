@@ -14,8 +14,9 @@ export default function SidebarClient() {
 
     const active: SidebarKeyType =
         segs.includes("deployed") ? "deployed" :
-            segs.includes("support")  ? "support"  :
-                "stored";
+            segs.includes("llm-manage") ? "llmManage" :
+                segs.includes("support")  ? "support"  :
+                    "stored";
 
     return <ProfileSidebar activeKey={active} username={t('defaultUser')} />;
 }

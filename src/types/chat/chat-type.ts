@@ -163,7 +163,11 @@ export type getAllLLMListResponse = {
 }
 
 // 사용자 LLM 토큰 조회
-export type getLLMTokenCheckResponse = CommonResponse<LLMTokenInfo[]>
+export type getLLMTokenCheckResponse = CommonResponse<{
+  llmId: string;
+  exists: boolean;
+  llmToken: string;
+}>
 
 // LLM 토큰 입력
 export type postSettingLLMTokenRequestBody = {

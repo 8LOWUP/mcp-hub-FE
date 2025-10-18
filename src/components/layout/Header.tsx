@@ -20,7 +20,6 @@ import { socialLogin } from "@/services/auth/social-login";
 const trimSlash = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
 
 const Header: React.FC = () => {
-    console.log("🔍 Header 컴포넌트 렌더링됨");
     const router = useRouter();
     const pathnameRaw = usePathname() || "/";
     const pathname = trimSlash(pathnameRaw);

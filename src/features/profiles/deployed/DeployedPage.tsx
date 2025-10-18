@@ -11,6 +11,7 @@ import DeleteMcpFlowModal from "@/features/profiles/components/modals/DeleteMcpF
 import { useMyUploadedMcps } from "./hooks/useMyUploadedMcps";
 import { deleteMyUploadedMcp } from "./apis/mcp";
 import { mapToCard } from "./utils/map";
+import { DeployedGridSkeleton, DraftGridSkeleton } from "../components/ui/Skeleton";
 
 const DeployedPage: React.FC = () => {
     // Locale translations
@@ -76,9 +77,7 @@ const DeployedPage: React.FC = () => {
                 </div>
 
                 {isLoading && (
-                    <div className="rounded-2xl bg-surface-2 px-6 py-8 text-center text-body3 text-secondary">
-                        {t('loading')}
-                    </div>
+                    <DeployedGridSkeleton count={3} />
                 )}
                 {error && (
                     <div className="rounded-2xl bg-red-50 px-6 py-4 text-center text-body3 text-red-500">
@@ -104,8 +103,8 @@ const DeployedPage: React.FC = () => {
                                     {t('previous')}
                                 </button>
                                 <span className="text-sm opacity-70">
-                  {Number(pagination.page ?? 0) + 1} / {pagination.totalPages}
-                </span>
+                                    {Number(pagination.page ?? 0) + 1} / {pagination.totalPages}
+                                </span>
                                 <button
                                     className="px-3 py-2 rounded-md border text-sm"
                                     disabled={pagination.isLast}
@@ -133,14 +132,15 @@ const DeployedPage: React.FC = () => {
                     <p className="text-body3 text-secondary">{t('draftMcpsDescription')}</p>
                 </div>
 
-                {!isLoading && !error && drafts.length ? (
+                {isLoading ? (
+                    <DraftGridSkeleton count={3} />
+                ) : !error && drafts.length ? (
                     <div className={PROFILE_GRID_COLS}>
                         {drafts.map((item) => (
                             <DraftCard key={item.id} item={item} onEdit={handleEditDraft} />
                         ))}
                     </div>
                 ) : (
-                    !isLoading &&
                     !error && (
                         <div className="rounded-2xl bg-surface-2 px-6 py-8 text-center text-body3 text-secondary">
                             {t('noDraftMcps')}

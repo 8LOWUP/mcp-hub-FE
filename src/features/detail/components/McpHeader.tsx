@@ -5,6 +5,7 @@ import type { getMcpDetailResponse } from "@/types/detail/detail-types";
 import imageLoader from "@/lib/imageLoader";
 import{useLoginStore } from "@/store/login/login-store";
 import { processMcpImageUrl } from "@/utils/imageUtils";
+import { useState } from "react";
 
 interface Props {
     data: getMcpDetailResponse["result"];
@@ -13,7 +14,7 @@ interface Props {
 
 export default function MarketHeader({ data, isSaved }: Props) {
     const {isLoggedIn} = useLoginStore();
-
+    const [imageError, setImageError] = useState(false);
     const safeLogo = processMcpImageUrl(data.imageUrl) || "/placeholder.png";
     const safeName = data.name || "이름 없음";
     const safeTag = data.categoryName || "태그 없음";
@@ -23,15 +24,21 @@ export default function MarketHeader({ data, isSaved }: Props) {
     return (
         <div className="flex items-center gap-4">
             {/* MCP 로고 */}
-            <Image
-                src={safeLogo}
-                alt={`${safeName} logo`}
-                width={100}
-                height={100}
-                className="rounded-lg object-contain w-25 h-25 overflow-hidden"
-                loader={imageLoader}
-                unoptimized
-            />
+            {!imageError ? (
+                <Image
+                    src={safeLogo}
+                    alt={`${safeName} MCP Logo`}
+                    width={100}
+                    height={100}
+                    onError={() => setImageError(true)}
+                    loader={imageLoader}
+                    unoptimized
+                />
+            ) : (
+                <div className="w-25 h-25 ml-1 flex-shrink-0 flex items-center justify-center bg-surface-2 rounded text-lg text-secondary font-bold">
+                    {safeName.charAt(0).toUpperCase()}
+                </div>
+            )}
 
             <div className="flex-1">
                 {/* MCP 이름 */}

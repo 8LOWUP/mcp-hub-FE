@@ -1,5 +1,3 @@
-'use client';
-
 import PrimaryButton from '@/components/ui/PrimaryButton';
 import SecondaryButton from '@/components/ui/SecondaryButton';
 import { 
@@ -15,9 +13,17 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-export default function SupportPage() {
+interface SupportPageProps {
+  params: Promise<{ locale: string }>;
+}
 
-  const supportSections = [
+export default async function SupportPage({ params }: SupportPageProps) {
+  const { locale } = await params;
+  
+  // Locale에 따른 내용 설정
+  const isKorean = locale === 'ko';
+  
+  const supportSections = isKorean ? [
     {
       icon: <HelpCircle className="w-6 h-6" />,
       title: "자주 묻는 질문",
@@ -51,9 +57,43 @@ export default function SupportPage() {
         "소셜 미디어 팔로우"
       ]
     }
+  ] : [
+    {
+      icon: <HelpCircle className="w-6 h-6" />,
+      title: "Frequently Asked Questions",
+      description: "Check out frequently asked questions about using MCP Hub.",
+      items: [
+        "What is MCP?",
+        "How do I upload an MCP?",
+        "How do I use the chat feature?",
+        "Where do I configure my account?"
+      ]
+    },
+    {
+      icon: <Mail className="w-6 h-6" />,
+      title: "Contact Us",
+      description: "Feel free to contact us if you have any questions.",
+      items: [
+        "Technical Support: support@mcphub.com",
+        "Business Inquiries: business@mcphub.com",
+        "Bug Reports: bug@mcphub.com",
+        "Feedback: feedback@mcphub.com"
+      ]
+    },
+    {
+      icon: <MessageSquare className="w-6 h-6" />,
+      title: "Community",
+      description: "Connect with other users and share information.",
+      items: [
+        "Join Discord Server",
+        "GitHub Discussions",
+        "Official Blog",
+        "Follow Social Media"
+      ]
+    }
   ];
 
-  const policies = [
+  const policies = isKorean ? [
     {
       title: "서비스 이용약관",
       description: "MCP Hub 서비스 이용에 관한 약관입니다.",
@@ -74,10 +114,67 @@ export default function SupportPage() {
       description: "MCP 및 관련 콘텐츠의 지적재산권에 관한 정책입니다.",
       lastUpdated: "2024.01.15"
     }
+  ] : [
+    {
+      title: "Terms of Service",
+      description: "Terms and conditions for using MCP Hub service.",
+      lastUpdated: "2024.01.15"
+    },
+    {
+      title: "Privacy Policy",
+      description: "Policy regarding collection, use, and storage of personal information.",
+      lastUpdated: "2024.01.15"
+    },
+    {
+      title: "Cookie Policy",
+      description: "Policy regarding cookies used on the website.",
+      lastUpdated: "2024.01.15"
+    },
+    {
+      title: "Intellectual Property Policy",
+      description: "Policy regarding intellectual property rights of MCPs and related content.",
+      lastUpdated: "2024.01.15"
+    }
   ];
 
+  const content = isKorean ? {
+    title: "MCP Hub 지원 센터",
+    subtitle: "MCP Hub를 더 잘 활용할 수 있도록 도와드립니다. 궁금한 점이 있으시면 언제든지 문의해주세요.",
+    aboutTitle: "MCP Hub 소개",
+    globalMarketplace: "글로벌 MCP 마켓플레이스",
+    globalMarketplaceDesc: "전 세계 개발자들이 만든 다양한 MCP를 한 곳에서 발견하고 사용하세요.",
+    communityDriven: "커뮤니티 중심",
+    communityDrivenDesc: "개발자들과 소통하며 새로운 아이디어를 공유하고 협업하세요.",
+    safeReliable: "안전하고 신뢰할 수 있는",
+    safeReliableDesc: "모든 MCP는 검증 과정을 거쳐 안전하게 제공됩니다.",
+    policiesTitle: "정책 및 약관",
+    policiesDesc: "MCP Hub 서비스 이용에 관한 중요한 정책들을 확인하세요.",
+    stillNeedHelp: "여전히 도움이 필요하신가요?",
+    stillNeedHelpDesc: "위의 정보로도 해결되지 않는 문제가 있으시면 언제든지 문의해주세요. 빠른 시간 내에 답변드리겠습니다.",
+    contactEmail: "이메일로 문의하기",
+    liveChat: "실시간 채팅",
+    learnMore: "자세히 보기"
+  } : {
+    title: "MCP Hub Support Center",
+    subtitle: "We help you make the most of MCP Hub. Feel free to contact us if you have any questions.",
+    aboutTitle: "About MCP Hub",
+    globalMarketplace: "Global MCP Marketplace",
+    globalMarketplaceDesc: "Discover and use diverse MCPs created by developers worldwide in one place.",
+    communityDriven: "Community-Driven",
+    communityDrivenDesc: "Communicate with developers, share new ideas, and collaborate.",
+    safeReliable: "Safe and Reliable",
+    safeReliableDesc: "All MCPs go through verification process and are provided safely.",
+    policiesTitle: "Policies & Terms",
+    policiesDesc: "Check out important policies for using MCP Hub service.",
+    stillNeedHelp: "Still Need Help?",
+    stillNeedHelpDesc: "If the information above doesn't solve your problem, feel free to contact us anytime. We'll get back to you quickly.",
+    contactEmail: "Contact by Email",
+    liveChat: "Live Chat",
+    learnMore: "Learn More"
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen mt-20 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header Section */}
         <div className="text-center mb-12">
@@ -87,11 +184,10 @@ export default function SupportPage() {
             </div>
           </div>
           <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">
-            MCP Hub 지원 센터
+            {content.title}
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-            MCP Hub를 더 잘 활용할 수 있도록 도와드립니다. 
-            궁금한 점이 있으시면 언제든지 문의해주세요.
+            {content.subtitle}
           </p>
         </div>
 
@@ -100,7 +196,7 @@ export default function SupportPage() {
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold flex items-center justify-center gap-2 text-slate-900 dark:text-white">
               <Zap className="w-6 h-6 text-yellow-500" />
-              MCP Hub 소개
+              {content.aboutTitle}
             </h2>
           </div>
           <div className="space-y-6">
@@ -109,27 +205,27 @@ export default function SupportPage() {
                 <div className="p-3 bg-green-100 dark:bg-green-900 rounded-full w-fit mx-auto mb-3">
                   <Globe className="w-6 h-6 text-green-600 dark:text-green-400" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">글로벌 MCP 마켓플레이스</h3>
+                <h3 className="font-semibold text-lg mb-2">{content.globalMarketplace}</h3>
                 <p className="text-slate-600 dark:text-slate-300 text-sm">
-                  전 세계 개발자들이 만든 다양한 MCP를 한 곳에서 발견하고 사용하세요.
+                  {content.globalMarketplaceDesc}
                 </p>
               </div>
               <div className="text-center p-4">
                 <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-full w-fit mx-auto mb-3">
                   <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">커뮤니티 중심</h3>
+                <h3 className="font-semibold text-lg mb-2">{content.communityDriven}</h3>
                 <p className="text-slate-600 dark:text-slate-300 text-sm">
-                  개발자들과 소통하며 새로운 아이디어를 공유하고 협업하세요.
+                  {content.communityDrivenDesc}
                 </p>
               </div>
               <div className="text-center p-4">
                 <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full w-fit mx-auto mb-3">
                   <Shield className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">안전하고 신뢰할 수 있는</h3>
+                <h3 className="font-semibold text-lg mb-2">{content.safeReliable}</h3>
                 <p className="text-slate-600 dark:text-slate-300 text-sm">
-                  모든 MCP는 검증 과정을 거쳐 안전하게 제공됩니다.
+                  {content.safeReliableDesc}
                 </p>
               </div>
             </div>
@@ -159,7 +255,7 @@ export default function SupportPage() {
                   ))}
                 </ul>
                 <SecondaryButton className="w-full">
-                  자세히 보기
+                  {content.learnMore}
                 </SecondaryButton>
               </div>
             </div>
@@ -171,10 +267,10 @@ export default function SupportPage() {
           <div className="mb-6">
             <h2 className="text-2xl font-bold flex items-center gap-2 text-slate-900 dark:text-white mb-2">
               <Shield className="w-6 h-6 text-slate-600 dark:text-slate-400" />
-              정책 및 약관
+              {content.policiesTitle}
             </h2>
             <p className="text-slate-600 dark:text-slate-300">
-              MCP Hub 서비스 이용에 관한 중요한 정책들을 확인하세요.
+              {content.policiesDesc}
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
@@ -192,7 +288,7 @@ export default function SupportPage() {
                   {policy.description}
                 </p>
                 <button className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium">
-                  자세히 보기 →
+                  {content.learnMore} →
                 </button>
               </div>
             ))}
@@ -205,20 +301,19 @@ export default function SupportPage() {
             <Star className="w-8 h-8 text-yellow-500" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-            여전히 도움이 필요하신가요?
+            {content.stillNeedHelp}
           </h2>
           <p className="text-slate-600 dark:text-slate-300 mb-6 max-w-2xl mx-auto">
-            위의 정보로도 해결되지 않는 문제가 있으시면 언제든지 문의해주세요. 
-            빠른 시간 내에 답변드리겠습니다.
+            {content.stillNeedHelpDesc}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <PrimaryButton additionalClassName="bg-blue-600 hover:bg-blue-700 text-white">
               <Mail className="w-4 h-4 mr-2" />
-              이메일로 문의하기
+              {content.contactEmail}
             </PrimaryButton>
             <SecondaryButton>
               <MessageSquare className="w-4 h-4 mr-2" />
-              실시간 채팅
+              {content.liveChat}
             </SecondaryButton>
           </div>
         </div>

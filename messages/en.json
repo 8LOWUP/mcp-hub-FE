@@ -142,7 +142,19 @@
     "noDraftMcps": "No draft MCPs.",
     "deleteMcpCompleted": "MCP has been deleted.",
     "close": "Close",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "llmTokens": "LLM Tokens",
+    "addToken": "Add Token",
+    "editToken": "Edit Token",
+    "checkingApi": "Checking API...",
+    "checkFailed": "Check Failed",
+    "tokenSet": "Token Set",
+    "noToken": "No Token",
+    "provider": "Provider",
+    "modelId": "Model ID",
+    "token": "Token",
+    "tokenFromApi": "Token from GET API",
+    "retry": "Retry"
   },
   "DetailPage": {
     "detail": "Detail",
