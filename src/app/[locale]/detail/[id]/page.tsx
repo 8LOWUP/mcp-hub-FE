@@ -132,8 +132,18 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
         }
     };
 
-    if (loadingDetail) return <div className="pt-20 text-center">Loading...</div>;
-    if (error || !detail) return <div className="pt-20 text-center">데이터 없음</div>;
+    if (loadingDetail) return (
+        <div className="pt-20 flex flex-col items-center justify-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <p className="mt-4 text-foreground/60">Loading...</p>
+        </div>
+    );
+    if (error || !detail) return (
+        <div className="pt-20 flex flex-col items-center justify-center min-h-[400px]">
+            <div className="text-6xl mb-4">😔</div>
+            <p className="text-foreground/60">데이터를 불러올 수 없습니다</p>
+        </div>
+    );
 
     return (
         <>
@@ -155,7 +165,10 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                         <MarketTools data={detail} />
 
                         {loadingReviews ? (
-                            <div className="text-center text-gray-400">리뷰 불러오는 중...</div>
+                            <div className="flex flex-col items-center justify-center py-8">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                                <p className="mt-2 text-foreground/60 text-sm">리뷰 불러오는 중...</p>
+                            </div>
                         ) : (
                             <ReviewList reviews={reviewData?.content ?? []} mcpId={mcpId} />
                         )}

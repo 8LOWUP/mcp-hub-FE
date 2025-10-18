@@ -16,29 +16,7 @@ type SearchItem = {
     imageUrl?: string | null;
 };
 
-// 이미지 URL 처리 함수
-const processImageUrl = (path?: string | null) => {
-    if (!path || path.trim() === "") return null;
-    
-    // https://img.com으로 시작하는 경우 API URL로 변환
-    if (path.startsWith('https://img.com')) {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://mcphubcorp.site';
-        const cleanApiUrl = apiUrl.replace(/\/+$/, '');
-        return path.replace('https://img.com', `${cleanApiUrl}/img.com`);
-    }
-    
-    if (/^https?:\/\//i.test(path)) return path; // 절대 URL은 그대로
-    
-    // /mcps로 시작하는 경우 API URL을 붙임
-    if (path.startsWith('/mcps')) {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://mcphubcorp.site';
-        const cleanApiUrl = apiUrl.replace(/\/+$/, '');
-        return `${cleanApiUrl}${path}`;
-    }
-    
-    // 중복 슬래시 방지
-    return path.startsWith("/") ? `/__api${path}` : `/__api/${path}`;
-};
+import { processMcpImageUrl } from "@/utils/imageUtils";
 
 // API 응답 파싱 함수
 const parseSearchResponse = (data: any): SearchItem[] => {
@@ -49,7 +27,7 @@ const parseSearchResponse = (data: any): SearchItem[] => {
         id: it.id,
         name: it.name,
         description: it.description,
-        imageUrl: processImageUrl(it.imageUrl),
+        imageUrl: processMcpImageUrl(it.imageUrl),
     }));
 };
 

@@ -4,6 +4,7 @@ import { useState, useEffect, DragEvent, ChangeEvent, useRef } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import imageLoader from "@/lib/imageLoader";
+import { processMcpImageUrl } from "@/utils/imageUtils";
 
 interface UploadIconProps {
     onFileSelect?: (file: File | null) => void;
@@ -17,17 +18,10 @@ export default function UploadIcon({ onFileSelect, defaultImageUrl }: UploadIcon
     const [dragOver, setDragOver] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    // ✅ MarketHeader 규칙 적용: /__api 경로 보정
-    const buildImageUrl = (path?: string | null) => {
-        if (!path || path.trim() === "") return null;
-        if (path.startsWith("/")) return `/__api${path}`;
-        return `/__api/${path}`;
-    };
-
     // ✅ 수정 모드일 때 기존 이미지 표시
     useEffect(() => {
         if (defaultImageUrl) {
-            const fullUrl = buildImageUrl(defaultImageUrl);
+            const fullUrl = processMcpImageUrl(defaultImageUrl);
             setPreview(fullUrl);
         }
     }, [defaultImageUrl]);

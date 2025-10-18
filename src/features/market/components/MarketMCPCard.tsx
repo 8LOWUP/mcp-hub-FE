@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import imageLoader from "@/lib/imageLoader";
 import {useLocale} from "next-intl";
+import { processMcpImageUrl } from "@/utils/imageUtils";
 
 interface MCPCardProps {
     id: string;
@@ -28,28 +29,7 @@ const MCPCard: React.FC<MCPCardProps> = ({
 }) => {
     const [imageError, setImageError] = useState(false);
     
-    const buildImageUrl = (path?: string | null) => {
-        if (!path || path.trim() === "") return "/placeholder.png";
-
-        // https://img.com으로 시작하는 경우 API URL로 변환
-        if (path.startsWith('https://img.com')) {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:8080';
-            const cleanApiUrl = apiUrl.replace(/\/+$/, '');
-            return path.replace('https://img.com', `${cleanApiUrl}/img.com`);
-        }
-
-        // 절대 URL은 그대로 반환
-        if (/^https?:\/\//i.test(path)) return path;
-
-        // 중복 슬래시 방지
-        if (path.startsWith("/")) {
-            return `/__api${path}`;
-        } else {
-            return `/__api/${path}`;
-        }
-    };
-
-    const safeIconSrc = buildImageUrl(iconSrc);
+    const safeIconSrc = processMcpImageUrl(iconSrc) || "/default-mcp-logo.svg";
 
     const locale = useLocale();
 

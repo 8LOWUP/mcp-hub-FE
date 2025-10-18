@@ -28,34 +28,6 @@ const MCPCard: React.FC<MCPCardProps> = ({
     className,
 }) => {
     const [imageError, setImageError] = useState(false);
-    
-    const buildImageUrl = (path?: string | null) => {
-        if (!path || path.trim() === "") return "/placeholder.png";
-
-        // https://img.com으로 시작하는 경우 API URL로 변환
-        if (path.startsWith('https://img.com')) {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://mcphubcorp.site';
-            const cleanApiUrl = apiUrl.replace(/\/+$/, '');
-            return path.replace('https://img.com', `${cleanApiUrl}/img.com`);
-        }
-
-        // 절대 URL은 그대로 반환
-        if (/^https?:\/\//i.test(path)) return path;
-
-        // /mcps로 시작하는 경우 API URL을 붙임
-        if (path.startsWith('/mcps')) {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://mcphubcorp.site';
-            const cleanApiUrl = apiUrl.replace(/\/+$/, '');
-            return `${cleanApiUrl}${path}`;
-        }
-
-        // 다른 상대 경로는 __api 프리픽스 추가 (개발 환경에서만)
-        if (path.startsWith("/")) {
-            return `/__api${path}`;
-        } else {
-            return `/__api/${path}`;
-        }
-    };
 
     //const safeIconSrc = buildImageUrl(iconSrc);
     const safeIconSrc = processMcpImageUrl(iconSrc) || "/default-mcp-logo.svg";

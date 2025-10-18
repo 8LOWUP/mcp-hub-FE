@@ -3,7 +3,8 @@
 import Image from "next/image";
 import type { getMcpDetailResponse } from "@/types/detail/detail-types";
 import imageLoader from "@/lib/imageLoader";
-import{useLoginStore } from "@/store/login/login-store"
+import{useLoginStore } from "@/store/login/login-store";
+import { processMcpImageUrl } from "@/utils/imageUtils";
 
 interface Props {
     data: getMcpDetailResponse["result"];
@@ -13,28 +14,7 @@ interface Props {
 export default function MarketHeader({ data, isSaved }: Props) {
     const {isLoggedIn} = useLoginStore();
 
-    const buildImageUrl = (path?: string | null) => {
-        if (!path || path.trim() === "") return "/placeholder.png";
-
-        // https://img.com으로 시작하는 경우 API URL로 변환
-        if (path.startsWith('https://img.com')) {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:8080';
-            const cleanApiUrl = apiUrl.replace(/\/+$/, '');
-            return path.replace('https://img.com', `${cleanApiUrl}/img.com`);
-        }
-
-        // 절대 URL은 그대로 반환
-        if (/^https?:\/\//i.test(path)) return path;
-
-        // 중복 슬래시 방지
-        if (path.startsWith("/")) {
-            return `/__api${path}`;
-        } else {
-            return `/__api/${path}`;
-        }
-    };
-
-    const safeLogo = buildImageUrl(data.imageUrl);
+    const safeLogo = processMcpImageUrl(data.imageUrl) || "/placeholder.png";
     const safeName = data.name || "이름 없음";
     const safeTag = data.categoryName || "태그 없음";
     const safeDownloader = data.savedUserCount ?? 0;
