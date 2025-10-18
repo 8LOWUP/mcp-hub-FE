@@ -114,9 +114,10 @@ async function fetchAllMCPData(search: string): Promise<McpCardData[]> {
 export default async function Page({
                                      searchParams,
                                    }: {
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const search = (typeof searchParams?.search === "string" ? searchParams?.search : "") || "";
+  const resolvedSearchParams = await searchParams;
+  const search = (typeof resolvedSearchParams?.search === "string" ? resolvedSearchParams?.search : "") || "";
 
   const mcpData = await fetchAllMCPData(search);
 
