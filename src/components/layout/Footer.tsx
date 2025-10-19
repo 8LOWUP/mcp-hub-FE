@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import imageLoader from "@/lib/imageLoader";
+import { HelpCircle } from "lucide-react";
 
 const externalLinks = [
     {
@@ -16,6 +18,10 @@ const externalLinks = [
 ];
 
 export default function Footer() {
+    const pathname = usePathname();
+    const currentLocale = pathname?.split("/")?.[1] || "ko";
+    const supportUrl = `/${currentLocale}/support`;
+
     return (
         <footer className="bg-surface-1 border-t border-contrast">
             <div className="max-w-screen mx-auto px-20 py-8">
@@ -37,25 +43,36 @@ export default function Footer() {
                         © 2025 MCP Hub. All rights reserved.
                     </div>
 
-                    {/* 오른쪽: 외부 링크 아이콘 + connection 글씨 */}
-                    <div className="flex flex-col items-center gap-1">
-                        <span className="text-secondary text-caption1 font-bold">connection</span>
-                        <div className="flex items-center gap-4">
-                            {externalLinks.map((link) => (
-                                <Link
-                                    key={link.href}
-                                    href={link.href}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    aria-label={link.alt}
-                                    className={link.alt === "Notion Icon" ? "mt-2" : ""}
-                                >
-                                    <Image src={link.src} alt={link.alt} width={24} height={24} loader={imageLoader} unoptimized />
-                                </Link>
-                            ))}
+                    {/* 오른쪽: Support + connection */}
+                    <div className="flex items-start gap-2">
+                        {/* Support 링크 */}
+                        <Link
+                            href={supportUrl}
+                            className="flex flex-col items-center gap-2.5 text-secondary hover:text-primary transition-colors"
+                        >
+                            <span className="text-secondary text-caption1 font-bold">support</span>
+                            <HelpCircle className="w-6.5 h-6.5" />
+                        </Link>
+
+                        {/* Connection 섹션 */}
+                        <div className="flex flex-col items-center gap-1">
+                            <span className="text-secondary text-caption1 font-bold">connection</span>
+                            <div className="flex items-center gap-4">
+                                {externalLinks.map((link) => (
+                                    <Link
+                                        key={link.href}
+                                        href={link.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label={link.alt}
+                                        className={link.alt === "Notion Icon" ? "mt-2" : ""}
+                                    >
+                                        <Image src={link.src} alt={link.alt} width={24} height={24} loader={imageLoader} unoptimized />
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </footer>

@@ -14,12 +14,12 @@ function isLoggedIn(req: NextRequest): boolean {
     const refreshToken = req.cookies.get("refreshToken")?.value;
     const isLoggedIn = Boolean(accessToken || refreshToken);
     
-    console.log("🍪 쿠키 확인:", {
-        accessToken: accessToken ? "존재함" : "없음",
-        refreshToken: refreshToken ? "존재함" : "없음",
-        isLoggedIn,
-        allCookies: req.cookies.getAll().map(c => c.name)
-    });
+    //console.log("🍪 쿠키 확인:", {
+    //    accessToken: accessToken ? "존재함" : "없음",
+    //    refreshToken: refreshToken ? "존재함" : "없음",
+    //    isLoggedIn,
+    //    allCookies: req.cookies.getAll().map(c => c.name)
+    //});
     
     // 🧪 테스트용: 강제로 로그아웃 상태로 시뮬레이션 (비활성화)
     // if (req.nextUrl.pathname.includes("/chat")) {
@@ -65,7 +65,7 @@ export function middleware(req: NextRequest) {
     // 3. 보호된 경로 체크
     if (isProtectedRoute(pathname)) {
         const loggedIn = isLoggedIn(req);
-        console.log("🛡️ 보호된 경로 접근:", { pathname, loggedIn });
+        //console.log("🛡️ 보호된 경로 접근:", { pathname, loggedIn });
         
         if (!loggedIn) {
             // 로그인하지 않은 경우 이전 페이지로 돌아가서 알림 표시

@@ -22,7 +22,7 @@ const DeployedCard: React.FC<DeployedCardProps> = ({ item, onDelete }) => {
                 <PrimaryButton
                     size="sm"
                     onClick={handleDelete}
-                    additionalClassName="!bg-[#FF1212] opacity-60 text-white hover:opacity-90"
+                    additionalClassName="!bg-[#e01111] text-white hover:opacity-70"
                 >
                     Delete
                 </PrimaryButton>

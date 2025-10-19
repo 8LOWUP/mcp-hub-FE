@@ -20,15 +20,7 @@ const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ item, isActive }) => {
     const { icon: Icon, label, href, key } = item;
 
     const handleClick = () => {
-        if (key === "support") {
-            // Support는 새 탭에서 열기 - 현재 locale에 맞는 support 페이지로
-            const currentLocale = pathname?.split("/")?.[1] || "ko";
-            const supportUrl = `/${currentLocale}/support`;
-            window.open(supportUrl, '_blank');
-        } else {
-            // 다른 항목들은 기존처럼 라우팅
-            router.push(href);
-        }
+        router.push(href);
     };
 
     return (
