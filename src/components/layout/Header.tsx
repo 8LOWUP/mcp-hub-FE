@@ -15,6 +15,8 @@ import ClientSearchBar from "@/components/ui/ClientSearchBar";
 import LoginModal from "@/features/auth/components/LoginModal";
 import { useLoginStore } from "@/store/login/login-store";
 import { socialLogin } from "@/services/auth/social-login";
+import { IoIosBasket } from "react-icons/io";
+import { IoCloudUploadOutline } from "react-icons/io5";
 
 /* 경로 끝 슬래시 정규화 */
 const trimSlash = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
@@ -124,19 +126,7 @@ const Header: React.FC = () => {
                             aria-label={t('market')}
                         >
                             {/* sm 이하: 아이콘만 표시 */}
-                            <svg
-                                className="w-5 h-5 text-primary sm:hidden"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                                />
-                            </svg>
+                            <IoIosBasket className="w-6 h-6 text-primary sm:hidden" />
                             {/* sm 이상: 텍스트 표시 */}
                             <span className="hidden sm:flex text-primary font-semibold hover:decoration-accent hover:underline decoration-yellow-200 underline-offset-10">
                                 {t('market')}
@@ -157,19 +147,7 @@ const Header: React.FC = () => {
                             aria-label={t('upload')}
                         >
                             {/* sm 이하: 아이콘만 표시 */}
-                            <svg
-                                className="w-5 h-5 sm:hidden"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                />
-                            </svg>
+                            <IoCloudUploadOutline className="w-5 h-5 text-black sm:hidden" />
                             {/* sm 이상: 텍스트 표시 */}
                             <span className="hidden sm:inline text-black">{t('upload')}</span>
                         </button>

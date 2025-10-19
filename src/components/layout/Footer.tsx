@@ -24,13 +24,13 @@ export default function Footer() {
 
     return (
         <footer className="bg-surface-1 border-t border-contrast">
-            <div className="max-w-screen mx-auto px-20 py-8">
+            <div className="max-w-screen px-6 sm:px-20 py-8">
                 <div className="flex justify-between items-center">
 
                     {/* 왼쪽: 로고 및 서비스 이름 */}
-                    <div className="flex items-center gap-3">
+                    <div className="hidden sm:flex items-center gap-3 mr-3 ">
                         <Image src="/logo.svg" alt="MCP Hub Logo" width={28} height={28} loader={imageLoader} unoptimized />
-                        <div>
+                        <div className="flex flex-col">
                             <p className="text-primary font-bold">MCP Hub</p>
                             <p className="text-muted text-body4 mt-1">
                                 MCP market with LLM
@@ -46,13 +46,15 @@ export default function Footer() {
                     {/* 오른쪽: Support + connection */}
                     <div className="flex items-start gap-2">
                         {/* Support 링크 */}
-                        <Link
-                            href={supportUrl}
-                            className="flex flex-col items-center gap-2.5 text-secondary hover:text-primary transition-colors"
-                        >
+                        <div className="flex flex-col items-center gap-2.5">
                             <span className="text-secondary text-caption1 font-bold">support</span>
-                            <HelpCircle className="w-6.5 h-6.5" />
-                        </Link>
+                            <Link
+                                href={supportUrl}
+                                className="text-secondary hover:text-primary transition-colors"
+                            >
+                                <HelpCircle className="w-6.5 h-6.5" />
+                            </Link>
+                        </div>
 
                         {/* Connection 섹션 */}
                         <div className="flex flex-col items-center gap-1">
