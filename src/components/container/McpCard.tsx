@@ -66,7 +66,7 @@ const MCPCard: React.FC<MCPCardProps> = ({
                                 unoptimized
                             />
                         ) : (
-                            <div className="w-11 h-11 ml-1 flex-shrink-0 flex items-center justify-center bg-surface-2 rounded text-xs text-secondary font-bold">
+                            <div className="w-11 h-11 ml-1 flex-shrink-0 flex items-center justify-center bg-defaultMCPIcon-1 rounded text-xs text-secondary font-bold">
                                 {title.charAt(0).toUpperCase()}
                             </div>
                         )}

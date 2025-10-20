@@ -118,8 +118,30 @@ export default async function Page({
 }) {
   const resolvedSearchParams = await searchParams;
   const search = (typeof resolvedSearchParams?.search === "string" ? resolvedSearchParams?.search : "") || "";
+  const cat = (typeof resolvedSearchParams?.cat === "string" ? resolvedSearchParams?.cat : "all") as CategoryId;
+  const page = parseInt((typeof resolvedSearchParams?.page === "string" ? resolvedSearchParams?.page : "1"), 10);
+  const itemsPerPage = 12;
 
-  const mcpData = await fetchAllMCPData(search);
+  // 모든 MCP 데이터 가져오기
+  const allMcpData = await fetchAllMCPData(search);
+  
+  // 카테고리 필터링
+  const filteredData = cat === "all" ? allMcpData : allMcpData.filter(item => item.category === cat);
+  
+  // 서버에서 페이지네이션 계산
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = filteredData.slice(startIndex, endIndex);
 
-  return <MarketPage initialData={mcpData} />;
+  return (
+    <MarketPage 
+      initialData={allMcpData} 
+      serverPaginatedData={paginatedData}
+      serverTotalPages={totalPages}
+      serverCurrentPage={page}
+      serverTotalItems={filteredData.length}
+      itemsPerPage={itemsPerPage}
+    />
+  );
 }

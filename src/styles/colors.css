@@ -8,6 +8,10 @@
   --bg-color-5: #F9FAFB; /* 보조 surface */
   --bg-color-6: #F2F2F7; /*마켓페이지 용*/
 
+  --bg-skeleton-1: #A0A0A0;
+
+  --bg-defaultMCPIcon-1: #F9FAFB;
+
   --bg-color-sidebar-1: #dbdbdb;
 
   --bg-color-detailToolAccent-1: #FFD3D3;/*tool 이름 배경색*/
@@ -49,6 +53,10 @@
   --bg-color-4: #4B5563;
   --bg-color-5: #1F1F1F;
   --bg-color-6: #1A1A1A; /*마켓페이지 용*/
+
+  --bg-skeleton-1: #2C2C2C;
+
+  --bg-defaultMCPIcon-1: #2C2C2C;
 
   --bg-color-sidebar-1: #404248;
 
@@ -113,6 +121,10 @@
   .bg-surface-4    { background-color: var(--bg-color-4); } /* 카드/비활성 영역 */
   .bg-surface-5    { background-color: var(--bg-color-5); } /* 카드/비활성 영역 */
   .bg-surface-6    { background-color: var(--bg-color-6); }
+
+  .bg-skeleton-1 { background-color: var(--bg-skeleton-1); }
+
+  .bg-defaultMCPIcon-1 { background-color: var(--bg-defaultMCPIcon-1); }
 
   .bg-detailToolAccent-1 { background-color: var(--bg-color-detailToolAccent-1); } /*tool 이름 배경색*/
 
