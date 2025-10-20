@@ -170,7 +170,7 @@ export default function SearchBar({
                 onFocus={handleInputFocus}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder || t('searchPlaceholder')}
-                className="w-full rounded-md bg-surface-3 py-2 pl-4 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:ring-primary"
+                className="w-full rounded-md bg-surface-3 border border-marketMCPCard py-2 pl-4 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:ring-primary"
                 aria-label={t('searchMcps')}
             />
 

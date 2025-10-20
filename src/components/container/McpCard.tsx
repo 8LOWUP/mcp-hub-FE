@@ -91,7 +91,7 @@ const MCPCard: React.FC<MCPCardProps> = ({
                         <span
                             className={clsx(
                                 "text-xs px-2 py-1 font-semibold text-secondary rounded-lg bg-surface-2",
-                                saved ? "text-accent" : "text-secondary"
+                                saved ? "text-accent-3" : "text-secondary"
                             )}
                         >{saved ? "Saved" : "Unsaved"}</span>
                     )}
