@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import type { getMcpDetailResponse } from "@/types/detail/detail-types";
+import { useTranslations } from "next-intl";
 import imageLoader from "@/lib/imageLoader";
 import{useLoginStore } from "@/store/login/login-store";
 import { processMcpImageUrl } from "@/utils/imageUtils";
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function MarketHeader({ data, isSaved }: Props) {
+    const t = useTranslations('DetailPage');
     const {isLoggedIn} = useLoginStore();
     const [imageError, setImageError] = useState(false);
     const safeLogo = processMcpImageUrl(data.imageUrl) || "/placeholder.png";
@@ -54,12 +56,12 @@ export default function MarketHeader({ data, isSaved }: Props) {
                         {/*저장 상태 표시 */}
                         {isLoggedIn && (
                             displaySaved ? (
-                                <div className="inline-block bg-green-400/20 text-green-300 border border-green-400/30 text-xs font-medium px-2 py-1 rounded-full">
-                                    저장됨
+                                <div className="inline-block bg-green-400/20 text-green-600 dark:text-green-300 border border-green-400/30 text-xs font-medium px-2 py-1 rounded-full">
+                                    {t('savedStatusSaved')}
                                 </div>
                             ) : (
                                 <div className="inline-block bg-gray-500/20 text-gray-300 border border-gray-500/30 text-xs font-medium px-2 py-1 rounded-full">
-                                    저장 안 됨
+                                    {t('savedStatusNotSaved')}
                                 </div>
                             )
                         )}

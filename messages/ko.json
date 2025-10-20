@@ -173,7 +173,9 @@
     "reviewPlaceholder": "리뷰는 최대 100자까지 작성할 수 있습니다.",
     "writeReview": "리뷰 작성",
     "editReview": "리뷰 수정",
-    "deleteReview": "리뷰 삭제"
+    "deleteReview": "리뷰 삭제",
+    "savedStatusSaved": "저장됨",
+    "savedStatusNotSaved": "저장 안 됨"
   },
   "Common": {
     "loading": "로딩 중...",

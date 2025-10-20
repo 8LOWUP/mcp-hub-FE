@@ -110,6 +110,8 @@
   .text-detailInfo-1 { color: var(--text-color-detailInfo-1); }
 
   .text-detailToolAccent-1 { color: var(--text-color-detailToolAccent-1); }
+
+  .text-accent-3 { color: var(--accent-color-3); }
   
   /* 아이콘 색상 */
   .icon-color-1    { color: var(--icon-color-1); }

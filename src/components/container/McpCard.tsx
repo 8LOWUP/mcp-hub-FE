@@ -42,7 +42,7 @@ const MCPCard: React.FC<MCPCardProps> = ({
             href={`/${locale}/detail/${id}`}
             className={clsx(
                 "flex flex-col p-3 py-3.5 justify-between justify-items-center items-center w-[300px] h-[165px] rounded-md",
-                "border border-white/20 bg-surface-1",
+                "border border-marketMCPCard bg-surface-1",
                 "transition-all duration-400 ease-in-out",
                 "hover:border-accent",
                 "active:scale-[0.96] active:bg-surface-2",
@@ -90,10 +90,10 @@ const MCPCard: React.FC<MCPCardProps> = ({
                     {isLoggedIn && (
                         <span
                             className={clsx(
-                                "text-xs px-2 py-1 font-semibold text-secondary rounded-lg",
-                                saved ? "bg-surface-2  text-accent" : "bg-surface-2"
+                                "text-xs px-2 py-1 font-semibold text-secondary rounded-lg bg-surface-2",
+                                saved ? "text-accent" : "text-secondary"
                             )}
-                        >{saved ? "Saved" : "Save"}</span>
+                        >{saved ? "Saved" : "Unsaved"}</span>
                     )}
                 </div>
 

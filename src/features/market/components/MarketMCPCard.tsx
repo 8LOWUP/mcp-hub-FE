@@ -3,8 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import imageLoader from "@/lib/imageLoader";
-import {useLocale} from "next-intl";
+import {useLocale, useTranslations} from "next-intl";
 import { processMcpImageUrl } from "@/utils/imageUtils";
+import { useSavedMcps } from "@/hooks/useSavedMcps";
 
 interface MCPCardProps {
     id: string;
@@ -32,13 +33,18 @@ const MCPCard: React.FC<MCPCardProps> = ({
     const safeIconSrc = processMcpImageUrl(iconSrc) || "/default-mcp-logo.svg";
 
     const locale = useLocale();
+    const t = useTranslations('DetailPage');
+    const { savedMcpIds, isLoggedIn } = useSavedMcps();
+
+    // 로그인한 경우에만 저장 여부를 실제로 비교해 표시
+    const isActuallySaved = isLoggedIn ? savedMcpIds.includes(id) : false;
 
     return (
 
         <Link
             href={`/${locale}/detail/${id}`}
             className={clsx(
-                "flex flex-col p-4 bg-surface-6 justify-between justify-items-center items-center w-full h-[165px] rounded-md",
+                "flex flex-col p-4 justify-between justify-items-center items-center w-full h-[165px] rounded-md",
                 "border border-marketMCPCard bg-surface-1",
                 "transition-all duration-400 ease-in-out",
                 "hover:border-accent",
@@ -83,14 +89,16 @@ const MCPCard: React.FC<MCPCardProps> = ({
             {/* 하단 라벨 */}
             <div className="flex w-full justify-between items-center mt-auto">
                 <div className="flex gap-2">
-                    <span
-                        className={clsx(
-                            "text-xs px-2 py-1 font-medium rounded-full",
-                            saved ? "bg-accent/20 text-accent" : "bg-surface-2 text-secondary"
-                        )}
-                    >
-                        {saved ? "Saved" : "Save"}
-                    </span>
+                    {isLoggedIn && (
+                        <span
+                            className={clsx(
+                                "text-xs px-2 py-1 font-medium rounded-full bg-surface-2",
+                                isActuallySaved ? "text-accent-3" : "text-secondary"
+                            )}
+                        >
+                            {isActuallySaved ? t('savedStatusSaved') : t('savedStatusNotSaved')}
+                        </span>
+                    )}
                 </div>
 
                 {usersCount !== undefined && (
