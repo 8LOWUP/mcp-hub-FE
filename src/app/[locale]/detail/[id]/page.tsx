@@ -202,9 +202,6 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                             <McpDetails data={detail} />
                         </div>
                     </aside>
-
-
-
                 </div>
             </div>
 
