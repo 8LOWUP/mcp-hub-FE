@@ -194,7 +194,6 @@ export default function MarketPage({
         <section className="space-y-6">
             <MarketHeader title={getTitleByCategory(cat)} count={totalItems} />
             <MarketGrid items={paginatedData} />
-            
             {/* 페이지네이션 */}
             {totalPages > 1 && (
                 <div className="flex justify-center pt-6">
