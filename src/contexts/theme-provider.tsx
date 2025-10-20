@@ -7,11 +7,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="dark"
-      enableSystem={false}
+      defaultTheme="system"
+      enableSystem
       disableTransitionOnChange
-      enableColorScheme={false}
-      storageKey="mcp-theme"
     >
       {children}
     </NextThemesProvider>

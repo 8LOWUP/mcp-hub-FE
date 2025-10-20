@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useState, useEffect } from "react";
 import imageLoader from "@/lib/imageLoader";
 import { HelpCircle } from "lucide-react";
 import ThemeToggle from "../ui/theme-toggle";
@@ -26,14 +25,8 @@ const externalLinks = [
 export default function Footer() {
     const pathname = usePathname();
     const { theme } = useTheme();
-    const [mounted, setMounted] = useState(false);
     const currentLocale = pathname?.split("/")?.[1] || "ko";
     const supportUrl = `/${currentLocale}/support`;
-
-    // hydration 완료 후에만 테마 감지
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     return (
         <footer className="bg-surface-1 border-t border-contrast">
@@ -92,12 +85,12 @@ export default function Footer() {
                                         aria-label={link.alt}
                                         className={
                                             link.alt === "Notion Icon" ? "mt-2" : 
-                                            link.alt === "GitHub Icon" && (mounted ? theme === "dark" : true) ? "" : 
+                                            link.alt === "GitHub Icon" && theme === "dark" ? "" : 
                                             "mt-1.5"
                                         }
                                     >
                                         <Image 
-                                            src={mounted ? (theme === "dark" ? link.src : link.lightSrc) : link.src} 
+                                            src={theme === "dark" ? link.src : link.lightSrc} 
                                             alt={link.alt} 
                                             width={24} 
                                             height={24} 

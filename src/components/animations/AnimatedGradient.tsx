@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useTheme } from 'next-themes';
 
 interface AnimatedGradientProps {
   children: React.ReactNode;
@@ -9,21 +8,27 @@ interface AnimatedGradientProps {
 
 const AnimatedGradient: React.FC<AnimatedGradientProps> = ({ children }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { theme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  
-  // hydration 완료 후에만 테마 감지
+  const [isDark, setIsDark] = useState(false);
+
+  // 다크모드 감지
   useEffect(() => {
-    setMounted(true);
+    const checkTheme = () => {
+      const isDarkMode = document.documentElement.classList.contains('dark');
+      setIsDark(isDarkMode);
+    };
+
+    // 초기 체크
+    checkTheme();
+
+    // MutationObserver로 클래스 변경 감지
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    return () => observer.disconnect();
   }, []);
-  
-  // 웹앱의 테마 설정만 사용 (시스템 설정 완전 무시)
-  const isDark = mounted ? theme === 'dark' : true;
-  
-  // 디버깅용 로그 (아이패드에서 테마 변경 감지 확인)
-  useEffect(() => {
-    console.log('Theme changed:', { theme, resolvedTheme, isDark, mounted });
-  }, [theme, resolvedTheme, isDark, mounted]);
 
   useEffect(() => {
     const container = containerRef.current;
