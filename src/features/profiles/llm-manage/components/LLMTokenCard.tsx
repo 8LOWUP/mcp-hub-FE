@@ -84,7 +84,7 @@ const LLMTokenCard: React.FC<LLMTokenCardProps> = ({
                     {hasToken && currentToken && (
                         <div className="flex items-center w-full mt-4 gap-3">
                             <div 
-                                className="font-mono text-base bg-surface-2 px-3 py-2 rounded min-w-[100px] flex-1 cursor-pointer hover:bg-surface-3 transition-colors whitespace-pre-wrap break-all"
+                                className="font-mono text-base bg-surface-2 px-3 py-2 rounded min-w-[100px] h-fit flex-1 cursor-pointer hover:bg-surface-3 transition-colors whitespace-pre-wrap break-all"
                                 title={showTokenValue[llm.llmId] ? currentToken : '토큰을 보려면 눈 아이콘을 클릭하세요'}
                             >
                                 {showTokenValue[llm.llmId] ? currentToken : '*'.repeat(currentToken?.length)}

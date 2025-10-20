@@ -71,7 +71,7 @@ export default function ActiveMCPCard({
               <h3 className="text-xs font-medium text-foreground">{displayName}</h3>
               <p className={[
                 "text-xs transition-colors duration-300",
-                active ? "text-accent" : "text-secondary",
+                active ? "text-ActiveMCP-accent" : "text-secondary",
               ].join(" ")}>
                 {active ? t('inUse') : t('notInUse')}
               </p>

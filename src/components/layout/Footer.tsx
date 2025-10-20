@@ -1,26 +1,39 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
 import imageLoader from "@/lib/imageLoader";
 import { HelpCircle } from "lucide-react";
+import ThemeToggle from "../ui/theme-toggle";
+import LocaleSwitcher from "../ui/LocaleSwitcher";
 
 const externalLinks = [
     {
         href: "https://github.com/orgs/8LOWUP/repositories", // 우리 레포 주소 주입함.
         alt: "GitHub Icon",
         src: "/github.svg",
+        lightSrc: "/github-light.svg",
     },
     {
         href: "https://notion.so", // 추후 노션 주소로 수정
         alt: "Notion Icon",
         src: "/notion.svg",
+        lightSrc: "/notionLogo.svg",
     },
 ];
 
 export default function Footer() {
     const pathname = usePathname();
+    const { theme } = useTheme();
+    const [mounted, setMounted] = useState(false);
     const currentLocale = pathname?.split("/")?.[1] || "ko";
     const supportUrl = `/${currentLocale}/support`;
+
+    // hydration 완료 후에만 테마 감지
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     return (
         <footer className="bg-surface-1 border-t border-contrast">
@@ -38,13 +51,23 @@ export default function Footer() {
                         </div>
                     </div>
 
+                    <div className="flex flex-col sm:hidden h-14.5 items-start justify-end gap-1">
+                        <div className="flex sm:hidden text-muted text-caption1">
+                            © 2025 MCP Hub. All rights reserved.
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <ThemeToggle />
+                            <LocaleSwitcher />
+                        </div>
+                    </div>
+
                     {/* 중앙: 저작권 표시 글씨 */}
-                    <div className="text-muted text-caption1">
+                    <div className="hidden sm:flex text-muted text-caption1">
                         © 2025 MCP Hub. All rights reserved.
                     </div>
 
                     {/* 오른쪽: Support + connection */}
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-start h-fit gap-2">
                         {/* Support 링크 */}
                         <div className="flex flex-col items-center gap-2.5">
                             <span className="text-secondary text-caption1 font-bold">support</span>
@@ -67,9 +90,20 @@ export default function Footer() {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         aria-label={link.alt}
-                                        className={link.alt === "Notion Icon" ? "mt-2" : ""}
+                                        className={
+                                            link.alt === "Notion Icon" ? "mt-2" : 
+                                            link.alt === "GitHub Icon" && (mounted ? theme === "dark" : true) ? "" : 
+                                            "mt-1.5"
+                                        }
                                     >
-                                        <Image src={link.src} alt={link.alt} width={24} height={24} loader={imageLoader} unoptimized />
+                                        <Image 
+                                            src={mounted ? (theme === "dark" ? link.src : link.lightSrc) : link.src} 
+                                            alt={link.alt} 
+                                            width={24} 
+                                            height={24} 
+                                            loader={imageLoader} 
+                                            unoptimized 
+                                        />
                                     </Link>
                                 ))}
                             </div>

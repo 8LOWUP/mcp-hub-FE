@@ -31,14 +31,14 @@ export default function McpUrlCopy({ url }: Props) {
             </div>
 
             {!url ? (
-                <TextContainer className="w-full text-gray-400 text-sm p-4">
+                <TextContainer className="w-full text-gray-400 text-sm p-4" textColor="text-detailInfo-1">
                     등록된 URL이 없습니다.
                 </TextContainer>
             ) : (
                 <>
                     <TextContainer className="w-full flex items-center justify-between gap-2">
                         {/* ✅ 왼쪽에 URL */}
-                        <span className="truncate --text-color-1 flex-1">{url}</span>
+                        <span className="truncate text-detailInfo-1 flex-1">{url}</span>
 
                         {/* ✅ 오른쪽에 버튼 (url 있을 때만 렌더링) */}
                         <button

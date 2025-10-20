@@ -131,7 +131,7 @@ const ChattingInputContainer = memo(function ChattingInputContainer({
           aria-label="모델 선택 열기"
           className="flex items-center cursor-pointer gap-1 rounded-xl ml-1 px-3 pr-2 py-1 hover:bg-surface-4 transition text-accent"
         >
-          <div className="text-base text-white">{currentModel}</div>
+          <div className="text-base text-toggle-2">{currentModel}</div>
           <svg
             viewBox="0 0 24 24"
             className={[

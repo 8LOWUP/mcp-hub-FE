@@ -151,8 +151,10 @@ const Header: React.FC = () => {
                             {/* sm 이상: 텍스트 표시 */}
                             <span className="hidden sm:inline text-black">{t('upload')}</span>
                         </button>
-                        <ThemeToggle />
-                        <LocaleSwitcher />
+                        <div className="sm:flex hidden items-center gap-2">
+                            <ThemeToggle />
+                            <LocaleSwitcher />
+                        </div>
 
                         {/* 로그인 전: Log In / 로그인 후: 아바타 */}
                         {isAuthed ? (

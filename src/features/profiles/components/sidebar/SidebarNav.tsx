@@ -28,7 +28,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ activeKey }) => {
     // ✅ any/as 캐스팅 없이 안전하게 style 작성
     const navStyle: React.CSSProperties & NavCSSVars = {
         "--sb-nav-btn-bg": "var(--bg-color-1)",
-        "--sb-nav-btn-bg-hover": "var(--bg-color-3)",
+        "--sb-nav-btn-bg-hover": "var(--bg-color-sidebar-1)",
     };
 
     return (

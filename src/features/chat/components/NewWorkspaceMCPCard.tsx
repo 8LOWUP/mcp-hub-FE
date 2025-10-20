@@ -42,7 +42,7 @@ export default function NewWorkspaceMCPCard({
   const buttonClass = [
     "h-8 py-0 px-3 text-sm transition-colors",
     selected
-      ? "bg-accent text-black hover:bg-surface-3"
+      ? "bg-accent text-black hover:bg-accent/90"
       : "bg-surface-4 text-white hover:bg-accent/90",
   ].join(" ");
 

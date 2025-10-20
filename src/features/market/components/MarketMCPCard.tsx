@@ -39,7 +39,7 @@ const MCPCard: React.FC<MCPCardProps> = ({
             href={`/${locale}/detail/${id}`}
             className={clsx(
                 "flex flex-col p-4 bg-surface-6 justify-between justify-items-center items-center w-full h-[165px] rounded-md",
-                "border border-white/20 bg-surface-1",
+                "border border-marketMCPCard bg-surface-1",
                 "transition-all duration-400 ease-in-out",
                 "hover:border-accent",
                 "active:scale-[0.96] active:bg-surface-2",

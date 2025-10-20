@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useTheme } from 'next-themes';
 
 interface AnimatedGradientProps {
   children: React.ReactNode;
@@ -8,36 +9,30 @@ interface AnimatedGradientProps {
 
 const AnimatedGradient: React.FC<AnimatedGradientProps> = ({ children }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isDark, setIsDark] = useState(false);
-
-  // 다크모드 감지
+  const { theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // hydration 완료 후에만 테마 감지
   useEffect(() => {
-    const checkTheme = () => {
-      const isDarkMode = document.documentElement.classList.contains('dark');
-      setIsDark(isDarkMode);
-    };
-
-    // 초기 체크
-    checkTheme();
-
-    // MutationObserver로 클래스 변경 감지
-    const observer = new MutationObserver(checkTheme);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class']
-    });
-
-    return () => observer.disconnect();
+    setMounted(true);
   }, []);
+  
+  // 웹앱의 테마 설정만 사용 (시스템 설정 완전 무시)
+  const isDark = mounted ? theme === 'dark' : true;
+  
+  // 디버깅용 로그 (아이패드에서 테마 변경 감지 확인)
+  useEffect(() => {
+    console.log('Theme changed:', { theme, resolvedTheme, isDark, mounted });
+  }, [theme, resolvedTheme, isDark, mounted]);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // 다크모드/화이트모드별 색상 팔레트
+    // 다크모드/화이트모드별 색상 팔레트 (아이패드 호환성을 위해 rgba 사용)
     const darkColorSequence = [
       'rgba(0, 52, 28, 0.15)',      // 진한 녹색
-      'rgba(0, 136, 255, 0.15)',   // 파란색
+      'rgba(0, 136, 255, 0.15)',    // 파란색
       'rgba(0, 107, 139, 0.15)',    // 청록색
       'rgba(146, 110, 0, 0.15)',    // 황금색
       'rgba(188, 91, 0, 0.15)',     // 주황색
@@ -73,7 +68,7 @@ const AnimatedGradient: React.FC<AnimatedGradientProps> = ({ children }) => {
       { x: 70, y: 50 }    // 우중앙
     ];
 
-    // 부드러운 색상 전환을 위한 보간 함수
+    // 부드러운 색상 전환을 위한 보간 함수 (rgba 형식)
     const interpolateColor = (color1: string, color2: string, progress: number) => {
       // rgba 값 추출
       const extractRGBA = (color: string) => {
@@ -157,6 +152,9 @@ const AnimatedGradient: React.FC<AnimatedGradientProps> = ({ children }) => {
       }
     };
 
+    // 첫 번째 프레임에서 올바른 색상으로 시작
+    container.style.background = createSmoothGradient(0);
+    
     // 애니메이션 시작
     animationFrame = requestAnimationFrame(animate);
     
@@ -172,9 +170,10 @@ const AnimatedGradient: React.FC<AnimatedGradientProps> = ({ children }) => {
       ref={containerRef}
       className="relative min-h-screen transition-all duration-3000 ease-in-out"
       style={{
+        // 애니메이션이 시작되기 전까지는 기본 배경만 설정
         background: isDark 
-          ? 'radial-gradient(circle at 50% 50%, rgba(0,255,136,0.15) 0%, rgba(0,136,255,0.15) 50%, rgba(0,0,0,0.9) 100%)'
-          : 'radial-gradient(circle at 50% 50%, rgba(173,216,230,0.15) 0%, rgba(144,238,144,0.15) 50%, rgba(255,255,255,0.95) 100%)'
+          ? '#1A1A1A'  // 다크 모드 기본 배경
+          : '#F9FAFB'  // 라이트 모드 기본 배경
       }}
     >
       {children}

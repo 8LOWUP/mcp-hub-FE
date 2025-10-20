@@ -23,7 +23,7 @@ export default async function RootLayout({
     const messages = await getMessages();
 
     return (
-        <html lang={locale} className="dark" suppressHydrationWarning>
+        <html lang={locale} suppressHydrationWarning>
         <body className="min-h-screen flex flex-col">
         <ThemeProvider>
             <NextIntlClientProvider messages={messages}>

@@ -31,7 +31,7 @@ const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ item, isActive }) => {
                 additionalClassName={[
                     "w-full justify-start gap-3 rounded-2xl px-4 py-3 text-sm transition-colors",
                     isActive
-                        ? "!bg-[var(--sb-nav-btn-bg-hover)] text-white"
+                        ? "!bg-[var(--sb-nav-btn-bg-hover)] text-toggle-2"
                         : "!bg-[var(--sb-nav-btn-bg)] hover:!bg-[var(--sb-nav-btn-bg-hover)] text-secondary",
                 ].join(" ")}
             >
