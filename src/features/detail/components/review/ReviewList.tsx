@@ -31,7 +31,7 @@ export default function ReviewList({ reviews, mcpId }: ReviewListProps) {
             </div>
 
             {/* ✅ 기존 border 카드 박스는 그대로 유지 */}
-            <div className="rounded-2xl border border-contrast shadow-xl p-4">
+            <div className="rounded-sm border border-contrast p-4">
                 {/* ✅ 리뷰가 없을 때 표시 */}
                 {reviews.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-10 text-gray-400">

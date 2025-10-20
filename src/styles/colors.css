@@ -7,6 +7,7 @@
   --bg-color-4: #E5E7EB; /* 비활성 / 경계선 */
   --bg-color-5: #F9FAFB; /* 보조 surface */
   --bg-color-6: #F2F2F7; /*마켓페이지 용*/
+  --bg-color-7: #FFFFFF; /*리뷰 카드 배경색*/
 
   --bg-skeleton-1: #A0A0A0;
 
@@ -38,7 +39,7 @@
   --icon-color-2: #666666; /* 라이트모드 아이콘 hover 색상 */
   --icon-color-3: #ffffff; /* 라이트모드 아이콘 hover 색상 */
 
-  --border-color-detailInfo-1: #000000;
+  --border-color-detailInfo-1: #4042483b;
 
   --border-color-contrast: #4042483b;
   
@@ -53,6 +54,7 @@
   --bg-color-4: #4B5563;
   --bg-color-5: #1F1F1F;
   --bg-color-6: #1A1A1A; /*마켓페이지 용*/
+  --bg-color-7: #2C2C2C; /*리뷰 카드 배경색*/
 
   --bg-skeleton-1: #2C2C2C;
 
@@ -84,7 +86,7 @@
   --icon-color-2: #cccccc; /* 다크모드 아이콘 hover 색상 */
   --icon-color-3: #000000; /* 다크모드 아이콘 hover 색상 */
 
-  --border-color-detailInfo-1: #ffffff1a;
+  --border-color-detailInfo-1: #646464;
 
   --border-color-contrast: #404248;
 
@@ -121,6 +123,7 @@
   .bg-surface-4    { background-color: var(--bg-color-4); } /* 카드/비활성 영역 */
   .bg-surface-5    { background-color: var(--bg-color-5); } /* 카드/비활성 영역 */
   .bg-surface-6    { background-color: var(--bg-color-6); }
+  .bg-surface-7    { background-color: var(--bg-color-7); }
 
   .bg-skeleton-1 { background-color: var(--bg-skeleton-1); }
 

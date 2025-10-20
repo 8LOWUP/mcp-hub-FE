@@ -36,7 +36,7 @@ export default function McpUrlCopy({ url }: Props) {
                 </TextContainer>
             ) : (
                 <>
-                    <TextContainer className="w-full flex items-center justify-between gap-2">
+                    <TextContainer className="w-full flex items-center justify-between gap-2" bgColor="bg-surface-7">
                         {/* ✅ 왼쪽에 URL */}
                         <span className="truncate text-detailInfo-1 flex-1">{url}</span>
 
@@ -45,7 +45,7 @@ export default function McpUrlCopy({ url }: Props) {
                             onClick={handleCopy}
                             className="hover:opacity-70 flex-shrink-0"
                         >
-                            <CopyCheck className="w-5 h-5 --text-color-1" />
+                            <CopyCheck className="w-5 h-5 text-toggle-2" />
                         </button>
                     </TextContainer>
 

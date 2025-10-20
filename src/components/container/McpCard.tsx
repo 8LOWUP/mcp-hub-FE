@@ -5,6 +5,7 @@ import { useState } from "react";
 import imageLoader from "@/lib/imageLoader";
 import {useLocale} from "next-intl";
 import { processMcpImageUrl } from "@/utils/imageUtils";
+import { useLoginStore } from "@/store/login/login-store";
 
 interface MCPCardProps {
     id: string;
@@ -28,6 +29,7 @@ const MCPCard: React.FC<MCPCardProps> = ({
     className,
 }) => {
     const [imageError, setImageError] = useState(false);
+    const { isLoggedIn } = useLoginStore();
 
     //const safeIconSrc = buildImageUrl(iconSrc);
     const safeIconSrc = processMcpImageUrl(iconSrc) || "/default-mcp-logo.svg";
@@ -84,13 +86,15 @@ const MCPCard: React.FC<MCPCardProps> = ({
             {/* 상단 라벨 */}
             <div className="flex w-full justify-between items-center">
                 <div className="flex gap-2">
-                    {/* saved 상태에 따라 하나만 렌더링 */}
-                    <span
-                        className={clsx(
-                            "text-xs px-2 py-1 font-semibold text-secondary rounded-lg",
-                            saved ? "bg-surface-2  text-accent" : "bg-surface-2 text-disabled"
-                        )}
-                    >{saved ? "Saved" : "Unsaved"}</span>
+                    {/* 로그인한 경우에만 saved 상태 표시 */}
+                    {isLoggedIn && (
+                        <span
+                            className={clsx(
+                                "text-xs px-2 py-1 font-semibold text-secondary rounded-lg",
+                                saved ? "bg-surface-2  text-accent" : "bg-surface-2"
+                            )}
+                        >{saved ? "Saved" : "Save"}</span>
+                    )}
                 </div>
 
                 {usersCount !== undefined && (

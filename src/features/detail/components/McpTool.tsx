@@ -17,7 +17,7 @@ export default function MarketTools({ data }: Props) {
     if (tools.length === 0) {
         return (
             <div>
-                <div className="text-secondary font-semibold text-lg">{t('tools')}</div>
+                <div className="text-secondary font-semibold shadow-sm text-lg">{t('tools')}</div>
                 <TextContainer className="w-full text-gray-400 text-sm p-4">
                     등록된 Tool이 없습니다.
                 </TextContainer>
@@ -32,7 +32,7 @@ export default function MarketTools({ data }: Props) {
                 <span className="--text-color-1 font-bold text-xl tracking-tight">{t('tools')}</span>
             </div>
             {/* ✅ 전체 배경색 제거 */}
-            <TextContainer className="w-full flex flex-col gap-3 border border-contrast bg-transparent">
+            <TextContainer className="w-full flex flex-col gap-3 border border-contrast bg-transparent" bgColor="bg-surface-7">
                 {tools.map((tool, index) => {
                     const safeName = tool?.name || t('noName');
                     const safeContent = tool?.content || t('noContent');
@@ -40,7 +40,7 @@ export default function MarketTools({ data }: Props) {
                     return (
                         <div
                             key={tool?.id ?? index}
-                            className="p-4 rounded-xl border border-detailInfo-1 hover:border-amber-300/40 hover:bg-white/5 transition-all duration-200"
+                            className="p-4 rounded-sm border border-detailInfo-1 shadow-sm transition-all duration-200"
                         >
                             <div className="--text-color-1 font-semibold text-sm mb-2">
                                 <span className="inline-block bg-detailToolAccent-1 text-detailToolAccent-1 border border-amber-300/30 text-xs font-semibold px-2 py-0.5 rounded-md">

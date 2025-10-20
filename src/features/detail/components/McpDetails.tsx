@@ -22,12 +22,12 @@ export default function McpDetails({ data }: Props) {
                 <span className="--text-color-1 font-bold text-xl tracking-tight">{t('detail')}</span>
             </div>
 
-            <TextContainer className="w-full">
+            <TextContainer className="w-full" textColor="text-toggle-2" bgColor="bg-surface-7">
                 <div className="space-y-5">
                     {/* Developer Name */}
                     <div className="flex justify-between items-center">
                         <div className="text-secondary">{t('developerName')}</div>
-                        <div className="--text-color-1">
+                        <div className="text-toggle-2">
                             {data.developerName || "N/A"}
                         </div>
                     </div>

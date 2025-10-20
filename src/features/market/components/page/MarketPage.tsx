@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import MarketGrid from "../grid/MarketGrid";
 import Pagination from "@/components/ui/Pagination";
 import { usePagination } from "@/hooks/usePagination";
+import { useSavedMcps } from "@/hooks/useSavedMcps";
 import { DUMMY_MCP_LIST } from "@/constants/mcp-data";
 import { getTitleByCategory } from "@/features/market/utils";
 import type { CategoryId } from "@/features/market/constants";
@@ -50,6 +51,9 @@ export default function MarketPage({
     const cat = (sp.get("cat") ?? "all") as CategoryId;
     const page = parseInt(sp.get("page") ?? "1", 10);
 
+    // 사용자가 저장한 MCP 목록 가져오기
+    const { savedMcpIds, isLoggedIn } = useSavedMcps();
+
     // SSR 데이터가 있으면 우선 사용, 없으면 클라이언트 사이드 페이지네이션 사용
     const isSSR = serverPaginatedData && serverTotalPages && serverCurrentPage && serverTotalItems;
     
@@ -59,6 +63,15 @@ export default function MarketPage({
     const items = React.useMemo(
         () => (cat === "all" ? allData : allData.filter(i => i.category === cat)),
         [cat, allData]
+    );
+
+    // 저장된 MCP 상태를 적용한 데이터 (로그인한 경우에만)
+    const itemsWithSavedStatus = React.useMemo(
+        () => items.map(item => ({
+            ...item,
+            saved: isLoggedIn ? savedMcpIds.includes(item.id) : false
+        })),
+        [items, savedMcpIds, isLoggedIn]
     );
 
     // URL 업데이트 함수 (새로고침 없이)
@@ -75,10 +88,19 @@ export default function MarketPage({
 
     // 클라이언트 사이드 페이지네이션 (SSR 데이터가 없을 때만 사용)
     const clientPagination = usePagination({
-        data: items,
+        data: itemsWithSavedStatus,
         itemsPerPage,
         initialPage: page,
     });
+
+    // SSR 데이터에 저장된 상태 적용 (로그인한 경우에만)
+    const serverPaginatedDataWithSaved = React.useMemo(
+        () => serverPaginatedData?.map(item => ({
+            ...item,
+            saved: isLoggedIn ? savedMcpIds.includes(item.id) : false
+        })) ?? [],
+        [serverPaginatedData, savedMcpIds, isLoggedIn]
+    );
 
     // SSR 데이터 우선 사용
     const {
@@ -96,7 +118,7 @@ export default function MarketPage({
     } = isSSR ? {
         currentPage: serverCurrentPage!,
         totalPages: serverTotalPages!,
-        paginatedData: serverPaginatedData!,
+        paginatedData: serverPaginatedDataWithSaved,
         totalItems: serverTotalItems!,
         hasNextPage: serverCurrentPage! < serverTotalPages!,
         hasPrevPage: serverCurrentPage! > 1,

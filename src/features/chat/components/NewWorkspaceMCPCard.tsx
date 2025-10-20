@@ -77,7 +77,7 @@ export default function NewWorkspaceMCPCard({
           <h3 className="text-xs font-medium text-foreground">{displayName}</h3>
           <p className={[
             "text-xs transition-colors duration-300",
-            selected ? "text-accent" : "text-secondary",
+            selected ? "text-ActiveMCP-accent" : "text-secondary",
           ].join(" ")}>
             {selected ? t('selected') : t('notSelected')}
           </p>

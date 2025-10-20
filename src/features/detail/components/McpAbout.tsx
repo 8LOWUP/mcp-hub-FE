@@ -18,7 +18,7 @@ export default function McpAbout({ about }: Props) {
                 <span className="--text-color-1 font-bold text-xl tracking-tight">{t('about')}</span>
             </div>
 
-            <TextContainer className="w-full border border-contrast text-left tracking-wide leading-relaxed" textColor="text-detailInfo-1">
+            <TextContainer className="w-full border border-contrast text-left tracking-wide leading-relaxed" textColor="text-detailInfo-1" bgColor="bg-surface-7">
                 {about || t('noDescription')}
             </TextContainer>
         </>

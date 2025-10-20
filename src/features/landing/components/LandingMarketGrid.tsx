@@ -6,6 +6,7 @@ import MCPCard from "@/components/container/McpCard";
 import { McpCardData } from "@/features/market/types";
 import { CATEGORY_PRESET, CategoryId } from "@/features/market/constants";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useSavedMcps } from "@/hooks/useSavedMcps";
 
 // 기본 MCP 카드 데이터 생성 함수
 const createDefaultMCPCards = (category: CategoryId, t: any): McpCardData[] => {
@@ -60,11 +61,14 @@ interface LandingMarketGridProps {
 }
 
 const LandingMarketGrid: React.FC<LandingMarketGridProps> = ({ category, items }) => {
-  // Locale translations
-  const t = useTranslations('MCPMarket');
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
+    // Locale translations
+    const t = useTranslations('MCPMarket');
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(false);
+
+    // 사용자가 저장한 MCP 목록 가져오기
+    const { savedMcpIds, isLoggedIn } = useSavedMcps();
 
   // 카테고리 정보 가져오기
   const categoryInfo = CATEGORY_PRESET.find(cat => cat.id === category);
@@ -116,8 +120,17 @@ const LandingMarketGrid: React.FC<LandingMarketGridProps> = ({ category, items }
     }
   };
 
-  // 데이터가 없으면 기본 카드 사용
-  const displayItems = items?.length > 0 ? items : createDefaultMCPCards(category, t);
+    // 데이터가 없으면 기본 카드 사용
+    const baseItems = items?.length > 0 ? items : createDefaultMCPCards(category, t);
+    
+    // 저장된 MCP 상태를 적용한 데이터 (로그인한 경우에만)
+    const displayItems = React.useMemo(
+        () => baseItems.map(item => ({
+            ...item,
+            saved: isLoggedIn ? savedMcpIds.includes(item.id) : false
+        })),
+        [baseItems, savedMcpIds, isLoggedIn]
+    );
 
   return (
     <div className="w-full">

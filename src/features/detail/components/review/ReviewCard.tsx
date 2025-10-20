@@ -49,7 +49,7 @@ export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
 
     return (
         <div
-            className="h-full border border-[#414141] bg-[#2C2C2C] text-white p-4 rounded-xl shadow-md flex flex-col gap-3 transition-all duration-500 ease-out animate-fade-in-up"
+            className="h-full border border-contrast bg-surface-7 text-primary p-4 rounded-sm shadow-sm flex flex-col gap-3 transition-all duration-500 ease-out animate-fade-in-up"
         >
             {/* 프로필 */}
             <div className="w-8 h-8 flex-shrink-0 rounded-full border border-accent-color-1 overflow-hidden">
@@ -67,8 +67,8 @@ export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
             {/* 내용 */}
             <div className="flex flex-col flex-1">
                 {/* 상단: 닉네임 + 작성일 */}
-                <div className="flex justify-between items-center text-xs text-gray-400 mb-1">
-                    <span className="font-medium text-white">
+                <div className="flex justify-between items-center text-xs text-secondary mb-1">
+                    <span className="font-medium text-primary">
                         {review.userName ?? "Anonymous"}
                     </span>
                     <span>
@@ -104,10 +104,10 @@ export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
                             }
                         }}
                         placeholder={t('reviewPlaceholder')}
-                        className="w-full p-2 rounded-md bg-[#1e1e1e] border border-gray-600 text-sm flex-1"
+                        className="w-full p-2 rounded-md bg-surface-3 border border-muted text-sm flex-1 text-primary"
                     />
                 ) : (
-                    <p className="text-gray-100 text-sm leading-relaxed flex-1">
+                    <p className="text-primary text-sm leading-relaxed flex-1">
                         {review.comment.length > 100
                             ? review.comment.slice(0, 100) + "..."
                             : review.comment}
@@ -122,13 +122,13 @@ export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
                                 <button
                                     onClick={handleUpdate}
                                     disabled={updateReview.isPending}
-                                    className="flex items-center gap-1 text-green-400 text-xs hover:underline"
+                                    className="flex items-center gap-1 text-accent text-xs hover:underline"
                                 >
                                     <Check size={14} /> 저장
                                 </button>
                                 <button
                                     onClick={() => setIsEditing(false)}
-                                    className="flex items-center gap-1 text-gray-400 text-xs hover:underline"
+                                    className="flex items-center gap-1 text-secondary text-xs hover:underline"
                                 >
                                     <X size={14} /> 취소
                                 </button>
@@ -137,14 +137,14 @@ export default function ReviewCard({ review, mcpId }: ReviewCardProps) {
                             <>
                                 <button
                                     onClick={() => setIsEditing(true)}
-                                    className="flex items-center gap-1 text-blue-400 text-xs hover:underline"
+                                    className="flex items-center gap-1 text-accent text-xs hover:underline"
                                 >
                                     <Pencil size={14} /> 수정
                                 </button>
                                 <button
                                     onClick={handleDelete}
                                     disabled={deleteReview.isPending}
-                                    className="flex items-center gap-1 text-red-400 text-xs hover:underline"
+                                    className="flex items-center gap-1 text-accent text-xs hover:underline"
                                 >
                                     <Trash2 size={14} /> 삭제
                                 </button>
