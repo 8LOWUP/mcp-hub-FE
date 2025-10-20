@@ -1,5 +1,5 @@
 // src/lib/imageLoader.js
-export default function imageLoader({ src }) {
+function imageLoader({ src }) {
   // @https://img.com 또는 https://img.com으로 시작하는 URL인 경우 API URL로 변환
   if (src.startsWith('@https://img.com') || src.startsWith('https://img.com')) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://mcphubcorp.site';
@@ -23,3 +23,5 @@ export default function imageLoader({ src }) {
   // 다른 URL은 그대로 반환
   return src;
 }
+
+module.exports = imageLoader;
