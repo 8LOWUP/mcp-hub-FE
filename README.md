@@ -16,7 +16,7 @@ MCP Hub FE는 단순한 정적 소개 페이지를 넘어, **인증 기반 워�
 
 | 김진성 | 김서현 | 이혜연 |
 |-------------|-------------|-------------|
-| <a href="https://github.com/smileman62"><img src="https://github.com/smileman62.png" width="150" height="150" alt="김진성"/></a> | <a href="https://github.com/hyunnniii"><img src="https://github.com/hyunnniii" width="150" height="150" alt="김서현"/></a> | <a href="https://github.com/heyn2"><img src="https://github.com/heyn2.png" width="150" height="150" alt="이혜연"/></a> |
+| <a href="https://github.com/smileman62"><img src="https://github.com/smileman62.png" width="150" height="150" alt="김진성"/></a> | <a href="https://github.com/hyunnniii"><img src="https://github.com/hyunnniii.png" width="150" height="150" alt="김서현"/></a> | <a href="https://github.com/heyn2"><img src="https://github.com/heyn2.png" width="150" height="150" alt="이혜연"/></a> |
 | [@smileman62](https://github.com/smileman62) | [@hyunnniii](https://github.com/hyunnniii) | [@heyn2](https://github.com/heyn2) |
 
 </div>
