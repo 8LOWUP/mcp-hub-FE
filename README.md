@@ -12,7 +12,14 @@ MCP Hub FE는 단순한 정적 소개 페이지를 넘어, **인증 기반 워�
 
 ## 👥 Contributors
 
-프로젝트 기여자 정보는 조직 정책에 맞게 이 섹션을 업데이트해 주세요. (예: GitHub 프로필 링크, 담당 도메인)
+<div align="center">
+
+| 김진성 | 김서현 | 이혜연 |
+|-------------|-------------|-------------|
+| <a href="https://github.com/smileman62"><img src="https://github.com/smileman62.png" width="150" height="150" alt="김진성"/></a> | <a href="https://github.com/hyunnniii"><img src="https://github.com/hyunnniii" width="150" height="150" alt="김서현"/></a> | <a href="https://github.com/heyn2"><img src="https://github.com/heyn2.png" width="150" height="150" alt="이혜연"/></a> |
+| [@smileman62](https://github.com/smileman62) | [@hyunnniii](https://github.com/hyunnniii) | [@heyn2](https://github.com/heyn2) |
+
+</div>
 
 ## 📌 서비스 목표
 
